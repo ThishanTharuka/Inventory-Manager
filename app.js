@@ -1,5 +1,5 @@
 const express = require('express');
-const database = require('./database');
+const itemRoutes = require('./routes/items');
 
 //express app
 const app = express();
@@ -9,6 +9,8 @@ app.set('view engine', 'ejs');
 
 //static files
 app.use(express.static('public'));
+app.use(express.urlencoded({ extended: true }));
+
 
 //listen for requests
 app.listen(3000);
@@ -18,14 +20,9 @@ app.get('/', (req, res) => {
     res.render('index', {title: 'Home'});
 });
 
-app.get('/add-item', (req, res) => {
-    res.render('add-item', {title: 'Add Item'});
-});
+app.use(itemRoutes);
 
-app.get('/items', (req, res) => {
-    res.render('items', {title: 'Items'});
-});
-
+// 404 page
 app.use((req, res) => {
     res.status(404).render('404', {title: 'Page Not Found!'});
 });

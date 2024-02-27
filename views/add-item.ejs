@@ -11,17 +11,17 @@
     <!-- Include the navigation partial -->
     <%- include('./partials/nav.ejs') %>
 
-    <form action="submit"  method="post">
+    <form action="/add-item" method="post">
         <div>
             <label for="Item Code">Item Code</label>
-            <input type="text" id="itemCode" name="itemCode" required>
+            <input type="text" id="item_code" name="item_code" required>
         </div>
         <div>
             <label for="Description ">Description</label>
-            <input type="text" id="description " name="description " required>
+            <input type="text" id="description" name="description" required>
         </div>
         <div>
-            <label for="Unit">Quantity</label>
+            <label for="Unit">Unit</label>
             <input type="text" id="unit" name="unit" required>
         </div>
         <div>
@@ -32,6 +32,7 @@
             <label for="Price">Price</label>
             <input type="number" id="price" name="price" required>
         </div>
+        <button type="submit">Add Item</button>
     </form>
 
 </body>

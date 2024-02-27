@@ -8,27 +8,39 @@
     <title><%= title %>></title>
 </head>
 <body>
-
     <!-- Include the navigation partial -->
     <%- include('./partials/nav.ejs') %>
+    <main>
+        <div id="new-btn-bar">
+            <!-- Add New Item button -->
+            <a href="/items/add" id="add-new-btn">Add New</a>
+        </div>
 
-    <div id="new-btn-bar">
-        <!-- Add New Item button -->
-        <a href="/add-item" id="add-new-btn">Add New</a>
-    </div>
-
-    <table id="items">
-        <thead>
-            <th>Item Code</th>
-            <th>Description</th>
-            <th>Unit</th>
-            <th>Quantity</th>
-            <th>Price</th>
-            <th>Actions</th>
-        </thead>
-        <tbody>
-            
-        </tbody>
-    </table>
+        <table id="items">
+            <thead>
+                <th>Item Code</th>
+                <th>Description</th>
+                <th>Unit</th>
+                <th>Quantity</th>
+                <th>Price</th>
+                <th>Actions</th>
+            </thead>
+            <tbody>
+                <% items.forEach(item => { %>
+                  <tr>
+                    <td><%= item.item_code %></td>
+                    <td><%= item.description %></td>
+                    <td><%= item.unit %></td>
+                    <td><%= item.quantity %></td>
+                    <td><%= item.price %></td>
+                    <td>
+                      <a href="/items/edit/<%= item.item_code %>" class="edit-btn">Edit</a>
+                      <a href="/items/delete/<%= item.item_code %>" class="delete-btn">Delete</a>
+                    </td>
+                  </tr>
+                <% }); %>
+              </tbody>
+        </table>    
+    </main>
 </body>
 </html>

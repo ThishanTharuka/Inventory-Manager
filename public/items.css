@@ -101,8 +101,13 @@ body {
     color: #444;
   }
 
+  main {
+    width: 80%;
+    margin: auto;  
+  }
+
   table {
-    margin: 50px auto;
+    margin: 20px auto;
   }
 
   table, th, td {
