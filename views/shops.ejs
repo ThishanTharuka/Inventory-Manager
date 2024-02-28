@@ -3,23 +3,43 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/shops.css">
+    <link rel="stylesheet" href="/shops.css"> <!-- Create a shops.css file for styling -->
     <link rel="stylesheet" href="/nav.css">
     <title><%= title %></title>
 </head>
 <body>
     <!-- Include the navigation partial -->
     <%- include('./partials/nav.ejs') %>
-
+    
     <div id="add-new">
         <!-- Add New Shop button -->
-        <a href="/shops/add" id="add-new-btn">Add New Shop</a>
+        <a href="/shops/add" id="add-new-btn">Add New</a>
     </div>
     
     <main>
-        
+        <table id="shops">
+            <thead>
+                <th>Shop ID</th>
+                <th>Shop Name</th>
+                <th>Owner</th>
+                <th>Location</th>
+                <th>Actions</th>
+            </thead>
+            <tbody>
+                <% shops.forEach(shop => { %>
+                  <tr>
+                    <td><%= shop.shop_id %></td>
+                    <td><%= shop.shop_name %></td>
+                    <td><%= shop.owner %></td>
+                    <td><%= shop.location %></td>
+                    <td>
+                      <a href="/shops/edit/<%= shop.shop_id %>" class="edit-btn">Edit</a>
+                      <a href="/shops/delete/<%= shop.shop_id %>" class="delete-btn">Delete</a>
+                    </td>
+                  </tr>
+                <% }); %>
+              </tbody>
+        </table> 
     </main>
-
-    
 </body>
 </html>

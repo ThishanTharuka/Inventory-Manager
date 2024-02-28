@@ -14,7 +14,7 @@
         <form action="<%= mode === 'add' ? '/add-item' : '/update-item' %>" method="post">
             <div id="input-fields">
                 <label for="Item Code">Item Code</label>
-                <input type="text" id="item_code" name="item_code" value="<%= mode === 'edit' ? item.item_code : '' %>" required <% if (mode === 'edit') { %> disabled <% } %>>
+                <input type="text" id="item_code" name="item_code" value="<%= mode === 'edit' ? item.item_code : '' %>" required <% if (mode === 'edit') { %> readonly <% } %>>
             </div>
             <div id="input-fields">
                 <label for="Description ">Description</label>

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="/nav.css">
+        <link rel="stylesheet" href="/add-item.css">
+        <title><%= title %></title>
+    </head>
+    <body>
+        <!-- Include the navigation partial -->
+        <%- include('./partials/nav.ejs') %>
+        <div id="container">
+            <form action="<%= mode === 'add' ? '/add-shop' : '/update-shop' %>" method="post">
+                <div id="input-fields">
+                    <label for="Shop ID">Shop ID</label>
+                    <input type="text" id="shop_id" name="shop_id" value="<%= mode === 'edit' ? shop.shop_id : '' %>" required <% if (mode === 'edit')  { %> readonly <% } %>>
+                </div>
+                <div id="input-fields">
+                    <label for="Shop Name">Shop Name</label>
+                    <input type="text" id="shop_name" name="shop_name" value="<%= mode === 'edit' ? shop.shop_name : '' %>" required>
+                </div>
+                <div id="input-fields">
+                    <label for="Owner">Owner</label>
+                    <input type="text" id="owner" name="owner" value="<%= mode === 'edit' ? shop.owner : '' %>" required>
+                </div>
+                <div id="input-fields">
+                    <label for="Location">Location</label>
+                    <input type="text" id="location" name="location" value="<%= mode === 'edit' ? shop.location : '' %>" required>
+                </div>
+                <div id="add-item-btn">
+                    <button type="submit"><%= mode === 'add' ? 'Add Shop' : 'Update Shop' %></button>
+                </div>
+            </form>
+        </div>
+    </body>
+</html>

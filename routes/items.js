@@ -84,7 +84,7 @@ router.get('/items/edit/:item_code', (req, res) => {
 router.post('/update-item', (req, res) => {
 
     // Extract updated values from req.body
-    const itemCode = req.body.item_code;
+    const item_code = req.body.item_code;
     const updatedDescription = req.body.description;
     const updatedUnit = req.body.unit;
     const updatedPrice = req.body.price;
@@ -95,7 +95,7 @@ router.post('/update-item', (req, res) => {
         SET description = ?, unit = ?, price = ? 
         WHERE item_code = ?`;
 
-    const values = [updatedDescription, updatedUnit, updatedPrice, itemCode];
+    const values = [updatedDescription, updatedUnit, updatedPrice, item_code];
 
     database.query(query, values, (err, result) => {
         if (err) {
@@ -104,7 +104,7 @@ router.post('/update-item', (req, res) => {
             return res.status(500).send('Internal Server Error');
         }
 
-        console.log(`Item with item_code ${itemCode} has been successfully updated`);
+        console.log(`Item with item_code ${item_code} has been successfully updated`);
         // Redirect to the items page or handle as needed
         res.redirect('/items');
     });
