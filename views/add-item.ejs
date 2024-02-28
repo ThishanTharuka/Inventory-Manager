@@ -25,6 +25,8 @@
                     <option value="" disabled hidden>Select Unit</option>
                     <option value="Each" <%= mode === 'edit' && item.unit === 'Each' ? 'selected' : '' %>>Each</option>
                     <option value="1 Nos" <%= mode === 'edit' && item.unit === '1 Nos' ? 'selected' : '' %>>1 Nos</option>
+                    <option value="Item" <%= mode === 'edit' && item.unit === 'Item' ? 'selected' : '' %>>Item</option>
+                    <option value="Meters" <%= mode === 'edit' && item.unit === 'Meters' ? 'selected' : '' %>>Meters</option>
                 </select>
             </div>
             <div id="input-fields">
