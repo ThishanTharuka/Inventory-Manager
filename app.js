@@ -1,5 +1,6 @@
 const express = require('express');
 const itemRoutes = require('./routes/items');
+const shopRoutes = require('./routes/shops');
 
 //express app
 const app = express();
@@ -21,6 +22,8 @@ app.get('/', (req, res) => {
 });
 
 app.use(itemRoutes);
+app.use(shopRoutes);
+
 
 // 404 page
 app.use((req, res) => {
