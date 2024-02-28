@@ -18,8 +18,9 @@ router.get('/items', (req, res) => {
 });
 
 router.get('/items/add', (req, res) => {
-    res.render('add-item', {title: 'Add Item'});
+    res.render('add-item', { title: 'Add Item', mode: 'add' });
 });
+
 
 router.post('/add-item', (req, res) => {
     console.log(req.body);  // Log the entire req.body object
@@ -52,6 +53,62 @@ router.post('/add-item', (req, res) => {
 
 });
 
+router.get('/items/delete/:item_code', (req, res) => {
+    const item_code = req.params.item_code;
+
+    const query = `DELETE FROM items WHERE item_code = "${item_code}"`;
+
+    database.query(query, (err, result) => {
+        if (err) throw err;
+
+        console.log(`Deleted item with item_code: ${item_code}`);
+        res.redirect('/items');
+    });
+});
+
+router.get('/items/edit/:item_code', (req, res) => {
+    const itemCode = req.params.item_code;
+
+    // Fetch the item from the database using the itemCode
+    const query = `SELECT * FROM items WHERE item_code = '${itemCode}'`;
+
+    database.query(query, (err, item) => {
+        if (err) throw err;
+
+        // Render the 'edit-item' page with the fetched item
+        res.render('add-item', { title: 'Edit Item', item: item[0], mode: 'edit' });
+    });
+
+});
+
+router.post('/update-item', (req, res) => {
+
+    // Extract updated values from req.body
+    const itemCode = req.body.item_code;
+    const updatedDescription = req.body.description;
+    const updatedUnit = req.body.unit;
+    const updatedPrice = req.body.price;
+
+    // Update the item in the database
+    const query = `
+        UPDATE items 
+        SET description = ?, unit = ?, price = ? 
+        WHERE item_code = ?`;
+
+    const values = [updatedDescription, updatedUnit, updatedPrice, itemCode];
+
+    database.query(query, values, (err, result) => {
+        if (err) {
+            console.error('Error updating item:', err);
+            // Handle the error, you might want to redirect to an error page or send an error response
+            return res.status(500).send('Internal Server Error');
+        }
+
+        console.log(`Item with item_code ${itemCode} has been successfully updated`);
+        // Redirect to the items page or handle as needed
+        res.redirect('/items');
+    });
+});
 
 
 

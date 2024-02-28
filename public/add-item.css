@@ -54,6 +54,11 @@ body {
     margin: 2rem;
   }
   
+  form button:hover {
+    cursor: pointer;
+    background-color: #9482f8;
+  }
+
   #input-fields {
     display: flex;
     justify-content: space-between;

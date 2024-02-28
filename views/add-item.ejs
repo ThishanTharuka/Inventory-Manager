@@ -11,29 +11,28 @@
     <!-- Include the navigation partial -->
     <%- include('./partials/nav.ejs') %>
     <div id="container">
-        <form action="/add-item" method="post">
+        <form action="<%= mode === 'add' ? '/add-item' : '/update-item' %>" method="post">
             <div id="input-fields">
                 <label for="Item Code">Item Code</label>
-                <input type="text" id="item_code" name="item_code" required>
+                <input type="text" id="item_code" name="item_code" value="<%= mode === 'edit' ? item.item_code : '' %>" required <% if (mode === 'edit') { %> disabled <% } %>>
             </div>
             <div id="input-fields">
                 <label for="Description ">Description</label>
-                <input type="text" id="description" name="description" required>
-            </div>
+                <input type="text" id="description" name="description" value="<%= mode === 'edit' ? item.description : '' %>" required>            </div>
             <div id="input-fields">
                 <label for="Unit">Unit</label>
                 <select id="unit" name="unit" required>
-                    <option value="" disabled selected hidden>Select Unit</option>
-                    <option value="each">Each</option>
-                    <option value="box">1 Nos</option>
+                    <option value="" disabled hidden>Select Unit</option>
+                    <option value="Each" <%= mode === 'edit' && item.unit === 'Each' ? 'selected' : '' %>>Each</option>
+                    <option value="1 Nos" <%= mode === 'edit' && item.unit === '1 Nos' ? 'selected' : '' %>>1 Nos</option>
                 </select>
             </div>
             <div id="input-fields">
                 <label for="Price">Price</label>
-                <input type="number" id="price" name="price" step="0.01" required>
+                <input type="number" id="price" name="price" step="0.01" value="<%= mode === 'edit' ? item.price : '' %>" required>
             </div>
             <div id="add-item-btn">
-                <button type="submit">Add Item</button>
+                <button type="submit"><%= mode === 'add' ? 'Add Item' : 'Update Item' %></button>
             </div>
         </form>
     </div>
