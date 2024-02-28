@@ -10,18 +10,18 @@
 <body>
     <!-- Include the navigation partial -->
     <%- include('./partials/nav.ejs') %>
+    
+    <div id="add-new">
+        <!-- Add New Item button -->
+        <a href="/items/add" id="add-new-btn">Add New</a>
+    </div>
+    
     <main>
-        <div id="new-btn-bar">
-            <!-- Add New Item button -->
-            <a href="/items/add" id="add-new-btn">Add New</a>
-        </div>
-
         <table id="items">
             <thead>
                 <th>Item Code</th>
                 <th>Description</th>
                 <th>Unit</th>
-                <th>Quantity</th>
                 <th>Price</th>
                 <th>Actions</th>
             </thead>
@@ -31,7 +31,6 @@
                     <td><%= item.item_code %></td>
                     <td><%= item.description %></td>
                     <td><%= item.unit %></td>
-                    <td><%= item.quantity %></td>
                     <td><%= item.price %></td>
                     <td>
                       <a href="/items/edit/<%= item.item_code %>" class="edit-btn">Edit</a>
@@ -40,7 +39,29 @@
                   </tr>
                 <% }); %>
               </tbody>
-        </table>    
+        </table> 
+        
+        <div class="card-container">
+            <% items.forEach(item => { %>
+              <div class="card">
+                <div class="card-body">
+                  <p class="card-title">Item Code: <%= item.item_code %></p>
+                  <div class="part-one">
+                    <p class="card-text">Description: <%= item.description %></p>
+                    <p class="card-text">Unit: <%= item.unit %></p>
+                  </div>
+                  <div class="part-two">
+                    <p class="card-text">Price: <%= item.price %></p>
+                  </div>
+                  <div class="buttons">
+                    <a href="/items/edit/<%= item.item_code %>" class="edit-btn">Edit</a>
+                    <a href="/items/delete/<%= item.item_code %>" class="delete-btn">Delete</a>
+                  </div>
+                </div>
+              </div>
+            <% }); %>
+          </div>
+
     </main>
 </body>
 </html>

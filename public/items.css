@@ -1,6 +1,8 @@
 body {
     font-family: Product Sans, Helvetica, sans-serif;
     margin-top: 6rem;
+    margin-left: 5px;
+    margin-right: 5px;
   }
   
   * {
@@ -10,16 +12,11 @@ body {
   }
   
   #container {
-    width: 90%;
+    width: 100%;
     margin: auto auto;
     color: #444;
   }
   
-  #item-list {
-    width: 80%;
-    margin: 0 auto;
-    margin-top: 2rem;
-  }
   
   #item {
     display: flex;
@@ -71,6 +68,8 @@ body {
   }
   
   #add-new-btn {
+    width: 15%;
+    margin: auto;
     text-decoration: none;
     background-color: #ad9fff;
     color: black;
@@ -89,12 +88,6 @@ body {
     cursor: pointer;
   }
   
-  #new-btn-bar {
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-  }
-  
   #item span {
     font-size: 2rem;
     font-weight: normal;
@@ -102,11 +95,12 @@ body {
   }
 
   main {
-    width: 80%;
+    width: 95%;
     margin: auto;  
   }
 
   table {
+    width: 95%;
     margin: 20px auto;
   }
 
@@ -117,5 +111,93 @@ body {
   
   th, td {
     padding: 5px;
-    text-align: left;
+    text-align: center;
   }
+
+
+/* Style for the card container */
+.card-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+}
+
+/* Style for individual cards */
+.card {
+  width: 95%;
+  margin: 5px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.card-body {
+  padding: 10px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.card-title {
+  font-size: 1.2em;
+  margin-bottom: 10px;
+}
+
+.card-text {
+  margin-bottom: 5px;
+}
+
+.btn {
+  width: 3rem;
+  display: inline-block;
+  margin-right: 5px;
+  text-decoration: none;
+  padding: 8px 12px;
+  border-radius: 4px;
+  color: #fff;
+  cursor: pointer;
+}
+
+.edit-btn {
+  background-color: #56a3f5;
+  border: none;
+    font-size: 1.2rem;
+    padding: 0.5rem 1rem;
+    border-radius: 5rem;
+    transition: background-color 0.3s ease;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 7px;
+}
+
+.edit-btn:hover {
+  background-color: #0b71df;
+  cursor: pointer;
+}
+
+.delete-btn {
+  background-color: #d34856;
+  border: none;
+    font-size: 1.2rem;
+    padding: 0.5rem 1rem;
+    border-radius: 5rem;
+    transition: background-color 0.3s ease;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 7px;
+}
+
+.delete-btn:hover {
+  background-color: #e90c22;
+  cursor: pointer;
+}
+
+.buttons a {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  margin: 3px;
+}
