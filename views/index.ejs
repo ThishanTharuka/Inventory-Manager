@@ -15,13 +15,23 @@
     </header>
     <main>
         <div id="content">
-            <img src="/images/items.svg" alt="Items Icon">
-            <img src="/images/items.svg" alt="Items Icon">
+            <a href="/items"><img src="/images/items.svg" alt="Items Icon"></a>
+            <a href="/shops"><img src="/images/items.svg" alt="Items Icon"></a>
         </div>
         <div id="content">
-            <a href="/items"><img src="/images/items.svg" alt="Items Icon"></a>
-            <img src="/images/items.svg" alt="Items Icon">
+            <a href="/stocks"><img src="/images/items.svg" alt="Items Icon"></a>
+            <a href="/orders"><img src="/images/items.svg" alt="Items Icon"></a>
         </div>
     </main>
+        <div id="dark-mode-toggle">
+            <button>Theme</button>
+        </div>
+        <script>
+            const darkModeButton = document.getElementById('dark-mode-toggle');
+            const body = document.body;
+            darkModeButton.addEventListener('click', () => {
+            body.classList.toggle('dark-mode');
+            });
+        </script>
 </body>
 </html>

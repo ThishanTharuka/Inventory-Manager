@@ -4,7 +4,7 @@ header {
 
 
 nav {
-    width: auto;
+    width: 100%;
     display: flex;
     justify-content: space-around;
     border-bottom: 1px solid  #000000;
@@ -36,3 +36,30 @@ main {
     flex-direction: column;
     justify-content: space-evenly;
 }
+
+.dark-mode {
+    background-color: #222; /* Change background to dark grey */
+    color: #fff; /* Change text color to white */
+}
+
+.dark-mode {
+    background-color: #222;
+    color: #fff;
+  }
+  
+  #dark-mode-toggle {
+    position: fixed;
+    bottom: 10px;
+    right: 10px;
+    display: flex;
+    align-items: center;
+  }
+  
+  #dark-mode-toggle button {
+    background-color: transparent;
+    border: none;
+    color: #969494;
+    padding: 5px;
+    cursor: pointer;
+  }
+  
