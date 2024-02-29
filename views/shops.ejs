@@ -19,18 +19,16 @@
     <main>
         <table id="shops">
             <thead>
-                <th>Shop ID</th>
                 <th>Shop Name</th>
-                <th>Owner</th>
+                <th>Contact No</th>
                 <th>Location</th>
                 <th>Actions</th>
             </thead>
             <tbody>
                 <% shops.forEach(shop => { %>
                   <tr>
-                    <td><%= shop.shop_id %></td>
                     <td><%= shop.shop_name %></td>
-                    <td><%= shop.owner %></td>
+                    <td><%= shop.contact_no %></td>
                     <td><%= shop.location %></td>
                     <td>
                       <a href="/shops/edit/<%= shop.shop_id %>" class="edit-btn">Edit</a>

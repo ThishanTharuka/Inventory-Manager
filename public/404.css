@@ -1,0 +1,23 @@
+body {
+    font-family: Open Sans, sans-serif;
+    margin-top: 4rem;
+    margin-left: 5px;
+    margin-right: 5px;
+}
+  
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+  
+
+div h1 {
+    text-align: center;
+    font-family: 'Courier New', Courier, monospace;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    font-size: 3rem;
+    color: #444;
+}

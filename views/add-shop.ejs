@@ -13,16 +13,12 @@
         <div id="container">
             <form action="<%= mode === 'add' ? '/add-shop' : '/update-shop' %>" method="post">
                 <div id="input-fields">
-                    <label for="Shop ID">Shop ID</label>
-                    <input type="text" id="shop_id" name="shop_id" value="<%= mode === 'edit' ? shop.shop_id : '' %>" required <% if (mode === 'edit')  { %> readonly <% } %>>
-                </div>
-                <div id="input-fields">
                     <label for="Shop Name">Shop Name</label>
                     <input type="text" id="shop_name" name="shop_name" value="<%= mode === 'edit' ? shop.shop_name : '' %>" required>
                 </div>
                 <div id="input-fields">
-                    <label for="Owner">Owner</label>
-                    <input type="text" id="owner" name="owner" value="<%= mode === 'edit' ? shop.owner : '' %>" required>
+                    <label for="Contact_no">Owner</label>
+                    <input type="text" id="contact_no" name="contact_no" value="<%= mode === 'edit' ? shop.owner : '' %>" required>
                 </div>
                 <div id="input-fields">
                     <label for="Location">Location</label>

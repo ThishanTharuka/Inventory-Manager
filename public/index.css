@@ -1,7 +1,12 @@
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap');
+
+body {
+    font-family: Open Sans, sans-serif;
+}
+
 header {
     position: static;
 }
-
 
 nav {
     width: 100%;
@@ -16,7 +21,7 @@ nav img {
 
 main div img {
     margin: 20px;
-    height: 30vh;
+    height: 25vh;
     object-fit: cover;
     padding: 10px;
     border-radius: 10px;
@@ -37,29 +42,25 @@ main {
     justify-content: space-evenly;
 }
 
-.dark-mode {
-    background-color: #222; /* Change background to dark grey */
-    color: #fff; /* Change text color to white */
-}
-
-.dark-mode {
+/* .dark-mode {
     background-color: #222;
     color: #fff;
-  }
+}
   
-  #dark-mode-toggle {
+#dark-mode-toggle {
     position: fixed;
     bottom: 10px;
     right: 10px;
     display: flex;
     align-items: center;
-  }
+}
   
-  #dark-mode-toggle button {
+#dark-mode-toggle button {
     background-color: transparent;
     border: none;
     color: #969494;
     padding: 5px;
     cursor: pointer;
-  }
+} */
+
   

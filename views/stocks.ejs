@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/stocks.css"> <!-- Create a shops.css file for styling -->
+    <link rel="stylesheet" href="/nav.css">
+    <title><%= title %></title>
+</head>
+<body>
+    <!-- Include the navigation partial -->
+    <%- include('./partials/nav.ejs') %>
+    
+    <div id="add-new">
+        <!-- Add New Shop button -->
+        <a href="/stocks/add" id="add-new-btn">Add New</a>
+    </div>
+    
+    <main>
+        <table id="shops">
+            <thead>
+                <th>Invoice No</th>
+                <th>Items</th>
+                <th>Quantity</th>
+                <th>Amount</th>
+                <th>Actions</th>
+            </thead>
+            <tbody>
+
+            </tbody>
+        </table> 
+    </main>
+</body>
+</html>

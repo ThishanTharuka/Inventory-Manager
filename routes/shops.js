@@ -4,7 +4,7 @@ const database = require('../database');
 
 router.get('/shops', (req, res) => {
     // Fetch shops from the database
-    const query = 'SELECT * FROM shops';
+    const query = 'SELECT * FROM dealers';
 
     database.query(query, (err, shops) => {
         if (err) {
@@ -21,12 +21,12 @@ router.get('/shops/add', (req, res) => {
 });
 
 router.post('/add-shop', (req, res) => {
-    const { shop_id, shop_name, owner, location } = req.body;
+    const { shop_name, contact_no, location } = req.body;
 
-    const query = `INSERT INTO shops (shop_id, shop_name, owner, location) 
-                   VALUES (?, ?, ?, ?)`;
+    const query = `INSERT INTO dealers ( shop_name, contact_no, location) 
+                   VALUES ( ?, ?, ?)`;
 
-    const values = [shop_id, shop_name, owner, location];
+    const values = [ shop_name, contact_no, location];
 
     database.query(query, values, (err, result) => {
         if (err) {
@@ -48,12 +48,12 @@ router.post('/add-shop', (req, res) => {
 router.get('/shops/delete/:shop_id', (req, res) => {
     const shop_id = req.params.shop_id;
 
-    const query = `DELETE FROM shops WHERE shop_id = ?`;
+    const query = `DELETE FROM dealers WHERE shop_id = ?`;
 
     database.query(query, [shop_id], (err, result) => {
         if (err) throw err;
 
-        console.log(`Deleted shop with shop_id: ${shop_id}`);
+        console.log(`Deleted dealer with shop_id: ${shop_id}`);
         res.redirect('/shops');
     });
 });
@@ -62,7 +62,7 @@ router.get('/shops/edit/:shop_id', (req, res) => {
     const shop_id = req.params.shop_id;
 
     // Fetch the shop from the database using the shop_id
-    const query = `SELECT * FROM shops WHERE shop_id = ?`;
+    const query = `SELECT * FROM dealers WHERE shop_id = ?`;
 
     database.query(query, [shop_id], (err, shop) => {
         if (err) throw err;
@@ -82,7 +82,7 @@ router.post('/update-shop', (req, res) => {
 
     // Update the shop in the database
     const query = `
-        UPDATE shops 
+        UPDATE dealers 
         SET shop_name = ?, owner = ?, location = ? 
         WHERE shop_id = ?`;
 
