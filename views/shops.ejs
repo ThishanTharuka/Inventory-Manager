@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/shops.css"> <!-- Create a shops.css file for styling -->
+    <link rel="stylesheet" href="/styles.css"> <!-- Create a shops.css file for styling -->
     <link rel="stylesheet" href="/nav.css">
     <title><%= title %></title>
 </head>
@@ -22,7 +22,7 @@
                 <th>Shop Name</th>
                 <th>Contact No</th>
                 <th>Location</th>
-                <th>Actions</th>
+                <th id="action">Actions</th>
             </thead>
             <tbody>
                 <% shops.forEach(shop => { %>
@@ -30,9 +30,11 @@
                     <td><%= shop.shop_name %></td>
                     <td><%= shop.contact_no %></td>
                     <td><%= shop.location %></td>
-                    <td>
-                      <a href="/shops/edit/<%= shop.shop_id %>" class="edit-btn">Edit</a>
-                      <a href="/shops/delete/<%= shop.shop_id %>" class="delete-btn">Delete</a>
+                    <td id="action">
+                      <div id="action-btns">
+                        <a href="/shops/edit/<%= shop.shop_id %>" class="edit-btn">Edit</a>
+                        <a href="/shops/delete/<%= shop.shop_id %>" class="delete-btn">Delete</a>
+                      </div>
                     </td>
                   </tr>
                 <% }); %>

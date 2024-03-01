@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/stocks.css"> <!-- Create a shops.css file for styling -->
+    <link rel="stylesheet" href="/styles.css"> <!-- Create a shops.css file for styling -->
     <link rel="stylesheet" href="/nav.css">
     <title><%= title %></title>
 </head>
@@ -22,12 +22,24 @@
                 <th>Invoice No</th>
                 <th>Items</th>
                 <th>Quantity</th>
-                <th>Amount</th>
                 <th>Actions</th>
             </thead>
             <tbody>
-
+                <% invoice_items.forEach(invoice_items => { %>
+                  <tr>
+                    <td><%= invoice_items.invoice_id %></td>
+                    <td><%= invoice_items.item_code %></td>
+                    <td><%= invoice_items.quantity %></td>
+                    <td id="action">
+                      <div id="action-btns">
+                        <a href="/stocks/edit/<%= invoice_items.invoice_id %>" class="edit-btn">Edit</a>
+                        <a href="/stocks/delete/<%= invoice_items.invoice_id %>" class="delete-btn ">Delete</a>
+                        </div>
+                    </td>
+                  </tr>
+                <% }); %>
             </tbody>
+
         </table> 
     </main>
 </body>

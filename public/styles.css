@@ -1,0 +1,124 @@
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap');
+
+body {
+    font-family: Open Sans, sans-serif;
+    margin-top: 4rem;
+    margin-left: 5px;
+    margin-right: 5px;
+  }
+  
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+  
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+  
+#add-new-btn {
+    width: 15%;
+    margin: auto;
+    text-decoration: none;
+    background-color: #ad9fff;
+    color: black;
+    border: none;
+    font-size: 1.2rem;
+    padding: 0.5rem 1rem;
+    border-radius: 5rem;
+    transition: background-color 0.3s ease;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+  
+#add-new-btn:hover {
+    background-color: #8672ff;
+    cursor: pointer;
+}
+  
+
+
+main {
+    width: 95%;
+    margin: auto;  
+}
+
+  table {
+    width: 95%;
+    margin: 20px auto;
+  }
+
+  table, th, td {
+    border-collapse: collapse;
+    border: 1px solid #2e2e2e;
+  }
+  
+  th, td {
+    text-align: center;
+  }
+
+.edit-btn {
+  width: 40% !important;
+  background-color: #56a3f5;
+  border: none;
+    font-size: 1.2rem;
+    padding: 0.5rem 1rem;
+    border-radius: 5rem;
+    transition: background-color 0.3s ease;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 7px;
+}
+
+.edit-btn:hover {
+  background-color: #0b71df;
+  color: #ddd;
+  cursor: pointer;
+}
+
+.delete-btn {
+  width: 40% !important;
+  background-color: #d34856;
+  border: none;
+    font-size: 1.2rem;
+    padding: 0.5rem 1rem;
+    border-radius: 5rem;
+    transition: background-color 0.3s ease;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 7px;
+}
+
+.delete-btn:hover {
+  background-color: #e90c22;
+  color: #ddd;
+  cursor: pointer;
+}
+
+.buttons a {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+#action { /* Targets the 5th column (index starts from 1) */
+  width: 15%; /* Adjust width as desired */
+}
+
+#action-btns {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+  align-items: center;
+  margin: 10px;
+}
+
+main {
+  font-size: medium;
+}

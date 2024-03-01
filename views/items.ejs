@@ -3,19 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/items.css">
+    <link rel="stylesheet" href="/styles.css">
     <link rel="stylesheet" href="/nav.css">
     <title><%= title %></title>
 </head>
 <body>
     <!-- Include the navigation partial -->
-    <%- include('./partials/nav.ejs') %>
-    
+    <%- include('./partials/nav.ejs') %>  
     <div id="add-new">
         <!-- Add New Item button -->
         <a href="/items/add" id="add-new-btn">Add New</a>
-    </div>
-    
+    </div>   
     <main>
         <table id="items">
             <thead>
@@ -23,7 +21,7 @@
                 <th>Description</th>
                 <th>Unit</th>
                 <th>Price</th>
-                <th>Actions</th>
+                <th id="action">Actions</th>
             </thead>
             <tbody>
                 <% items.forEach(item => { %>
@@ -32,36 +30,16 @@
                     <td><%= item.description %></td>
                     <td><%= item.unit %></td>
                     <td><%= item.price %></td>
-                    <td>
-                      <a href="/items/edit/<%= item.item_code %>" class="edit-btn">Edit</a>
-                      <a href="/items/delete/<%= item.item_code %>" class="delete-btn">Delete</a>
+                    <td id="action">
+                      <div id="action-btns">
+                        <a href="/items/edit/<%= item.item_code %>" class="edit-btn">Edit</a>
+                        <a href="/items/delete/<%= item.item_code %>" class="delete-btn">Delete</a>
+                      </div>
                     </td>
                   </tr>
                 <% }); %>
               </tbody>
         </table> 
-        
-        <!-- <div class="card-container">
-            <% items.forEach(item => { %>
-              <div class="card">
-                <div class="card-body">
-                  <p class="card-title">Item Code: <%= item.item_code %></p>
-                  <div class="part-one">
-                    <p class="card-text">Description: <%= item.description %></p>
-                    <p class="card-text">Unit: <%= item.unit %></p>
-                  </div>
-                  <div class="part-two">
-                    <p class="card-text">Price: <%= item.price %></p>
-                  </div>
-                  <div class="buttons">
-                    <a href="/items/edit/<%= item.item_code %>" class="edit-btn">Edit</a>
-                    <a href="/items/delete/<%= item.item_code %>" class="delete-btn">Delete</a>
-                  </div>
-                </div>
-              </div>
-            <% }); %>
-          </div> -->
-
     </main>
 </body>
 </html>

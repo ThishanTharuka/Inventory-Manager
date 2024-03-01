@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="/nav.css">
+        <link rel="stylesheet" href="/add-page.css">
+        <title><%= title %></title>
+    </head>
+<body>
+    <!-- Include the navigation partial -->
+    <%- include('./partials/nav.ejs') %>
+    <div id="container">
+        <form action="/add-invoice" method="post">
+            <div id="input-fields">
+                <label for="Invoice">Invoice ID</label>
+                <input type="text" id="invoice_id" name="invoice_id"  required>
+            </div>
+            <div id="input-fields">
+                <label for="Item">Item Code</label>
+                <!-- Use a select element to show a dropdown of item codes -->
+                <select id="item_code" name="item_code" required>
+                    <% items.forEach(item => { %>
+                        <option value="<%= item.item_code %>"><%= item.item_code %></option>
+                    <% }); %>
+                </select>
+            </div>
+            <div id="input-fields">
+                <label for="Quantity">Quantity</label>
+                <input type="number" id="quantity" name="quantity"  required>
+            </div>
+            <div id="input-fields">
+                <label for="Date">Date</label>
+                <input type="date" id="date" name="date" required>
+            </div>
+            <div id="add-item-btn">
+                <button type="submit">Add Invoice</button>
+            </div>
+        </form>
+    </div>
+</body>
+</html>
