@@ -1,7 +1,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap');
+
 
 body {
-    font-family: Open Sans, sans-serif;
+    font-family: "Open Sans", sans-serif;
     background-color: ivory;
 
 }
@@ -30,10 +32,11 @@ nav a {
 }
 
 #logout-btn {
+    font-family: "Montserrat", sans-serif;
     width: 7%;
     height: 7%;
     text-decoration: none;
-    background-color: #ad9fff;
+    background-color: #a899fa;
     color: black;
     border: none;
     font-size: medium;
@@ -43,6 +46,15 @@ nav a {
     justify-content: center;
     align-items: center;
 }
+
+#logout-btn:hover{
+    background-color: #7b63ff;
+    cursor: pointer;
+    transform: scale(0.95);
+    font-weight: bold;
+    font-size: medium;
+}
+
 
 a {
     text-decoration: none;

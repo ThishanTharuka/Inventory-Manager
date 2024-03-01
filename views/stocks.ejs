@@ -10,12 +10,15 @@
 <body>
     <!-- Include the navigation partial -->
     <%- include('./partials/nav.ejs') %>
-    
-    <div id="add-new">
-        <!-- Add New Shop button -->
-        <a href="/stocks/add" id="add-new-btn">Add New</a>
-    </div>
-    
+    <div id="top-bar">
+        <div id="page-name">
+          <p>Stocks</p>
+        </div>
+        <div id="add-new">
+          <!-- Add New Shop button -->
+          <a href="/stocks/add" id="add-new-btn">Add New</a>
+        </div>
+      </div>
     <main>
         <table id="shops">
             <thead>

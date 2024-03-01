@@ -12,7 +12,7 @@ router.get('/shops', (req, res) => {
         }
 
         // Render the 'shops' page with the fetched shops
-        res.render('shops', { title: 'Shops', shops });
+        res.render('shops', { title: 'Dealers', shops });
     });
 });
 

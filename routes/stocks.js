@@ -35,7 +35,6 @@ router.post('/add-invoice', (req, res) => {
 
     console.log(invoice_id, item_code, quantity);
 
-    // var query = `INSERT INTO invoice_items (invoice_id, item_code, quantity) VALUES ("${invoice_id}", "${item_code}", "${quantity}")`;
     var query2 = `INSERT INTO invoices (invoice_id, invoice_date) VALUES ("${invoice_id}", "${date}")`;
     
     database.query(query2, (err, result) => {
