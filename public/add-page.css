@@ -60,8 +60,8 @@ body {
     font-weight: 550;
     width: 9rem;
     height: 2.5rem;
-    padding: 0.5rem 0;
-    font-size: 1.2rem;
+    margin: auto;
+    font-size: 1.1rem;
     background-color: #ad9fff;
     border: none;
     border-radius: 50px;
@@ -69,6 +69,7 @@ body {
     display:flex ;
     justify-content: center;
     align-items: center;
+    border: 1px solid #ad9fff;
   }
   
   form button:hover {

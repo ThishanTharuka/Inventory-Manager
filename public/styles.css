@@ -43,7 +43,7 @@ a {
     text-decoration: none;
     background-color: #ad9fff;
     color: black;
-    border: none;
+    border: 1px solid #ad9fff;
     font-size: 1 rem;
     padding: 0.5rem 1rem;
     border-radius: 5rem;
