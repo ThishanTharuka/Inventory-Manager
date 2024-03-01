@@ -13,7 +13,7 @@ body {
   }
   
   #container {
-    width: 90%;
+    width: 95%;
     margin: auto auto;
   }
 
@@ -26,13 +26,13 @@ body {
   }
 
   form {
-    border: 2px solid #cccccc;
+    border: 3px solid #bdbbbb;
     border-radius: 15px;
     display: flex;
     flex-direction: column;
     font-weight: normal;
     color: #444;
-    font-size: 1.5rem;
+    font-size: large;
     padding: 2rem 3rem 1rem 3rem;
   }
   
@@ -44,27 +44,31 @@ body {
   form div input {
     border: none;
     outline: none;
-    border-bottom: 1px solid #000000;
+    border-bottom: 1.5px solid #000000;
     width: 50%;
   }
 
   form div select {
     border: none;
     outline: none;
-    border-bottom: 1px solid #000000;
+    border-bottom: 1.5px solid #000000;
     width: 50%;
   }
   
   form button {
     font-family: "Montserrat", sans-serif;
-    font-weight: 600;
-    width: 10rem;
+    font-weight: 550;
+    width: 8rem;
+    height: 2.5rem;
     padding: 0.5rem 0;
-    font-size: 1.3rem;
+    font-size: 1.2rem;
     background-color: #ad9fff;
     border: none;
     border-radius: 50px;
-    margin: 2rem;
+    margin: 1rem;
+    display:flex ;
+    justify-content: center;
+    align-items: center;
   }
   
   form button:hover {

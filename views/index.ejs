@@ -5,13 +5,15 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="stylesheet" href="/nav.css">
         <link rel="stylesheet" href="/index.css">
+        <link rel="stylesheet" href="/footer.css">
         <title><%= title %></title>
+        <link rel="icon" href="/images/home.svg" type="image/x-icon">
     </head>
 <body>
     <header>
         <nav>
             <img src="/images/hebima logo and text.svg" alt="Hebima Plus Logo">
-            <a id="logout-btn" href="/logout">Logout</a>
+            <a id="logout-btn" href="/logout">LOG OUT</a>
         </nav>
     </header>
     <main>
@@ -22,15 +24,6 @@
             <a href="/shops"><img src="/images/dealers.svg" alt="Items Icon"></a>
         </div>
     </main>
-        <!-- <div id="dark-mode-toggle">
-            <button>Theme</button>
-        </div>
-        <script>
-            const darkModeButton = document.getElementById('dark-mode-toggle');
-            const body = document.body;
-            darkModeButton.addEventListener('click', () => {
-            body.classList.toggle('dark-mode');
-            });
-        </script> -->
 </body>
+<%- include('./partials/footer.ejs') %>
 </html>
