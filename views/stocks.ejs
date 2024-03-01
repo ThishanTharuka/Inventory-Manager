@@ -17,27 +17,27 @@
         </div>
         <div id="add-new">
           <!-- Add New Shop button -->
-          <a href="/stocks/add" id="add-new-btn">Add New</a>
+          <a href="/stocks/add" id="add-new-btn">Add Invoice</a>
         </div>
       </div>
     <main>
         <table id="shops">
             <thead>
-                <th>Invoice No</th>
                 <th>Items</th>
+                <th>Description</th>
                 <th>Quantity</th>
                 <th>Actions</th>
             </thead>
             <tbody>
-                <% invoice_items.forEach(invoice_items => { %>
+                <% stocks.forEach(stock => { %>
                   <tr>
-                    <td><%= invoice_items.invoice_id %></td>
-                    <td><%= invoice_items.item_code %></td>
-                    <td><%= invoice_items.quantity %></td>
+                    <td><%= stock.item_code %></td>
+                    <td> <%= stock.description %> </td>
+                    <td><%= stock.quantity %></td>
                     <td id="action">
                       <div id="action-btns">
-                        <a href="/stocks/edit/<%= invoice_items.invoice_id %>" class="edit-btn">Edit</a>
-                        <a href="/stocks/delete/<%= invoice_items.invoice_id %>" class="delete-btn ">Delete</a>
+                        <a href="/stocks/edit/<%= stocks.invoice_id %>" class="edit-btn">Edit</a>
+                        <a href="/stocks/delete/<%= stocks.invoice_id %>" class="delete-btn ">Delete</a>
                         </div>
                     </td>
                   </tr>
