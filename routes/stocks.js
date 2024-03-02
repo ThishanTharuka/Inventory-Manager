@@ -91,7 +91,7 @@ router.post('/add-invoice', (req, res) => {
                     }
 
                     console.log('Item has been added to the database');
-                    res.redirect('/stocks');
+                    res.redirect('/stocks/add');
                 });
             });
         });
