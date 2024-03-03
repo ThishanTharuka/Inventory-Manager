@@ -6,14 +6,14 @@ const database = require('../database');
 router.get('/items', (req, res) => {
     // Fetch items from the database
     const query = 'SELECT * FROM items';
-  
+
     database.query(query, (err, items) => {
-      if (err) {
-        throw err;
-      }
-  
-      // Render the 'items' page with the fetched items
-      res.render('items', { title: 'Items', items });
+        if (err) {
+            throw err;
+        }
+
+        // Render the 'items' page with the fetched items
+        res.render('items', { title: 'Items', items });
     });
 });
 

@@ -1,50 +1,64 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/styles.css"> <!-- Create a shops.css file for styling -->
-    <link rel="stylesheet" href="/nav.css">
-    <title><%= title %></title>
-    <link rel="icon" href="/images/stock.svg" type="image/x-icon">
-</head>
-<body>
-    <!-- Include the navigation partial -->
-    <%- include('./partials/nav.ejs') %>
-    <div id="top-bar">
-        <div id="page-name">
-          <p>Stocks</p>
-        </div>
-        <div id="add-new">
-          <!-- Add New Shop button -->
-          <a href="/stocks/add" id="add-new-btn">Add Invoice</a>
-        </div>
-      </div>
-    <main>
-        <table id="shops">
-            <thead>
-                <th>Items</th>
-                <th>Description</th>
-                <th>Quantity</th>
-                <th>Actions</th>
-            </thead>
-            <tbody>
-                <% stocks.forEach(stock => { %>
-                  <tr>
-                    <td><%= stock.item_code %></td>
-                    <td> <%= stock.description %> </td>
-                    <td><%= stock.quantity %></td>
-                    <td id="action">
-                      <div id="action-btns">
-                        <a href="/stocks/edit/<%= stocks.invoice_id %>" class="edit-btn">Edit</a>
-                        <a href="/stocks/delete/<%= stocks.invoice_id %>" class="delete-btn ">Delete</a>
-                        </div>
-                    </td>
-                  </tr>
-                <% }); %>
-            </tbody>
 
-        </table> 
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="/styles.css"> <!-- Create a shops.css file for styling -->
+  <link rel="stylesheet" href="/nav.css">
+  <title>
+    <%= title %>
+  </title>
+  <link rel="icon" href="/images/stock.svg" type="image/x-icon">
+</head>
+
+<body>
+  <!-- Include the navigation partial -->
+  <%- include('./partials/nav.ejs') %>
+    <div id="top-bar">
+      <div id="page-name">
+        <p>Stocks</p>
+      </div>
+      <div id="invoice-btn">
+        <a href="/invoices">Invoices Details</a>
+      </div>
+      <div id="add-new">
+        <!-- Add New Shop button -->
+        <a href="/stocks/add" id="add-new-btn">Add Invoice</a>
+      </div>
+    </div>
+    <main>
+      <table id="shops">
+        <thead>
+          <th>Items</th>
+          <th>Description</th>
+          <th>Quantity</th>
+          <th>Actions</th>
+        </thead>
+        <tbody>
+          <% stocks.forEach(stock=> { %>
+            <tr>
+              <td>
+                <%= stock.item_code %>
+              </td>
+              <td>
+                <%= stock.description %>
+              </td>
+              <td>
+                <%= stock.quantity %>
+              </td>
+              <td id="action">
+                <div id="action-btns">
+                  <a href="/stocks/edit/<%= stocks.invoice_id %>" class="edit-btn">Edit</a>
+                  <a href="/stocks/delete/<%= stocks.invoice_id %>" class="delete-btn ">Delete</a>
+                </div>
+              </td>
+            </tr>
+            <% }); %>
+        </tbody>
+
+      </table>
     </main>
 </body>
+
 </html>

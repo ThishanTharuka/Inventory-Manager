@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/styles.css"> <!-- Create a shops.css file for styling -->
+    <link rel="stylesheet" href="/nav.css">
+    <title>
+        <%= title %>
+    </title>
+    <link rel="icon" href="/images/invoice.svg" type="image/x-icon">
+</head>
+
+<body>
+    <!-- Include the navigation partial -->
+    <%- include('./partials/nav.ejs') %>
+        <main>
+            <form class="top-bar" action="/invoices" method="get">
+                <label for="search">Search Invoice ID:</label>
+                <input type="text" id="search" name="search" value="<%= search || '' %>">
+                <button id="search-btns" type="submit">Search</button>
+                <a href="/invoices"><button id="search-btns" type="button">Reset</button></a>
+            </form>
+            <div class="cards">
+                <% if (invoices.length> 0) { %>
+                    <% invoices.forEach((invoice)=> { %>
+                        <div class="invoice-card">
+                            <h3>Invoice ID: <%= invoice.invoice_id %>
+                            </h3>
+                            <p>Invoice Date: <%= invoice.invoice_date.toLocaleDateString() %>
+                            </p>
+                            <table id="invoice-tbl">
+                                <thead>
+                                    <tr>
+                                        <th>Item Name</th>
+                                        <th>Quantity</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% invoice.items.forEach((item)=> { %>
+                                        <tr>
+                                            <td>
+                                                <%= item.description %>
+                                            </td>
+                                            <td>
+                                                <%= item.quantity %>
+                                            </td>
+                                        </tr>
+                                        <% }); %>
+                                </tbody>
+                            </table>
+
+                        </div>
+                        <% }); %>
+                            <% } else { %>
+                                <p>No invoices found.</p>
+                                <% } %>
+            </div>
+        </main>
+</body>
+
+</html>

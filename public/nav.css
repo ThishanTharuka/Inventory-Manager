@@ -85,7 +85,7 @@ nav img {
     align-items: center;
 }
 
-#logout-btn:hover{
+#logout-btn:hover {
     background-color: #807e7e;
     cursor: pointer;
     transform: scale(0.99);

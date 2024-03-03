@@ -1,34 +1,44 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="stylesheet" href="/nav.css">
-        <link rel="stylesheet" href="/add-page.css">
-        <title><%= title %></title>
-        <link rel="icon" href="/images/dealer.svg" type="image/x-icon">
-    </head>
-    <body>
-        <!-- Include the navigation partial -->
-        <%- include('./partials/nav.ejs') %>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/nav.css">
+    <link rel="stylesheet" href="/add-page.css">
+    <title>
+        <%= title %>
+    </title>
+    <link rel="icon" href="/images/dealer.svg" type="image/x-icon">
+</head>
+
+<body>
+    <!-- Include the navigation partial -->
+    <%- include('./partials/nav.ejs') %>
         <div id="container">
             <form action="<%= mode === 'add' ? '/add-shop' : '/update-shop' %>" method="post">
                 <div id="input-fields">
                     <label for="Shop Name">Dealer Name</label>
-                    <input type="text" id="shop_name" name="shop_name" value="<%= mode === 'edit' ? shop.shop_name : '' %>" required>
+                    <input type="text" id="shop_name" name="shop_name"
+                        value="<%= mode === 'edit' ? shop.shop_name : '' %>" required>
                 </div>
                 <div id="input-fields">
                     <label for="Contact_no">Contact No.</label>
-                    <input type="text" id="contact_no" name="contact_no" value="<%= mode === 'edit' ? shop.owner : '' %>" required>
+                    <input type="text" id="contact_no" name="contact_no"
+                        value="<%= mode === 'edit' ? shop.owner : '' %>" required>
                 </div>
                 <div id="input-fields">
                     <label for="Location">Location</label>
-                    <input type="text" id="location" name="location" value="<%= mode === 'edit' ? shop.location : '' %>" required>
+                    <input type="text" id="location" name="location" value="<%= mode === 'edit' ? shop.location : '' %>"
+                        required>
                 </div>
                 <div id="add-item-btn">
-                    <button type="submit"><%= mode === 'add' ? 'Add Shop' : 'Update Shop' %></button>
+                    <button type="submit">
+                        <%= mode==='add' ? 'Add Shop' : 'Update Shop' %>
+                    </button>
                 </div>
             </form>
         </div>
-    </body>
+</body>
+
 </html>

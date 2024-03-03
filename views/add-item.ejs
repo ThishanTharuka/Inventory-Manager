@@ -1,43 +1,57 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="stylesheet" href="/nav.css">
-        <link rel="stylesheet" href="/add-page.css">
-        <title><%= title %></title>
-        <link rel="icon" href="/images/item.svg" type="image/x-icon">
-    </head>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/nav.css">
+    <link rel="stylesheet" href="/add-page.css">
+    <title>
+        <%= title %>
+    </title>
+    <link rel="icon" href="/images/item.svg" type="image/x-icon">
+</head>
+
 <body>
     <!-- Include the navigation partial -->
     <%- include('./partials/nav.ejs') %>
-    <div id="container">
-        <form action="<%= mode === 'add' ? '/add-item' : '/update-item' %>" method="post">
-            <div id="input-fields">
-                <label for="Item Code">Item Code</label>
-                <input type="text" id="item_code" name="item_code" value="<%= mode === 'edit' ? item.item_code : '' %>" required <% if (mode === 'edit') { %> readonly <% } %>>
-            </div>
-            <div id="input-fields">
-                <label for="Description ">Description</label>
-                <input type="text" id="description" name="description" value="<%= mode === 'edit' ? item.description : '' %>" required>            </div>
-            <div id="input-fields">
-                <label for="Unit">Unit</label>
-                <select id="unit" name="unit" required>
-                    <option value="" disabled hidden>Select Unit</option>
-                    <option value="Each" <%= mode === 'edit' && item.unit === 'Each' ? 'selected' : '' %>>Each</option>
-                    <option value="1 Nos" <%= mode === 'edit' && item.unit === '1 Nos' ? 'selected' : '' %>>1 Nos</option>
-                    <option value="Item" <%= mode === 'edit' && item.unit === 'Item' ? 'selected' : '' %>>Item</option>
-                    <option value="Meters" <%= mode === 'edit' && item.unit === 'Meters' ? 'selected' : '' %>>Meters</option>
-                </select>
-            </div>
-            <div id="input-fields">
-                <label for="Price">Price</label>
-                <input type="number" id="price" name="price" step="0.01" value="<%= mode === 'edit' ? item.price : '' %>" required>
-            </div>
-            <div id="add-item-btn">
-                <button type="submit"><%= mode === 'add' ? 'Add Item' : 'Update Item' %></button>
-            </div>
-        </form>
-    </div>
+        <div id="container">
+            <form action="<%= mode === 'add' ? '/add-item' : '/update-item' %>" method="post">
+                <div id="input-fields">
+                    <label for="Item Code">Item Code</label>
+                    <input type="text" id="item_code" name="item_code"
+                        value="<%= mode === 'edit' ? item.item_code : '' %>" required <% if (mode==='edit' ) { %>
+                    readonly <% } %>>
+                </div>
+                <div id="input-fields">
+                    <label for="Description ">Description</label>
+                    <input type="text" id="description" name="description"
+                        value="<%= mode === 'edit' ? item.description : '' %>" required>
+                </div>
+                <div id="input-fields">
+                    <label for="Unit">Unit</label>
+                    <select id="unit" name="unit" required>
+                        <option value="" disabled hidden>Select Unit</option>
+                        <option value="Each" <%=mode==='edit' && item.unit==='Each' ? 'selected' : '' %>>Each</option>
+                        <option value="1 Nos" <%=mode==='edit' && item.unit==='1 Nos' ? 'selected' : '' %>>1 Nos
+                        </option>
+                        <option value="Item" <%=mode==='edit' && item.unit==='Item' ? 'selected' : '' %>>Item</option>
+                        <option value="Meters" <%=mode==='edit' && item.unit==='Meters' ? 'selected' : '' %>>Meters
+                        </option>
+                    </select>
+                </div>
+                <div id="input-fields">
+                    <label for="Price">Price</label>
+                    <input type="number" id="price" name="price" step="0.01"
+                        value="<%= mode === 'edit' ? item.price : '' %>" required>
+                </div>
+                <div id="add-item-btn">
+                    <button type="submit">
+                        <%= mode==='add' ? 'Add Item' : 'Update Item' %>
+                    </button>
+                </div>
+            </form>
+        </div>
 </body>
+
 </html>

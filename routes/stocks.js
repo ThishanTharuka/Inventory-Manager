@@ -4,12 +4,12 @@ const database = require('../database');
 
 router.get('/stocks', (req, res) => {
     const query = 'SELECT * FROM stocks';
-    
+
     database.query(query, (err, stocks) => {
         if (err) {
             throw err;
         }
-        
+
         const query1 = 'SELECT * FROM items';
 
         database.query(query1, (err, items) => {
@@ -44,7 +44,7 @@ router.post('/add-invoice', (req, res) => {
     console.log(invoice_id, item_code, quantity);
 
     var query2 = `INSERT INTO invoices (invoice_id, invoice_date) VALUES ("${invoice_id}", "${date}")`;
-    
+
     database.query(query2, (err, result) => {
         if (err) {
             // Check for duplicate key error

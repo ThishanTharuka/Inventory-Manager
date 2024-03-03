@@ -1,16 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/styles.css">
-    <link rel="stylesheet" href="/nav.css">
-    <title><%= title %></title>
-    <link rel="icon" href="/images/item.svg" type="image/x-icon">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="/nav.css">
+  <title>
+    <%= title %>
+  </title>
+  <link rel="icon" href="/images/item.svg" type="image/x-icon">
 </head>
+
 <body>
-    <!-- Include the navigation partial -->
-    <%- include('./partials/nav.ejs') %>  
+  <!-- Include the navigation partial -->
+  <%- include('./partials/nav.ejs') %>
     <div id="top-bar">
       <div id="page-name">
         <p>Items</p>
@@ -19,33 +23,42 @@
         <!-- Add New Shop button -->
         <a href="/items/add" id="add-new-btn">Add New</a>
       </div>
-    </div>   
+    </div>
     <main>
-        <table id="items">
-            <thead>
-                <th>Item Code</th>
-                <th>Description</th>
-                <th>Unit</th>
-                <th>Price</th>
-                <th id="action">Actions</th>
-            </thead>
-            <tbody>
-                <% items.forEach(item => { %>
-                  <tr>
-                    <td><%= item.item_code %></td>
-                    <td><%= item.description %></td>
-                    <td><%= item.unit %></td>
-                    <td><%= item.price %></td>
-                    <td id="action">
-                      <div id="action-btns">
-                        <a href="/items/edit/<%= item.item_code %>" class="edit-btn">Edit</a>
-                        <a href="/items/delete/<%= item.item_code %>" class="delete-btn">Delete</a>
-                      </div>
-                    </td>
-                  </tr>
-                <% }); %>
-              </tbody>
-        </table> 
+      <table id="items">
+        <thead>
+          <th>Item Code</th>
+          <th>Description</th>
+          <th>Unit</th>
+          <th>Price</th>
+          <th id="action">Actions</th>
+        </thead>
+        <tbody>
+          <% items.forEach(item=> { %>
+            <tr>
+              <td>
+                <%= item.item_code %>
+              </td>
+              <td>
+                <%= item.description %>
+              </td>
+              <td>
+                <%= item.unit %>
+              </td>
+              <td>
+                <%= item.price %>
+              </td>
+              <td id="action">
+                <div id="action-btns">
+                  <a href="/items/edit/<%= item.item_code %>" class="edit-btn">Edit</a>
+                  <a href="/items/delete/<%= item.item_code %>" class="delete-btn">Delete</a>
+                </div>
+              </td>
+            </tr>
+            <% }); %>
+        </tbody>
+      </table>
     </main>
 </body>
+
 </html>

@@ -1,20 +1,25 @@
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="stylesheet" href="/nav.css">
-        <link rel="stylesheet" href="/404.css">
-        <title><%= title %></title>
-        <link rel="icon" href="/images/404.svg" type="image/x-icon">
-    </head>
-    <body>
-        <!-- Include the navigation partial -->
-        <%- include('./partials/nav.ejs') %>
 
-        <div class="not-found content"> 
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/nav.css">
+    <link rel="stylesheet" href="/404.css">
+    <title>
+        <%= title %>
+    </title>
+    <link rel="icon" href="/images/404.svg" type="image/x-icon">
+</head>
+
+<body>
+    <!-- Include the navigation partial -->
+    <%- include('./partials/nav.ejs') %>
+
+        <div class="not-found content">
             <h1>OOPS, Page not not-found!</h1>
         </div>
 
 
-    </body>
+</body>
+
 </html>
