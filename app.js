@@ -1,4 +1,5 @@
 const express = require('express');
+const session = require('express-session');
 const itemRoutes = require('./routes/items');
 const shopRoutes = require('./routes/shops');
 const stockRoutes = require('./routes/stocks');
@@ -7,13 +8,19 @@ const invoiceRoutes = require('./routes/invoice');
 //express app
 const app = express();
 
+// configure express-session middleware
+app.use(session({
+    secret: 'QWERtyui1234', // Replace with a strong, random string
+    resave: false,
+    saveUninitialized: true,
+}));
+
 //register view engine
 app.set('view engine', 'ejs');
 
 //static files
 app.use(express.static('public'));
 app.use(express.urlencoded({ extended: true }));
-
 
 //listen for requests
 app.listen(3000);

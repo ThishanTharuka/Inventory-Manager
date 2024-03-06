@@ -87,3 +87,61 @@ form button:hover {
   display: flex;
   justify-content: space-around;
 }
+
+.invoice-card {
+  width: 90%;
+  background-color: aliceblue;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border: 1.5px solid #2e2e2e;
+  border-radius: 10px;
+  box-shadow: #8f8f8f 0px 1px 1px 0px;
+  width: 100%;
+  padding: 1rem;
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+  font-family: "Montserrat", sans-serif;
+  font-weight: 550;
+}
+
+
+.invoice-card h3 {
+  margin-bottom: 1rem;
+  font-size: large;
+  font-weight: 650;
+}
+
+.invoice-card p {
+  margin-bottom: 0.5rem;
+  font-weight: 550;
+}
+
+#reset-all {
+  font-family: "Montserrat", sans-serif;
+  font-weight: 550;
+  width: 9rem;
+  height: 2.5rem;
+  margin: auto;
+  font-size: 1.1rem;
+  background-color: #ad9fff;
+  border: none;
+  border-radius: 50px;
+  margin: 1rem 0 1rem 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid #ad9fff;
+}
+
+#reset-all:hover {
+  cursor: pointer;
+  background-color: #654bfa;
+  color: aliceblue;
+}
+
+.reset-btn {
+  display: flex;
+  justify-content: end;
+}

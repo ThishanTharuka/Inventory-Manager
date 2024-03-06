@@ -16,10 +16,13 @@
     <!-- Include the navigation partial -->
     <%- include('./partials/nav.ejs') %>
         <div id="container">
+            <div class="reset-btn">
+                <button id="reset-all" onclick="resetAllFields()">Reset All</button>
+            </div>
             <form action="/add-invoice" method="post">
                 <div id="input-fields">
                     <label for="Invoice">Invoice ID</label>
-                    <input type="text" id="invoice_id" name="invoice_id" required>
+                    <input type="text" id="invoice_id" name="invoice_id" value="<%= lastAddedInvoice ? lastAddedInvoice.invoice_id : '' %>" required>
                 </div>
                 <div id="input-fields">
                     <label for="Item">Item Code</label>
@@ -38,13 +41,45 @@
                 </div>
                 <div id="input-fields">
                     <label for="Date">Date</label>
-                    <input type="date" id="date" name="date" required>
+                    <input type="date" id="date" name="date" value="<%= lastAddedInvoice ? lastAddedInvoice.date : '' %>" required>
                 </div>
                 <div id="add-item-btn">
                     <button type="submit">Add Invoice</button>
                 </div>
             </form>
-        </div>
-</body>
+            <!-- Invoice card displaying details of the last added invoice -->
+            <div class="invoice-card" id="invoiceCard">
+                <h2>Last Added Invoice</h2>
+                <% if (lastAddedInvoice) { %>
+                    <p><strong>Invoice ID:</strong> <%= lastAddedInvoice.invoice_id %></p>
+                    <% if (invoiceItems && invoiceItems.length > 0) { %>
+                        <ul>
+                            <% invoiceItems.forEach(item => { %>
+                                <li><strong>Item Code:</strong> <%= item.item_code %>, <strong>Description:</strong> <%= item.description %>, <strong>Quantity:</strong> <%= item.quantity %></li>
+                            <% }); %>
+                        </ul>
+                    <% } else { %>
+                        <p>No items in the last added invoice.</p>
+                    <% } %>
+                <% } else { %>
+                    <p>No last added invoice.</p>
+                <% } %>
+            </div>
+    </div>
 
+    <script>
+        // JavaScript function to reset loaded values and the card
+        function resetAllFields() {
+            // Clear values in the form fields
+            document.getElementById('invoice_id').value = '';
+            document.getElementById('item_code').value = '';
+            document.getElementById('quantity').value = '';
+            document.getElementById('date').value = '';
+
+            // Clear the content of the card
+            document.getElementById('invoiceCard').innerHTML = '<h2>Last Added Invoice</h2><p>No items in the last added invoice.</p>';
+
+            // You can also reset other fields or perform additional actions as needed
+        }
+    </script>
 </html>
