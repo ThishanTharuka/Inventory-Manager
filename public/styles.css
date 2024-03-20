@@ -275,3 +275,41 @@ form label {
 button {
   cursor: pointer;
 }
+
+/* Custom styles for SweetAlert dialog */
+.swal2-popup {
+  border-radius: 20px !important; /* Apply border radius */
+  font-family: "Montserrat", sans-serif; /* Apply custom font family */
+}
+
+.swal2-title {
+  color: #333 !important; /* Apply title color */
+  font-size: 24px !important; /* Apply title font size */
+  font-weight: 600 !important; /* Apply title font weight */
+  font-family: "Montserrat", sans-serif; /* Apply custom font family */
+}
+
+.swal2-content {
+  color: #555 !important; /* Apply content color */
+  font-size: 18px !important; /* Apply content font size */
+  font-family: "Montserrat", sans-serif; /* Apply custom font family */
+}
+
+.swal2-confirm,
+.swal2-cancel {
+  padding: 10px 20px !important; /* Apply button padding */
+  font-size: 18px !important; /* Apply button font size */
+  font-weight: 600 !important; /* Apply button font weight */
+  font-family: "Montserrat", sans-serif; /* Apply custom font family */
+}
+
+.swal2-confirm {
+  background-color: #e90c22 !important; /* Apply confirm button background color */
+  color: white !important; /* Apply confirm button text color */
+}
+
+.swal2-cancel {
+  background-color: #686868 !important; /* Apply cancel button background color */
+  color: white !important; /* Apply cancel button text color */
+}
+
