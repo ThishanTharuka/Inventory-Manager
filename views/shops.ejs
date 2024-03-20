@@ -10,6 +10,8 @@
     <%= title %>
   </title>
   <link rel="icon" href="/images/dealer.svg" type="image/x-icon">
+  <!-- Include SweetAlert library -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
 </head>
 
 <body>
@@ -47,7 +49,7 @@
               <td id="action">
                 <div id="action-btns">
                   <a href="/shops/edit/<%= shop.shop_id %>" class="edit-btn">Edit</a>
-                  <a href="/shops/delete/<%= shop.shop_id %>" class="delete-btn">Delete</a>
+                  <a href="/shops/delete/<%= shop.shop_id %>" class="delete-btn" onclick="return submitForm(this)">Delete</a>
                 </div>
               </td>
             </tr>
@@ -55,6 +57,9 @@
         </tbody>
       </table>
     </main>
+
+    <!-- Include your custom script.js file -->
+    <script src="/javascript/script.js"></script>
 </body>
 
 </html>
