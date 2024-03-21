@@ -49,13 +49,13 @@
             </form>
             <!-- Invoice card displaying details of the last added invoice -->
             <div class="invoice-card" id="invoiceCard">
-                <h2>Last Added Invoice</h2>
+                <h2>Last Added Invoice</h2><br>
                 <% if (lastAddedInvoice) { %>
                     <p><strong>Invoice ID:</strong> <%= lastAddedInvoice.invoice_id %></p>
                     <% if (invoiceItems && invoiceItems.length > 0) { %>
                         <ul>
                             <% invoiceItems.forEach(item => { %>
-                                <li><strong>Item Code:</strong> <%= item.item_code %>, <strong>Description:</strong> <%= item.description %>, <strong>Quantity:</strong> <%= item.quantity %></li>
+                                <li><strong>Item Code:</strong> <%= item.item_code %>, &nbsp; <strong>Description:</strong> <%= item.description %>, &nbsp; <strong>Quantity:</strong> <%= item.quantity %></li>
                             <% }); %>
                         </ul>
                     <% } else { %>

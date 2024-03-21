@@ -33,7 +33,7 @@
           <th>Items</th>
           <th>Description</th>
           <th>Quantity</th>
-          <th>Actions</th>
+          <!-- <th>Actions</th> -->
         </thead>
         <tbody>
           <% stocks.forEach(stock=> { %>
@@ -47,12 +47,12 @@
               <td>
                 <%= stock.quantity %>
               </td>
-              <td id="action">
+              <!-- <td id="action">
                 <div id="action-btns">
                   <a href="/stocks/edit/<%= stocks.invoice_id %>" class="edit-btn">Edit</a>
                   <a href="/stocks/delete/<%= stocks.invoice_id %>" class="delete-btn ">Delete</a>
                 </div>
-              </td>
+              </td> -->
             </tr>
             <% }); %>
         </tbody>
