@@ -47,4 +47,21 @@ router.get('/invoices', (req, res) => {
     });
 });
 
+// Route to render the edit invoice page
+router.get('/invoices/edit/:id', (req, res) => {
+    const invoiceId = req.params.id;
+    // Fetch invoice details based on invoiceId from the database
+    // Render the edit invoice page with invoice details
+    res.render('edit-invoice', { title: 'Edit Invoice', invoiceId });
+});
+
+// Route to handle deleting an invoice
+router.get('/invoices/delete/:id', (req, res) => {
+    const invoiceId = req.params.id;
+    // Delete the invoice with the given invoiceId from the database
+    // Redirect back to the invoices page or display a success message
+    res.redirect('/invoices');
+});
+
+
 module.exports = router;

@@ -6,7 +6,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="/styles.css">
   <link rel="stylesheet" href="/nav.css">
-  <title><%= title %></title>
+  <title>
+    <%= title %>
+  </title>
   <link rel="icon" href="/images/item.svg" type="image/x-icon">
   <!-- Include SweetAlert library -->
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
@@ -14,7 +16,7 @@
 
 <body>
   <!-- Include the navigation partial -->
-  <% include('./partials/nav.ejs') %>
+  <%- include('./partials/nav.ejs') %>
     <div id="top-bar">
       <div id="page-name">
         <p>Items</p>
@@ -52,7 +54,8 @@
                 <div id="action-btns">
                   <a href="/items/edit/<%= item.item_code %>" class="edit-btn">Edit</a>
                   <!-- Call the submitForm function when the delete button is clicked -->
-                  <a href="/items/delete/<%= item.item_code %>" class="delete-btn" onclick="return submitForm(this)">Delete</a>
+                  <a href="/items/delete/<%= item.item_code %>" class="delete-btn"
+                    onclick="return submitForm(this)">Delete</a>
                 </div>
               </td>
             </tr>

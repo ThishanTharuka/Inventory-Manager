@@ -315,3 +315,11 @@ button {
   color: white !important; /* Apply cancel button text color */
 }
 
+.button-group {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+  align-items: center;
+  margin: 2px;
+}
+
