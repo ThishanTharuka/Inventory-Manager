@@ -25,7 +25,21 @@ function calculateStockQuantities(callback) {
         }
 
         console.log('Stock quantities refreshed successfully');
-        callback(null);
+
+        // Remove entries from stocks table where quantity is 0
+        const removeZeroQuantityQuery = `DELETE FROM stocks WHERE quantity = 0`;
+
+        // Execute the query
+        database.query(removeZeroQuantityQuery, (err, result) => {
+            if (err) {
+                console.error('Error removing entries with zero quantity:', err);
+                callback(err);
+                return;
+            }
+
+            console.log('Entries with zero quantity removed successfully');
+            callback(null);
+        });
     });
 }
 
@@ -198,5 +212,8 @@ router.post('/add-invoice', (req, res) => {
         });
     });
 });
+
+
+
 
 module.exports = router;

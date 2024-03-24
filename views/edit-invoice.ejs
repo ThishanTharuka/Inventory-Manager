@@ -45,8 +45,10 @@
                                         <input type="text" name="items[<%= index %>][quantity]" value="<%= item.quantity %>">
                                         <input type="hidden" name="items[<%= index %>][item_code]" value="<%= item.item_code %>">
                                     </td>
-                                    <td>
-                                        <a href="/items/remove/<%= item.item_code %>?invoice_id=<%= invoice.invoice_id %>" class="delete-btn">Remove</a>
+                                    <td id="action">
+                                        <div id="action-btns">
+                                            <a href="/items/remove/<%= item.item_code %>?invoice_id=<%= invoice.invoice_id %>" class="delete-btn">Remove</a>
+                                        </div>
                                     </td>
                                 </tr>
                             <% }); %>

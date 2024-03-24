@@ -189,5 +189,62 @@ router.get('/items/remove/:item_code', (req, res) => {
     });
 });
 
+// Route to handle deleting an invoice
+router.get('/invoices/delete/:id', (req, res) => {
+    const invoiceId = req.params.id;
+
+    // SQL query to fetch invoice items quantities
+    const getInvoiceItemsQuery = `SELECT item_code, quantity FROM invoice_items WHERE invoice_id = ?`;
+
+    // Execute the query to fetch invoice items quantities
+    database.query(getInvoiceItemsQuery, [invoiceId], (err, invoiceItems) => {
+        if (err) {
+            console.error('Error fetching invoice items:', err);
+            res.status(500).send('Internal Server Error');
+            return;
+        }
+
+        // SQL query to delete invoice items related to the invoice
+        const deleteInvoiceItemsQuery = `DELETE FROM invoice_items WHERE invoice_id = ?`;
+
+        // Execute the query to delete invoice items
+        database.query(deleteInvoiceItemsQuery, [invoiceId], (err, result) => {
+            if (err) {
+                console.error('Error deleting invoice items:', err);
+                res.status(500).send('Internal Server Error');
+                return;
+            }
+
+            // SQL query to delete invoice from invoices table
+            const deleteInvoiceQuery = `DELETE FROM invoices WHERE invoice_id = ?`;
+
+            // Execute the query to delete invoice
+            database.query(deleteInvoiceQuery, [invoiceId], (err, result) => {
+                if (err) {
+                    console.error('Error deleting invoice:', err);
+                    res.status(500).send('Internal Server Error');
+                    return;
+                }
+
+                // Deduct removed item quantities from stock
+                invoiceItems.forEach(item => {
+                    const updateStockQuery = `UPDATE stocks SET quantity = quantity - ? WHERE item_code = ?`;
+                    database.query(updateStockQuery, [item.quantity, item.item_code], (err, result) => {
+                        if (err) {
+                            console.error('Error updating stock quantity:', err);
+                            res.status(500).send('Internal Server Error');
+                            return;
+                        }
+                    });
+                });
+
+                console.log('Invoice deleted successfully');
+                res.redirect('/invoices');
+            });
+        });
+    });
+});
+
+
 
 module.exports = router;
