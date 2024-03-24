@@ -24,7 +24,7 @@ Use the git clone command to clone the repository. For example:
 ```
 git clone https://github.com/ThishanTharuka/Inventory-Manager.git
 ```
-### Install Dependencies:
+### Install Dependencies and Packages:
 
 Navigate into the cloned directory:
 Run the following command to install the dependencies specified in the package.json file:
@@ -34,6 +34,6 @@ npm install
 
 ### Execute the following command to start the Node.js application:
 ```
-nodemon start
+npm start
 ```
 Open your web browser and go to http://localhost:your_port where your_port is the port number specified in the application or the default port if none is specified. (Usually its http://localhost:3000)
