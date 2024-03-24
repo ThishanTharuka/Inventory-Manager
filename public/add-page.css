@@ -78,6 +78,11 @@ form button:hover {
   color: aliceblue;
 }
 
+form h3 {
+  display: flex;
+  align-content: center;
+}
+
 #input-fields {
   display: flex;
   justify-content: space-between;

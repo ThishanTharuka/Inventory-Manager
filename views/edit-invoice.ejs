@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="/nav.css">
-    <link rel="stylesheet" href="/add-page.css">
+    <link rel="stylesheet" href="/edit-page.css">
     <title>
         <%= title %>
     </title>
@@ -15,6 +15,50 @@
 <body>
     <!-- Include the navigation partial -->
     <%- include('./partials/nav.ejs') %>
+        <div id="container">
+            <form action='/update-invoice' method="POST">
+                <div class="header">
+                    <h3>Invoice ID: <%= invoice.invoice_id %></h3>
+                    <input type="hidden" name="invoice_id" value="<%= invoice.invoice_id %>">
+                    <h3>Invoice Date: <%= invoice.invoice_date.toLocaleDateString() %></h3>
+                </div>
+                <div class="date">
+                    <label for="invoiceDate">New Invoice Date:</label>
+                    <input type="date" id="invoiceDate" name="invoiceDate" value="<%= invoice.invoice_date %>">
+                </div>
+                <div class="invoice-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Item Code</th>
+                                <th>Quantity</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% invoice.items.forEach((item, index)=> { %>
+                                <tr>
+                                    <td>
+                                        <%= item.item_code %>
+                                    </td>
+                                    <td>
+                                        <input type="text" name="items[<%= index %>][quantity]" value="<%= item.quantity %>">
+                                        <input type="hidden" name="items[<%= index %>][item_code]" value="<%= item.item_code %>">
+                                    </td>
+                                    <td>
+                                        <a href="/items/remove/<%= item.item_code %>?invoice_id=<%= invoice.invoice_id %>" class="delete-btn">Remove</a>
+                                    </td>
+                                </tr>
+                            <% }); %>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="submit-btn">
+                    <!-- Submit button -->
+                    <button type="submit">Update Invoice</button>
+                </div>
+            </form>            
+        </div>
 </body>
 
 </html>
