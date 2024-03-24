@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const database = require('../database');
 
+
 router.get('/invoices', (req, res) => {
     const { search } = req.query;
     let invoiceQuery = 'SELECT * FROM invoices';
