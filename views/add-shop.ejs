@@ -28,8 +28,13 @@
                         value="<%= mode === 'edit' ? shop.owner : '' %>" >
                 </div>
                 <div id="input-fields">
-                    <label for="Location">Location</label>
+                    <label for="Location">City</label>
                     <input type="text" id="location" name="location" value="<%= mode === 'edit' ? shop.location : '' %>"
+                        required>
+                </div>
+                <div id="input-fields">
+                    <label for="Address">Address</label>
+                    <input type="textarea" id="address" name="address" value="<%= mode === 'edit' ? shop.address : '' %>"
                         required>
                 </div>
                 <div id="add-item-btn">

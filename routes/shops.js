@@ -21,12 +21,12 @@ router.get('/shops/add', (req, res) => {
 });
 
 router.post('/add-shop', (req, res) => {
-    const { shop_name, contact_no, location } = req.body;
+    const { shop_name, contact_no, location, address } = req.body;
 
-    const query = `INSERT INTO dealers ( shop_name, contact_no, location) 
-                   VALUES ( ?, ?, ?)`;
+    const query = `INSERT INTO dealers ( shop_name, contact_no, location, address) 
+                   VALUES ( ?, ?, ?, ?)`;
 
-    const values = [shop_name, contact_no, location];
+    const values = [shop_name, contact_no, location, address];
 
     database.query(query, values, (err, result) => {
         if (err) {
@@ -79,14 +79,15 @@ router.post('/update-shop', (req, res) => {
     const shop_name = req.body.shop_name;
     const owner = req.body.owner;
     const location = req.body.location;
+    const address = req.body.address;
 
     // Update the shop in the database
     const query = `
         UPDATE dealers 
-        SET shop_name = ?, owner = ?, location = ? 
+        SET shop_name = ?, owner = ?, location = ?, address = ? 
         WHERE shop_id = ?`;
 
-    const values = [shop_name, owner, location, shop_id];
+    const values = [shop_name, owner, location, address, shop_id];
 
     database.query(query, values, (err, result) => {
         if (err) {
