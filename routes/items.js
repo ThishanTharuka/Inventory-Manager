@@ -25,7 +25,6 @@ router.get('/items/add', (req, res) => {
 router.post('/add-item', (req, res) => {
     console.log(req.body);  // Log the entire req.body object
 
-
     var item_code = req.body.item_code;
     var description = req.body.description;
     var unit = req.body.unit;
@@ -33,9 +32,10 @@ router.post('/add-item', (req, res) => {
 
     console.log(item_code, description, unit, price);
 
-    var query = `INSERT INTO items (item_code, description, unit, price) VALUES ("${item_code}", "${description}", "${unit}", "${price}")`;
+    var query = `INSERT INTO items (item_code, description, unit, price) VALUES (?, ?, ?, ?)`;
+    var values = [item_code, description, unit, price];
 
-    database.query(query, (err, result) => {
+    database.query(query, values, (err, result) => {
         if (err) {
             // Check for duplicate key error
             if (err.code === 'ER_DUP_ENTRY') {
@@ -50,8 +50,8 @@ router.post('/add-item', (req, res) => {
         console.log('Item has been added to the database');
         res.redirect('/items');
     });
-
 });
+
 
 router.get('/items/delete/:item_code', (req, res) => {
     const item_code = req.params.item_code;
