@@ -21,16 +21,25 @@ router.get('/invoices', (req, res) => {
 
         const promises = invoices.map((invoice) => {
             return new Promise((resolve, reject) => {
-                const itemsQuery = `SELECT ii.item_code, i.description, ii.quantity
-                                    FROM invoice_items ii
-                                    JOIN items i ON ii.item_code = i.item_code
-                                    WHERE ii.invoice_id = ?`;
+                const itemsQuery = `SELECT ii.item_code, i.description, ii.quantity, i.price
+                FROM invoice_items ii
+                JOIN items i ON ii.item_code = i.item_code
+                WHERE ii.invoice_id = ?`;
 
                 database.query(itemsQuery, [invoice.invoice_id], (err, items) => {
                     if (err) {
                         reject(err);
                     } else {
+                        // Calculate the extension for each item and add it to the item object
+                        items.forEach((item) => {
+                            item.extension = item.price * item.quantity;
+                        });
+                
+                        // Calculate the total for the invoice
+                        const total = items.reduce((acc, item) => acc + item.extension, 0);
+                        
                         invoice.items = items;
+                        invoice.total = total; // Add the total to the invoice object
                         resolve();
                     }
                 });

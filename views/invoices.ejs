@@ -35,6 +35,8 @@
                                     <tr>
                                         <th>Item Name</th>
                                         <th>Quantity</th>
+                                        <th>Price</th>
+                                        <th>Extention</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -46,10 +48,17 @@
                                             <td>
                                                 <%= item.quantity %>
                                             </td>
+                                            <td>
+                                                <%= item.price %>
+                                            </td>
+                                            <td>
+                                                <%= (item.price * item.quantity).toFixed(2) %></td> <!-- Calculate extension -->
+                                            </td>
                                         </tr>
                                         <% }); %>
                                 </tbody>
                             </table>
+                            <p>Total Balance = <%= invoice.total.toFixed(2) %></p>
                             <div class="button-group">
                                 <a href="/invoices/edit/<%= invoice.invoice_id %>" class="edit-btn">Edit</a>
                                 <a href="/invoices/delete/<%= invoice.invoice_id %>" class="delete-btn">Delete</a>
