@@ -15,57 +15,63 @@
 <body>
     <!-- Include the navigation partial -->
     <%- include('./partials/nav.ejs') %>
-        <div id="container">
-            <form action="/add-invoice" method="post">
-                <div id="input-fields">
-                    <label for="Invoice">Invoice ID</label>
-                    <input type="text" id="invoice_id" name="invoice_id"
-                        value="<%= lastAddedInvoice ? lastAddedInvoice.invoice_id : '' %>" required>
-                </div>
-                <div id="items-container">
-                    <!-- Container to hold dynamically added items -->
-                </div>
-                <div id="add-item-btn">
-                    <button type="button" onclick="addItem()">Add Item</button>
-                </div>
-                <div id="input-fields">
-                    <label for="Date">Date</label>
-                    <input type="date" id="date" name="date"
-                        value="<%= lastAddedInvoice ? lastAddedInvoice.date : '' %>" required>
-                </div>
-                <div id="add-item-btn">
-                    <button type="submit">Add Invoice</button>
-                </div>
-            </form>
-        </div>
-        <script>
-            // JavaScript function to add a new item input field
-            function addItem() {
-                const itemsContainer = document.getElementById('items-container');
-                const newItemField = `
+    <div id="container">
+        <form action="/add-invoice" method="post">
             <div id="input-fields">
-                <label for="Item">Item Code</label>
-                <select name="item_codes[]" required>
-                    <% items.forEach(item=> { %>
-                        <option value="<%= item.item_code %>">
-                            <%= item.item_code %>
-                        </option>
-                    <% }); %>
-                </select>
-                <label for="Quantity">Quantity</label>
-                <input type="number" name="quantities[]" required>
-                <button onclick="removeItem(this)">Remove</button>
+                <label for="Invoice">Invoice ID</label>
+                <input type="text" id="invoice_id" name="invoice_id"
+                    value="<%= lastAddedInvoice ? lastAddedInvoice.invoice_id : '' %>" required>
+            </div>
+            <div id="items-container">
+                <!-- Container to hold dynamically added items -->
+            </div>
+            <div id="add-item-btn">
+                <button type="button" onclick="addItem()">Add Item</button>
+            </div>
+            <div id="input-fields">
+                <label for="Date">Date</label>
+                <input type="date" id="date" name="date"
+                    value="<%= lastAddedInvoice ? lastAddedInvoice.date : '' %>" required>
+            </div>
+            <div id="add-item-btn">
+                <button type="submit">Add Invoice</button>
+            </div>
+        </form>
+    </div>
+    <script>
+        // JavaScript function to add a new item input field
+        function addItem() {
+            const itemsContainer = document.getElementById('items-container');
+            const newItemField = `
+            <div class="item-field">
+                <div>
+                    <label for="Item">Item Code</label>
+                    <select name="item_codes[]" required>
+                        <% items.forEach(item=> { %>
+                            <option value="<%= item.item_code %>">
+                                <%= item.item_code %>
+                            </option>
+                        <% }); %>
+                    </select>
+                </div>
+                <div>
+                    <label for="Quantity">Quantity</label>
+                    <input type="number" name="quantities[]" required>
+                </div>
+                <div>
+                    <button type="button" onclick="removeItem(this)">Remove</button>
+                </div>
             </div>
         `;
-                itemsContainer.insertAdjacentHTML('beforeend', newItemField);
-            }
+            itemsContainer.insertAdjacentHTML('beforeend', newItemField);
+        }
 
-            // JavaScript function to remove an item input field
-            function removeItem(button) {
-                const itemField = button.parentElement;
-                itemField.remove();
-            }
-        </script>
+        // JavaScript function to remove an item input field
+        function removeItem(button) {
+            const itemField = button.closest('.item-field');
+            itemField.remove();
+        }
+    </script>
 </body>
 
 </html>
