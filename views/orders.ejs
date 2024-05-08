@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/styles.css">
+    <link rel="stylesheet" href="/nav.css">
+    <title>
+        <%= title %>
+    </title>
+</head>
+
+<body>
+    <!-- Include the navigation partial -->
+    <%- include('./partials/nav.ejs') %>
+    <div id="top-bar">
+        <div id="page-name">
+            <p>Orders</p>
+        </div>
+        <div id="add-new">
+            <!-- Add New Order button -->
+            <a href="/orders/add" id="add-new-btn">Add New</a>
+        </div>
+    </div>
+    
+</body>
+
+</html>

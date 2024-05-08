@@ -137,46 +137,45 @@ router.post('/add-invoice', (req, res) => {
     var invoice_id = req.body.invoice_id;
     var date = req.body.date;
 
-    // Create an array to store all items data
-    var itemsData = [];
-
-    // Iterate through the submitted items and quantities
-    for (let i = 0; i < req.body.item_codes.length; i++) {
-        var item_code = req.body.item_codes[i];
-        var quantity = req.body.quantities[i];
-
-        // Push item data to the array
-        itemsData.push([invoice_id, item_code, quantity]);
-    }
-
-    // Start a database transaction
-    database.beginTransaction(err => {
+    // Check if the invoice ID already exists in the database
+    const checkInvoiceQuery = 'SELECT COUNT(*) AS count FROM invoices WHERE invoice_id = ?';
+    database.query(checkInvoiceQuery, [invoice_id], (err, result) => {
         if (err) {
-            console.error('Error starting transaction:', err);
+            console.error('Error checking invoice existence:', err);
             return res.status(500).send('Internal Server Error');
         }
 
-        // SQL query to insert new invoice into invoices table
-        var queryInsertInvoice = `INSERT INTO invoices (invoice_id, invoice_date) VALUES (?, ?)`;
+        if (result[0].count > 0) {
+            // Invoice ID already exists, send a response indicating the conflict
+            return res.status(409).send('Invoice ID already exists');
+        }
 
-        // Execute the query to insert new invoice
-        database.query(queryInsertInvoice, [invoice_id, date], (err, result) => {
+        // Create an array to store all items data
+        var itemsData = [];
+
+        // Iterate through the submitted items and quantities
+        for (let i = 0; i < req.body.item_codes.length; i++) {
+            var item_code = req.body.item_codes[i];
+            var quantity = req.body.quantities[i];
+
+            // Push item data to the array
+            itemsData.push([invoice_id, item_code, quantity]);
+        }
+
+        // Start a database transaction
+        database.beginTransaction(err => {
             if (err) {
-                console.error('Error inserting invoice:', err);
-                // Rollback the transaction
-                database.rollback(() => {
-                    console.error('Transaction rolled back due to error');
-                    return res.status(500).send('Internal Server Error');
-                });
+                console.error('Error starting transaction:', err);
+                return res.status(500).send('Internal Server Error');
             }
 
-            // SQL query to insert new invoice items into invoice_items table
-            var queryInsertInvoiceItems = `INSERT INTO invoice_items (invoice_id, item_code, quantity) VALUES ?`;
+            // SQL query to insert new invoice into invoices table
+            var queryInsertInvoice = `INSERT INTO invoices (invoice_id, invoice_date) VALUES (?, ?)`;
 
-            // Execute the query to insert new invoice items
-            database.query(queryInsertInvoiceItems, [itemsData], (err, result) => {
+            // Execute the query to insert new invoice
+            database.query(queryInsertInvoice, [invoice_id, date], (err, result) => {
                 if (err) {
-                    console.error('Error inserting invoice items:', err);
+                    console.error('Error inserting invoice:', err);
                     // Rollback the transaction
                     database.rollback(() => {
                         console.error('Transaction rolled back due to error');
@@ -184,28 +183,44 @@ router.post('/add-invoice', (req, res) => {
                     });
                 }
 
-                // Update stock quantities based on the invoice items
-                updateStockQuantities(itemsData, () => {
-                    // Commit the transaction
-                    database.commit(err => {
-                        if (err) {
-                            console.error('Error committing transaction:', err);
-                            // Rollback the transaction
-                            database.rollback(() => {
-                                console.error('Transaction rolled back due to error');
-                                return res.status(500).send('Internal Server Error');
-                            });
-                        }
+                // SQL query to insert new invoice items into invoice_items table
+                var queryInsertInvoiceItems = `INSERT INTO invoice_items (invoice_id, item_code, quantity) VALUES ?`;
 
-                        console.log('Transaction committed successfully');
-                        // Redirect to add stocks page
-                        res.redirect('/stocks/add');
+                // Execute the query to insert new invoice items
+                database.query(queryInsertInvoiceItems, [itemsData], (err, result) => {
+                    if (err) {
+                        console.error('Error inserting invoice items:', err);
+                        // Rollback the transaction
+                        database.rollback(() => {
+                            console.error('Transaction rolled back due to error');
+                            return res.status(500).send('Internal Server Error');
+                        });
+                    }
+
+                    // Update stock quantities based on the invoice items
+                    updateStockQuantities(itemsData, () => {
+                        // Commit the transaction
+                        database.commit(err => {
+                            if (err) {
+                                console.error('Error committing transaction:', err);
+                                // Rollback the transaction
+                                database.rollback(() => {
+                                    console.error('Transaction rolled back due to error');
+                                    return res.status(500).send('Internal Server Error');
+                                });
+                            }
+
+                            console.log('Transaction committed successfully');
+                            // Redirect to add stocks page
+                            res.redirect('/stocks/add');
+                        });
                     });
                 });
             });
         });
     });
 });
+
 
 // Function to update stock quantities based on invoice items
 function updateStockQuantities(itemsData, callback) {

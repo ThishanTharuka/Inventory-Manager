@@ -156,3 +156,56 @@ form h3 {
   display: flex;
   justify-content: end;
 }
+
+#invoice-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+#invoice-container input {
+  width: 20%;
+  margin: 1rem;
+}
+
+#invoice-container div {
+  margin-top: 0.5rem;
+  padding: 0.25rem;
+}
+
+table {
+  width: 98%;
+  margin: 20px auto;
+}
+
+table,
+th,
+td {
+  border-collapse: collapse;
+  border: 1px solid #2e2e2e;
+}
+
+th,
+td {
+  padding-top: 5px;
+  padding-bottom: 5px;
+  text-align: center;
+}
+
+thead {
+  height: 2rem;
+  font-family: "Montserrat", sans-serif;
+}
+
+tr {
+  height: min-content !important;
+}
+
+.subtitle {
+  font-family: "Montserrat", sans-serif;
+  font-weight: 550;
+  font-size: 1.2rem;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}

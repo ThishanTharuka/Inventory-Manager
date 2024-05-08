@@ -4,6 +4,7 @@ const itemRoutes = require('./routes/items');
 const shopRoutes = require('./routes/shops');
 const stockRoutes = require('./routes/stocks');
 const invoiceRoutes = require('./routes/invoice');
+const orderRoutes = require('./routes/orders')
 
 //express app
 const app = express();
@@ -34,6 +35,7 @@ app.use(itemRoutes);
 app.use(shopRoutes);
 app.use(stockRoutes);
 app.use(invoiceRoutes);
+app.use(orderRoutes);
 
 // 404 page
 app.use((req, res) => {

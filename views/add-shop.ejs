@@ -25,7 +25,7 @@
                 <div id="input-fields">
                     <label for="Contact_no">Contact No.</label>
                     <input type="text" id="contact_no" name="contact_no"
-                        value="<%= mode === 'edit' ? shop.owner : '' %>" >
+                        value="<%= mode === 'edit' ? shop.contact_no : '' %>">
                 </div>
                 <div id="input-fields">
                     <label for="Location">City</label>
@@ -34,8 +34,8 @@
                 </div>
                 <div id="input-fields">
                     <label for="Address">Address</label>
-                    <input type="textarea" id="address" name="address" value="<%= mode === 'edit' ? shop.address : '' %>"
-                        required>
+                    <input type="text" id="address" name="address"
+                        value="<%= mode === 'edit' ? shop.Address : '' %>" required>
                 </div>
                 <div id="add-item-btn">
                     <button type="submit">

@@ -24,7 +24,7 @@ router.post('/add-shop', (req, res) => {
     const { shop_name, contact_no, location, address } = req.body;
 
     const query = `INSERT INTO dealers ( shop_name, contact_no, location, address) 
-                   VALUES ( ?, ?, ?, ?)`;
+                   VALUES ( ?, ?, ?, ? )`;
 
     const values = [shop_name, contact_no, location, address];
 

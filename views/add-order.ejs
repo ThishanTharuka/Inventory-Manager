@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/add-page.css">
+    <link rel="stylesheet" href="/nav.css">
+    <title>
+        <%= title %>
+    </title>
+</head>
+
+<body>
+    <!-- Include the navigation partial -->
+    <%- include('./partials/nav.ejs') %>
+        <div id="container">
+            <form action="/add-order" method="post">
+                <div id="input-fields">
+                    <label for="Invoice">Order ID</label>
+                    <input type="text" id="order_id" name="order_id" required>
+                </div>
+                <div id="input-fields">
+                    <label for="Date">Date</label>
+                    <input type="date" id="date" name="date" required>
+                </div>
+                <div id="invoice-container">
+                    <!-- Container to add items from an invoice-->
+                    <p class="subtitle">Add Items from Invoice</p>
+                    <label for="invoice_id">Invoice ID</label>
+                    <input type="text" id="invoice_id" name="invoice_id">
+                    <div>
+                        <button type="button" onclick="fetchInvoiceItems()">Add Items</button>
+                    </div>
+                </div>
+                <table id="items-table">
+                    <thead>
+                        <th>Item Code</th>
+                        <th>Quantity</th>
+                    </thead>
+                    <tbody id="items-body">
+                        <!-- Items will be dynamically added here -->
+                    </tbody>
+                </table>
+                <div id="add-item-btn">
+                    <button type="submit">Add Order</button>
+                </div>
+            </form>
+        </div>
+
+        <script>
+            function fetchInvoiceItems() {
+                const invoiceId = document.getElementById('invoice_id').value;
+                fetch(`/orders/invoice-items/${invoiceId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        const itemsBody = document.getElementById('items-body');
+                        itemsBody.innerHTML = ''; // Clear previous items
+                        data.forEach(item => {
+                            const row = document.createElement('tr');
+                            row.innerHTML = `
+                            <td>${item.item_code}</td>
+                            <td><input type="number" name="quantity_${item.item_code}" value="${item.quantity}" required></td>
+                        `;
+                            itemsBody.appendChild(row);
+                        });
+                    })
+                    .catch(error => console.error('Error fetching invoice items:', error));
+            }
+        </script>
+</body>
+
+</html>
