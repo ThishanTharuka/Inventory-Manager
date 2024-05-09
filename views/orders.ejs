@@ -13,6 +13,15 @@
 <body>
     <!-- Include the navigation partial -->
     <%- include('./partials/nav.ejs') %>
+    <div id="top-bar">
+        <div id="page-name">
+          <p>Orders</p>
+        </div>
+        <div id="add-new">
+          <!-- Add New Shop button -->
+          <a href="/orders/add" id="add-new-btn">Add New</a>
+        </div>
+      </div>
     <main>
         <form class="top-bar" action="/orders" method="get">
             <label for="search">Search Order ID:</label>

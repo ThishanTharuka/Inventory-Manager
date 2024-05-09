@@ -26,12 +26,14 @@
                 </div>
                 <div id="input-fields">
                     <label for="Dealer">Dealer Name</label>
-                    <input type="text" id="dealer_id" name="dealer_id" required>
-                </div>
-                <div id="input-fields">
-                    <label for="Discount">Discount</label>
-                    <input type="number" id="discount" name="discount" required>
-                </div>
+                    <select id="dealer_name" name="dealer_name" required>
+                        <% dealers.forEach(dealer=> { %>
+                            <option value="<%= dealer.shop_name %>">
+                                <%= dealer.shop_name %>
+                            </option>
+                        <% }); %>
+                    </select>
+                </div>                               
                 <div id="invoice-container">
                     <!-- Container to add items from an invoice-->
                     <p class="subtitle">Add Items from Invoice</p>
@@ -45,6 +47,7 @@
                     <thead>
                         <th>Item Code</th>
                         <th>Quantity</th>
+                        <th>Discount</th>
                     </thead>
                     <tbody id="items-body">
                         <!-- Items will be dynamically added here -->
@@ -83,6 +86,7 @@
                                 </select>
                             </td>
                             <td><input type="number" name="invoice_quantities[]" value="${item.quantity}" required></td>
+                            <td><input type="number" name="invoice_discounts[]" placeholder="0" required></td>
                         `;
                             itemsBody.appendChild(row);
                         });
@@ -109,6 +113,10 @@
                 <div>
                     <label for="Quantity">Quantity</label>
                     <input type="number" name="quantities[]" required>
+                </div>
+                <div>
+                    <label for="Discount">Discount</label>
+                    <input type="number" name="discounts[]" required>
                 </div>
                 <div>
                     <button type="button" onclick="removeItem(this)">Remove</button>
