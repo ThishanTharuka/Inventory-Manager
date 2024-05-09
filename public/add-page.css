@@ -157,7 +157,7 @@ form h3 {
   justify-content: end;
 }
 
-#invoice-container {
+#invoice-container, #items-container {
   display: flex;
   justify-content: center;
   align-items: center;
