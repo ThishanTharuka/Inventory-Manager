@@ -5,42 +5,21 @@ const database = require('../database');
 
 // Function to calculate stock quantities
 function calculateStockQuantities(callback) {
-    // SQL query to update stock quantities based on invoice items
-    const refreshStockQuery = `
-        UPDATE stocks s
-        JOIN (
-            SELECT ii.item_code, SUM(ii.quantity) AS total_quantity
-            FROM invoice_items ii
-            GROUP BY ii.item_code
-        ) AS sub
-        ON s.item_code = sub.item_code
-        SET s.quantity = sub.total_quantity
-    `;
+    console.log('Stock quantities refreshed successfully');
+
+    // Remove entries from stocks table where quantity is 0
+    const removeZeroQuantityQuery = `DELETE FROM stocks WHERE quantity = 0`;
 
     // Execute the query
-    database.query(refreshStockQuery, (err, result) => {
+    database.query(removeZeroQuantityQuery, (err, result) => {
         if (err) {
-            console.error('Error refreshing stock quantities:', err);
+            console.error('Error removing entries with zero quantity:', err);
             callback(err);
             return;
         }
 
-        console.log('Stock quantities refreshed successfully');
-
-        // Remove entries from stocks table where quantity is 0
-        const removeZeroQuantityQuery = `DELETE FROM stocks WHERE quantity = 0`;
-
-        // Execute the query
-        database.query(removeZeroQuantityQuery, (err, result) => {
-            if (err) {
-                console.error('Error removing entries with zero quantity:', err);
-                callback(err);
-                return;
-            }
-
-            console.log('Entries with zero quantity removed successfully');
-            callback(null);
-        });
+        console.log('Entries with zero quantity removed successfully');
+        callback(null);
     });
 }
 

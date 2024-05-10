@@ -77,17 +77,17 @@ router.post('/update-shop', (req, res) => {
     // Extract updated values from req.body
     const shop_id = req.body.shop_id;
     const shop_name = req.body.shop_name;
-    const owner = req.body.owner;
+    const contact_no = req.body.contact_no;
     const location = req.body.location;
     const address = req.body.address;
 
     // Update the shop in the database
     const query = `
         UPDATE dealers 
-        SET shop_name = ?, owner = ?, location = ?, address = ? 
+        SET shop_name = ?, contact_no = ?, location = ?, address = ? 
         WHERE shop_id = ?`;
 
-    const values = [shop_name, owner, location, address, shop_id];
+    const values = [shop_name, contact_no, location, address, shop_id];
 
     database.query(query, values, (err, result) => {
         if (err) {

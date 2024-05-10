@@ -5,25 +5,33 @@ const database = require('../database');
 // GET route to fetch all orders
 router.get('/orders', (req, res) => {
     const { search } = req.query;
-    let orderQuery = 'SELECT * FROM orders';
+    let orderQuery = `
+        SELECT o.*, d.shop_name AS dealer_name
+        FROM orders o
+        JOIN dealers d ON o.dealer_id = d.shop_id
+    `;
 
     // If a search parameter is provided, filter orders based on it
     if (search) {
-        orderQuery += ` WHERE order_id LIKE '%${search}%'`;
+        orderQuery += ` WHERE o.order_id LIKE '%${search}%'`;
     }
 
     database.query(orderQuery, (err, orders) => {
         if (err) {
-            throw err;
+            console.error('Error fetching orders:', err);
+            res.status(500).send('Internal Server Error');
+            return;
         }
 
         // Fetch additional details for each order
         const promises = orders.map((order) => {
             return new Promise((resolve, reject) => {
-                const itemsQuery = `SELECT oi.item_code, i.description, oi.quantity
-                FROM order_items oi
-                JOIN items i ON oi.item_code = i.item_code
-                WHERE oi.order_id = ?`;
+                const itemsQuery = `
+                    SELECT oi.item_code, i.description, oi.quantity
+                    FROM order_items oi
+                    JOIN items i ON oi.item_code = i.item_code
+                    WHERE oi.order_id = ?
+                `;
 
                 database.query(itemsQuery, [order.order_id], (err, items) => {
                     if (err) {
@@ -46,6 +54,7 @@ router.get('/orders', (req, res) => {
             });
     });
 });
+
 
 
 // GET route to render the 'add order' form
@@ -72,11 +81,35 @@ router.get('/orders/add', (req, res) => {
     });
 });
 
+// Route to fetch item name based on item code
+router.get('/items/:itemCode', (req, res) => {
+    const { itemCode } = req.params;
+
+    // Query the database to fetch the item name based on item code
+    const query = 'SELECT description FROM items WHERE item_code = ?';
+    database.query(query, [itemCode], (err, result) => {
+        if (err) {
+            console.error('Error fetching item name:', err);
+            res.status(500).json({ error: 'Internal server error' });
+        } else {
+            if (result.length === 0) {
+                res.status(404).json({ error: 'Item not found' });
+            } else {
+                const itemName = result[0].description;
+                res.json({ description: itemName });
+            }
+        }
+    });
+});
 
 // GET route to fetch invoice items based on invoice ID
 router.get('/orders/invoice-items/:invoiceId', (req, res) => {
     const { invoiceId } = req.params;
-    const query = 'SELECT * FROM invoice_items WHERE invoice_id = ?';
+    const query = `
+        SELECT ii.item_code, i.description, ii.quantity
+        FROM invoice_items ii
+        JOIN items i ON ii.item_code = i.item_code
+        WHERE ii.invoice_id = ?`;
     database.query(query, [invoiceId], (err, items) => {
         if (err) {
             console.error('Error fetching invoice items:', err);
@@ -87,7 +120,7 @@ router.get('/orders/invoice-items/:invoiceId', (req, res) => {
     });
 });
 
-// POST route to handle form submission and add the order to the database
+
 // POST route to handle form submission and add the order to the database
 router.post('/add-order', (req, res) => {
 const { order_id, date, dealer_name, discounts, invoice_id, item_codes, quantities } = req.body;

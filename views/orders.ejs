@@ -34,6 +34,7 @@
                 <% orders.forEach((order) => { %>
                     <div class="order-card">
                         <h3>Order ID: <%= order.order_id %></h3>
+                        <p>Dealer Name: <%= order.dealer_name %></p>
                         <p>Date: <%= order.order_date.toLocaleDateString() %></p>
                         <table id="order-tbl">
                             <thead>
