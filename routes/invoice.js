@@ -51,6 +51,7 @@ router.get('/invoices', (req, res) => {
 
             // Add item details to the items array of the existing invoice
             existingInvoice.items.push({
+                item_code: row.item_code,
                 description: row.description,
                 quantity: row.quantity,
                 price_per_item: row.price_per_item,

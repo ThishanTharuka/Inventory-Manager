@@ -31,7 +31,7 @@
                             <option value="<%= dealer.shop_name %>">
                                 <%= dealer.shop_name %>
                             </option>
-                        <% }); %>
+                            <% }); %>
                     </select>
                 </div>
                 <div id="invoice-container">
@@ -46,6 +46,7 @@
                         <thead>
                             <th>Item Code</th>
                             <th>Item Name</th>
+                            <th>Unit Price</th>
                             <th>Quantity</th>
                             <th>Discount (%)</th>
                         </thead>
@@ -87,8 +88,9 @@
                                 </select>
                             </td>
                             <td>${item.description}</td>
+                            <td><input type="number" step="0.01" name="invoice_prices[]" value="${item.price}" required ></td>
                             <td><input type="number" name="invoice_quantities[]" value="${item.quantity}" required></td>
-                            <td><input type="number" name="invoice_discounts[]" placeholder="0" required></td>
+                            <td><input type="text" name="invoice_discounts[]" placeholder="0" pattern="[0-9]+(\.[0-9]+)?" title="Please enter a valid number" required></td>
                         `;
                             itemsBody.appendChild(row);
                         });
@@ -102,7 +104,7 @@
                     <div class="item-field">
                         <div>
                             <label for="Item">Item Code</label>
-                            <select name="item_codes[]" onchange="fetchItemName(this.value)" required>
+                            <select name="item_codes[]" onchange="fetchItemName(this)" required>
                                 <% items.forEach(item=> { %>
                                     <option value="<%= item.item_code %>">
                                         <%= item.item_code %>
@@ -112,7 +114,11 @@
                         </div>
                         <div>
                             <label for="Description">Item Name</label>
-                            <input type="text" name="descriptions[]" id="item_name" required readonly>
+                            <input type="text" name="descriptions[]" class="item-name" required readonly>
+                        </div>
+                        <div>
+                            <label for="Price">Unit Price</label>
+                            <input type="number" step="0.01" name="prices[]" required>
                         </div>
                         <div>
                             <label for="Quantity">Quantity</label>
@@ -120,7 +126,7 @@
                         </div>
                         <div>
                             <label for="Discount">Discount</label>
-                            <input type="number" name="discounts[]" required>
+                            <input type="text" name="discounts[]" pattern="[0-9]+(\.[0-9]+)?" title="Please enter a valid number" required>
                         </div>
                         <div>
                             <button type="button" onclick="removeItem(this)">Remove</button>
@@ -135,15 +141,20 @@
                 itemField.remove();
             }
 
-            function fetchItemName(itemCode) {
+            // JavaScript function to fetch the item name and price based on the selected item code 
+            function fetchItemName(selectElement) {
+                const itemCode = selectElement.value;
+                const itemField = selectElement.closest('.item-field');
+                const itemNameInput = itemField.querySelector('.item-name');
                 fetch(`/items/${itemCode}`)
                     .then(response => response.json())
                     .then(data => {
-                        const itemNameInput = document.getElementById('item_name');
+                        console.log('Received data:', data); // Log received data
                         itemNameInput.value = data.description;
                     })
-                    .catch(error => console.error('Error fetching item name:', error));
+                    .catch(error => console.error('Error fetching item details:', error));
             }
+
         </script>
 </body>
 

@@ -27,7 +27,7 @@ router.get('/orders', (req, res) => {
         const promises = orders.map((order) => {
             return new Promise((resolve, reject) => {
                 const itemsQuery = `
-                    SELECT oi.item_code, i.description, oi.quantity
+                    SELECT oi.item_code, i.description, oi.quantity, oi.price_per_item, oi.total, oi.discount
                     FROM order_items oi
                     JOIN items i ON oi.item_code = i.item_code
                     WHERE oi.order_id = ?
@@ -123,8 +123,8 @@ router.get('/orders/invoice-items/:invoiceId', (req, res) => {
 
 // POST route to handle form submission and add the order to the database
 router.post('/add-order', (req, res) => {
-const { order_id, date, dealer_name, discounts, invoice_id, item_codes, quantities } = req.body;
-    const { invoice_quantities, invoice_item_codes, invoice_discounts } = req.body;
+    const { order_id, date, dealer_name, discounts, invoice_id, item_codes, prices, quantities } = req.body;
+    const { invoice_quantities, invoice_item_codes, invoice_discounts, invoice_prices } = req.body;
 
     // Query to get shop_id from dealers table based on shop_name
     const dealerQuery = 'SELECT shop_id FROM dealers WHERE shop_name = ?';
@@ -154,16 +154,25 @@ const { order_id, date, dealer_name, discounts, invoice_id, item_codes, quantiti
                 return;
             }
 
+            // Calculate total for the order
+            let orderTotal = 0;
+
             // Handle inserting invoice items if invoice_id is provided
             if (invoice_id) {
                 // Construct an array to hold the data for each item from the invoice
                 const invoiceItemsData = [];
                 for (let i = 0; i < invoice_item_codes.length; i++) {
                     const item_code = invoice_item_codes[i];
+                    const price = invoice_prices[i];
                     const quantity = invoice_quantities[i];
                     const discount = invoice_discounts[i];
+
+                    // Calculate the total for the item
+                    const total = price * quantity * (1 - discount / 100); // Apply discount
+                    orderTotal += total; // Add to order total
+
                     // Push item data to the array
-                    invoiceItemsData.push([order_id, item_code, quantity, discount]);
+                    invoiceItemsData.push([order_id, item_code, price, quantity, discount, total]);
 
                     // Update stock quantities for each item
                     const updateStockQuery = 'UPDATE stocks SET quantity = quantity - ? WHERE item_code = ?';
@@ -176,7 +185,7 @@ const { order_id, date, dealer_name, discounts, invoice_id, item_codes, quantiti
                 }
 
                 // Construct the SQL query with multiple value sets for invoice items
-                const invoiceItemsQuery = 'INSERT INTO order_items (order_id, item_code, quantity, discount) VALUES ?';
+                const invoiceItemsQuery = 'INSERT INTO order_items (order_id, item_code, price_per_item, quantity, discount, total) VALUES ?';
                 database.query(invoiceItemsQuery, [invoiceItemsData], (err, result) => {
                     if (err) {
                         console.error('Error adding invoice items to order:', err);
@@ -192,10 +201,16 @@ const { order_id, date, dealer_name, discounts, invoice_id, item_codes, quantiti
                 const additionalItemsData = [];
                 for (let i = 0; i < item_codes.length; i++) {
                     const item_code = item_codes[i];
+                    const price = prices[i];
                     const quantity = quantities[i];
                     const discount = discounts[i];
+
+                    // Calculate the total for the item
+                    const total = price * quantity * (1 - discount / 100); // Apply discount
+                    orderTotal += total; // Add to order total
+
                     // Push item data to the array
-                    additionalItemsData.push([order_id, item_code, quantity, discount]);
+                    additionalItemsData.push([order_id, item_code, price, quantity, discount, total]);
 
                     // Update stock quantities for each additional item
                     const updateStockQuery = 'UPDATE stocks SET quantity = quantity - ? WHERE item_code = ?';
@@ -208,7 +223,7 @@ const { order_id, date, dealer_name, discounts, invoice_id, item_codes, quantiti
                 }
 
                 // Construct the SQL query with multiple value sets for additional items
-                const additionalItemsQuery = 'INSERT INTO order_items (order_id, item_code, quantity, discount) VALUES ?';
+                const additionalItemsQuery = 'INSERT INTO order_items (order_id, item_code, price_per_item, quantity, discount, total) VALUES ?';
                 database.query(additionalItemsQuery, [additionalItemsData], (err, result) => {
                     if (err) {
                         console.error('Error adding additional items to order:', err);
@@ -218,12 +233,77 @@ const { order_id, date, dealer_name, discounts, invoice_id, item_codes, quantiti
                 });
             }
 
+            // Update the total for the order in the orders table
+            const updateOrderTotalQuery = 'UPDATE orders SET total = ? WHERE order_id = ?';
+            database.query(updateOrderTotalQuery, [orderTotal, order_id], (err, result) => {
+                if (err) {
+                    console.error('Error updating order total:', err);
+                    res.status(500).json({ error: 'Internal server error' });
+                    return;
+                }
+            });
+
             // Redirect to the orders page after successfully adding the order
             res.redirect('/orders');
         });
     });
 });
 
+// Route to handle deleting an order
+router.get('/orders/delete/:id', (req, res) => {
+    const orderId = req.params.id;
+
+    // SQL query to fetch order items quantities
+    const getOrderItemsQuery = `SELECT item_code, quantity FROM order_items WHERE order_id = ?`;
+
+    // Execute the query to fetch order items quantities
+    database.query(getOrderItemsQuery, [orderId], (err, orderItems) => {
+        if (err) {
+            console.error('Error fetching order items:', err);
+            res.status(500).send('Internal Server Error');
+            return;
+        }
+
+        // SQL query to delete order items related to the order
+        const deleteOrderItemsQuery = `DELETE FROM order_items WHERE order_id = ?`;
+
+        // Execute the query to delete order items
+        database.query(deleteOrderItemsQuery, [orderId], (err, result) => {
+            if (err) {
+                console.error('Error deleting order items:', err);
+                res.status(500).send('Internal Server Error');
+                return;
+            }
+
+            // SQL query to delete order from orders table
+            const deleteOrderQuery = `DELETE FROM orders WHERE order_id = ?`;
+
+            // Execute the query to delete order
+            database.query(deleteOrderQuery, [orderId], (err, result) => {
+                if (err) {
+                    console.error('Error deleting order:', err);
+                    res.status(500).send('Internal Server Error');
+                    return;
+                }
+
+                // Deduct removed item quantities from stock
+                orderItems.forEach(item => {
+                    const updateStockQuery = `UPDATE stocks SET quantity = quantity + ? WHERE item_code = ?`;
+                    database.query(updateStockQuery, [item.quantity, item.item_code], (err, result) => {
+                        if (err) {
+                            console.error('Error updating stock quantity:', err);
+                            res.status(500).send('Internal Server Error');
+                            return;
+                        }
+                    });
+                });
+
+                console.log('Order deleted successfully');
+                res.redirect('/orders');
+            });
+        });
+    });
+});
 
 
 

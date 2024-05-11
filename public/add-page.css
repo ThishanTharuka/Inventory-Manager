@@ -55,6 +55,10 @@ form div select {
   width: 50%;
 }
 
+form div .item-name {
+  width: 100%;
+}
+
 form button {
   font-family: "Montserrat", sans-serif;
   font-weight: 550;

@@ -15,6 +15,15 @@
 <body>
     <!-- Include the navigation partial -->
     <%- include('./partials/nav.ejs') %>
+        <div id="top-bar">
+            <div id="page-name">
+                <p>Invoices</p>
+            </div>
+            <div id="add-new">
+                <!-- Add New Invoice button -->
+                <a href="/stocks/add" id="add-new-btn">Add New</a>
+            </div>
+        </div>
         <main>
             <form class="top-bar" action="/invoices" method="get">
                 <label for="search">Search Invoice ID:</label>
@@ -33,7 +42,8 @@
                             <table id="invoice-tbl">
                                 <thead>
                                     <tr>
-                                        <th>Item Name</th>
+                                        <th class="left-align">Item Code</th>
+                                        <th class="left-align">Item Name</th>
                                         <th>Quantity</th>
                                         <th>Price</th>
                                         <th>Extention</th>
@@ -42,23 +52,35 @@
                                 <tbody>
                                     <% invoice.items.forEach((item)=> { %>
                                         <tr>
-                                            <td>
+                                            <td class="left-align">
+                                                <%= item.item_code %>
+                                            </td>
+                                            <td class="left-align">
                                                 <%= item.description %>
                                             </td>
                                             <td>
                                                 <%= item.quantity %>
                                             </td>
                                             <td>
-                                                <%= item.price_per_item.toFixed(2) %>
+                                                <%= item.price_per_item.toLocaleString(undefined, {
+                                                    minimumFractionDigits: 2, maximumFractionDigits: 2 }) %> %>
                                             </td>
                                             <td>
-                                                <%= item.extention.toFixed(2) %></td> <!-- Calculate extension -->
+                                                <%= item.extention.toLocaleString(undefined, { minimumFractionDigits: 2,
+                                                    maximumFractionDigits: 2 }) %>
+                                            </td>
                                             </td>
                                         </tr>
                                         <% }); %>
+                                        <tr>
+                                            <td class="left-align" colspan="4" >Total</td>
+                                            <td>
+                                                <%= invoice.total.toLocaleString(undefined, { minimumFractionDigits: 2,
+                                                    maximumFractionDigits: 2 }) %>
+                                            </td>
+                                        </tr>
                                 </tbody>
                             </table>
-                            <p>Total Balance = <%= invoice.total.toFixed(2) %></p>
                             <div class="button-group">
                                 <a href="/invoices/edit/<%= invoice.invoice_id %>" class="edit-btn">Edit</a>
                                 <a href="/invoices/delete/<%= invoice.invoice_id %>" class="delete-btn">Delete</a>

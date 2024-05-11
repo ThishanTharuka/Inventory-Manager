@@ -239,8 +239,13 @@ form a {
   font-weight: 550;
 }
 
-.invoice-card,.order-card table {
+.invoice-card table {
   background-color: #ffffff;
+}
+
+.order-card table {
+  background-color: #ffffff;
+
 }
 
 #search-btns {
@@ -326,4 +331,9 @@ button {
 #add-new, #summary-btn, #invoice-btn {
   margin-left: 1rem;
   margin-right: 1rem;
+}
+
+.left-align {
+  text-align: left;
+  padding-left: 1rem
 }

@@ -3,23 +3,23 @@ const router = express.Router();
 const async = require('async');
 const database = require('../database');
 
-// Function to calculate stock quantities
-function calculateStockQuantities(callback) {
-    // Remove entries from stocks table where quantity is 0
-    const removeZeroQuantityQuery = `DELETE FROM stocks WHERE quantity = 0`;
+// // Function to calculate stock quantities
+// function calculateStockQuantities(callback) {
+//     // Remove entries from stocks table where quantity is 0
+//     const removeZeroQuantityQuery = `DELETE FROM stocks WHERE quantity = 0`;
 
-    // Execute the query
-    database.query(removeZeroQuantityQuery, (err, result) => {
-        if (err) {
-            console.error('Error removing entries with zero quantity:', err);
-            callback(err);
-            return;
-        }
+//     // Execute the query
+//     database.query(removeZeroQuantityQuery, (err, result) => {
+//         if (err) {
+//             console.error('Error removing entries with zero quantity:', err);
+//             callback(err);
+//             return;
+//         }
 
-        console.log('Entries with zero quantity removed successfully');
-        callback(null);
-    });
-}
+//         console.log('Entries with zero quantity removed successfully');
+//         callback(null);
+//     });
+// }
 
 // Route to render the stocks page
 router.get('/stocks', (req, res) => {
@@ -41,16 +41,8 @@ router.get('/stocks', (req, res) => {
                 throw err;
             }
 
-            // Calculate stock quantities
-            calculateStockQuantities((err) => {
-                if (err) {
-                    res.status(500).send('Internal Server Error');
-                    return;
-                }
-
-                // Render stocks page with updated stock quantities
-                res.render('stocks', { title: 'Stocks', stocks, items });
-            });
+            // Render stocks page with updated stock quantities
+            res.render('stocks', { title: 'Stocks', stocks, items });
         });
     });
 });

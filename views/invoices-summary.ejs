@@ -37,8 +37,8 @@
                             <%= invoice.invoice_date.toLocaleDateString() %>
                         </td>
                         <td>
-                            <%= invoice.total.toFixed(2) %>
-                        </td>
+                            <%= invoice.total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) %>
+                        </td>                        
                     </tr>
                 <% }); %>
             </tbody>

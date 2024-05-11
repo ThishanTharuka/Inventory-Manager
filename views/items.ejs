@@ -48,7 +48,11 @@
                 <%= item.unit %>
               </td>
               <td>
-                <%= item.price %>
+                <% if (item.price !=null) { %>
+                  <%= item.price.toLocaleString() %>
+                    <% } else { %>
+                      N/A
+                      <% } %>
               </td>
               <td id="action">
                 <div id="action-btns">

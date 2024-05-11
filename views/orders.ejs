@@ -6,59 +6,97 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="/styles.css">
     <link rel="stylesheet" href="/nav.css">
-    <title><%= title %></title>
+    <title>
+        <%= title %>
+    </title>
     <link rel="icon" href="/images/order.svg" type="image/x-icon">
 </head>
 
 <body>
     <!-- Include the navigation partial -->
     <%- include('./partials/nav.ejs') %>
-    <div id="top-bar">
-        <div id="page-name">
-          <p>Orders</p>
+        <div id="top-bar">
+            <div id="page-name">
+                <p>Orders</p>
+            </div>
+            <div id="add-new">
+                <!-- Add New Shop button -->
+                <a href="/orders/add" id="add-new-btn">Add New</a>
+            </div>
         </div>
-        <div id="add-new">
-          <!-- Add New Shop button -->
-          <a href="/orders/add" id="add-new-btn">Add New</a>
-        </div>
-      </div>
-    <main>
-        <form class="top-bar" action="/orders" method="get">
-            <label for="search">Search Order ID:</label>
-            <input type="text" id="search" name="search" value="<%= search || '' %>">
-            <button id="search-btns" type="submit">Search</button>
-            <a href="/orders"><button id="search-btns" type="button">Reset</button></a>
-        </form>
-        <div class="cards">
-            <% if (orders.length > 0) { %>
-                <% orders.forEach((order) => { %>
-                    <div class="order-card">
-                        <h3>Order ID: <%= order.order_id %></h3>
-                        <p>Dealer Name: <%= order.dealer_name %></p>
-                        <p>Date: <%= order.order_date.toLocaleDateString() %></p>
-                        <table id="order-tbl">
-                            <thead>
-                                <tr>
-                                    <th>Item Name</th>
-                                    <th>Quantity</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <% order.items.forEach((item) => { %>
+        <main>
+            <form class="top-bar" action="/orders" method="get">
+                <label for="search">Search Order ID:</label>
+                <input type="text" id="search" name="search" value="<%= search || '' %>">
+                <button id="search-btns" type="submit">Search</button>
+                <a href="/orders"><button id="search-btns" type="button">Reset</button></a>
+            </form>
+            <div class="cards">
+                <% if (orders.length> 0) { %>
+                    <% orders.forEach((order)=> { %>
+                        <div class="order-card">
+                            <h3>Order ID: <%= order.order_id %>
+                            </h3>
+                            <p>Dealer Name: <%= order.dealer_name %>
+                            </p>
+                            <p>Date: <%= order.order_date.toLocaleDateString() %>
+                            </p>
+                            <table id="order-tbl">
+                                <thead>
                                     <tr>
-                                        <td><%= item.description %></td>
-                                        <td><%= item.quantity %></td>
+                                        <th class="left-align">Item Code</th>
+                                        <th class="left-align">Item Name</th>
+                                        <th>Quantity</th>
+                                        <th>Price</th>
+                                        <th>Discount</th>
+                                        <th>Total</th>
                                     </tr>
-                                <% }); %>
-                            </tbody>
-                        </table>
-                    </div>
-                <% }); %>
-            <% } else { %>
-                <p>No orders found.</p>
-            <% } %>
-        </div>
-    </main>
+                                </thead>
+                                <tbody>
+                                    <% order.items.forEach((item)=> { %>
+                                        <tr>
+                                            <td class="left-align">
+                                                <%= item.item_code %>
+                                            </td>
+                                            <td class="left-align">
+                                                <%= item.description %>
+                                            </td>
+                                            <td>
+                                                <%= item.quantity %>
+                                            </td>
+                                            <td>
+                                                <%= item.price_per_item.toLocaleString(undefined, {
+                                                    minimumFractionDigits: 2, maximumFractionDigits: 2 }) %>
+                                            </td>
+                                            <td>
+                                                <%= item.discount %> %
+                                            </td>
+                                            <td>
+                                                <%= item.total.toLocaleString(undefined, { minimumFractionDigits: 2,
+                                                    maximumFractionDigits: 2 }) %>
+                                            </td>
+                                        </tr>
+                                        <% }); %>
+                                            <tr>
+                                                <td class="left-align" colspan="5">Total</td>
+                                                <td>
+                                                    <%= order.total.toLocaleString(undefined, { minimumFractionDigits:
+                                                        2, maximumFractionDigits: 2 }) %>
+                                                </td>
+                                            </tr>
+                                </tbody>
+                            </table>
+                            <div class="button-group">
+                                <a href="/orders/edit/<%= order.order_id %>" class="edit-btn">Edit</a>
+                                <a href="/orders/delete/<%= order.order_id %>" class="delete-btn">Delete</a>
+                            </div>
+                        </div>
+                        <% }); %>
+                            <% } else { %>
+                                <p>No orders found.</p>
+                                <% } %>
+            </div>
+        </main>
 </body>
 
 </html>
