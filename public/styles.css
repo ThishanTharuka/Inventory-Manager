@@ -17,7 +17,7 @@ body {
 #top-bar {
   display: flex;
   flex-direction: row;
-  justify-content: space-between;
+  justify-content: space-between !important; 
   padding-left: 2%;
   padding-right: 2%;
   padding-top: 1%;
@@ -323,3 +323,7 @@ button {
   margin: 2px;
 }
 
+#add-new, #summary-btn, #invoice-btn {
+  margin-left: 1rem;
+  margin-right: 1rem;
+}

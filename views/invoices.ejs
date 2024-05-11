@@ -49,10 +49,10 @@
                                                 <%= item.quantity %>
                                             </td>
                                             <td>
-                                                <%= item.price %>
+                                                <%= item.price_per_item.toFixed(2) %>
                                             </td>
                                             <td>
-                                                <%= (item.price * item.quantity).toFixed(2) %></td> <!-- Calculate extension -->
+                                                <%= item.extention.toFixed(2) %></td> <!-- Calculate extension -->
                                             </td>
                                         </tr>
                                         <% }); %>

@@ -15,63 +15,81 @@
 <body>
     <!-- Include the navigation partial -->
     <%- include('./partials/nav.ejs') %>
-    <div id="container">
-        <form action="/add-invoice" method="post">
-            <div id="input-fields">
-                <label for="Invoice">Invoice ID</label>
-                <input type="text" id="invoice_id" name="invoice_id"
-                    value="<%= lastAddedInvoice ? lastAddedInvoice.invoice_id : '' %>" required>
-            </div>
-            <div id="items-container">
-                <!-- Container to hold dynamically added items -->
-            </div>
-            <div id="add-item-btn">
-                <button type="button" onclick="addItem()">Add Item</button>
-            </div>
-            <div id="input-fields">
-                <label for="Date">Date</label>
-                <input type="date" id="date" name="date"
-                    value="<%= lastAddedInvoice ? lastAddedInvoice.date : '' %>" required>
-            </div>
-            <div id="add-item-btn">
-                <button type="submit">Add Invoice</button>
-            </div>
-        </form>
-    </div>
-    <script>
-        // JavaScript function to add a new item input field
-        function addItem() {
-            const itemsContainer = document.getElementById('items-container');
-            const newItemField = `
-            <div class="item-field">
-                <div>
-                    <label for="Item">Item Code</label>
-                    <select name="item_codes[]" required>
-                        <% items.forEach(item=> { %>
-                            <option value="<%= item.item_code %>">
-                                <%= item.item_code %>
-                            </option>
-                        <% }); %>
-                    </select>
+        <div id="container">
+            <form action="/add-invoice" method="post">
+                <div id="input-fields">
+                    <label for="Invoice">Invoice ID</label>
+                    <input type="text" id="invoice_id" name="invoice_id" required>
                 </div>
-                <div>
-                    <label for="Quantity">Quantity</label>
-                    <input type="number" name="quantities[]" required>
+                <div id="items-container">
+                    <!-- Container to hold dynamically added items -->
                 </div>
-                <div>
-                    <button type="button" onclick="removeItem(this)">Remove</button>
+                <div id="add-item-btn">
+                    <button type="button" onclick="addItem()">Add Item</button>
                 </div>
-            </div>
-        `;
-            itemsContainer.insertAdjacentHTML('beforeend', newItemField);
-        }
+                <div id="input-fields">
+                    <label for="Date">Date</label>
+                    <input type="date" id="date" name="date" required>
+                </div>
+                <div id="add-item-btn">
+                    <button type="submit">Add Invoice</button>
+                </div>
+            </form>
+        </div>
+        <script>
+            // JavaScript function to add a new item input field
+            function addItem() {
+                const itemsContainer = document.getElementById('items-container');
+                const newItemField = `
+                <div class="item-field">
+                    <div>
+                        <label for="Item">Item Code</label>
+                        <select name="item_codes[]" onchange="fetchItemName(this)" required>
+                            <% items.forEach(item=> { %>
+                                <option value="<%= item.item_code %>">
+                                    <%= item.item_code %>
+                                </option>
+                            <% }); %>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="Description">Item Name</label>
+                        <input type="text" name="descriptions[]" class="item-name" required readonly>
+                    </div>               
+                    <div>
+                        <label for="Quantity">Quantity</label>
+                        <input type="number" name="quantities[]" required>
+                    </div>
+                    <div>
+                        <button type="button" onclick="removeItem(this)">Remove</button>
+                    </div>
+                </div>
+            `;
+                itemsContainer.insertAdjacentHTML('beforeend', newItemField);
+            }
 
-        // JavaScript function to remove an item input field
-        function removeItem(button) {
-            const itemField = button.closest('.item-field');
-            itemField.remove();
-        }
-    </script>
+            // JavaScript function to remove an item input field
+            function removeItem(button) {
+                const itemField = button.closest('.item-field');
+                itemField.remove();
+            }
+
+            // JavaScript function to fetch the item name and price based on the selected item code 
+            function fetchItemName(selectElement) {
+                const itemCode = selectElement.value;
+                const itemField = selectElement.closest('.item-field');
+                const itemNameInput = itemField.querySelector('.item-name');
+                fetch(`/items/${itemCode}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log('Received data:', data); // Log received data
+                        itemNameInput.value = data.description;
+                    })
+                    .catch(error => console.error('Error fetching item details:', error));
+            }
+
+
+        </script>
 </body>
 
 </html>

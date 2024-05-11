@@ -5,55 +5,78 @@ const database = require('../database');
 
 router.get('/invoices', (req, res) => {
     const { search } = req.query;
-    let invoiceQuery = 'SELECT * FROM invoices';
+    let invoiceQuery = `SELECT 
+                            i.invoice_id, 
+                            i.invoice_date, 
+                            i.total, 
+                            ii.item_code, 
+                            ii.quantity, 
+                            ii.price_per_item, 
+                            ii.extention, 
+                            it.description 
+                        FROM 
+                            invoices i 
+                            JOIN invoice_items ii ON i.invoice_id = ii.invoice_id 
+                            JOIN items it ON ii.item_code = it.item_code`;
 
     // If a search parameter is provided, filter invoices based on it
     if (search) {
-        invoiceQuery += ` WHERE invoice_id LIKE '%${search}%'`;
+        invoiceQuery += ` WHERE i.invoice_id LIKE '%${search}%'`;
     }
 
-    database.query(invoiceQuery, (err, invoices) => {
+    database.query(invoiceQuery, (err, rows) => {
+        if (err) {
+            console.error('Error fetching invoices:', err);
+            res.status(500).send('Internal Server Error');
+            return;
+        }
+
+        // Process rows to organize data into an array of invoices
+        const invoices = [];
+
+        rows.forEach(row => {
+            // Check if invoice with this ID already exists in invoices array
+            let existingInvoice = invoices.find(inv => inv.invoice_id === row.invoice_id);
+
+            if (!existingInvoice) {
+                // If invoice doesn't exist, create a new one
+                existingInvoice = {
+                    invoice_id: row.invoice_id,
+                    invoice_date: row.invoice_date,
+                    total: row.total,
+                    items: []
+                };
+                invoices.push(existingInvoice);
+            }
+
+            // Add item details to the items array of the existing invoice
+            existingInvoice.items.push({
+                description: row.description,
+                quantity: row.quantity,
+                price_per_item: row.price_per_item,
+                extention: row.extention
+
+                
+            });
+
+        });
+
+
+        // Render the invoices page with fetched data
+        res.render('invoices', { title: 'Invoices', invoices, search });
+    });
+});
+
+
+router.get('/invoice-summary', (req, res) => {
+    // Fetch invoice summary data from the database
+    const query = `SELECT * FROM invoices`;
+
+    database.query(query, (err, invoices) => {
         if (err) {
             throw err;
         }
-
-        // Fetch additional details for each invoice (similar to the previous example)
-
-        const promises = invoices.map((invoice) => {
-            return new Promise((resolve, reject) => {
-                const itemsQuery = `SELECT ii.item_code, i.description, ii.quantity, i.price
-                FROM invoice_items ii
-                JOIN items i ON ii.item_code = i.item_code
-                WHERE ii.invoice_id = ?`;
-
-                database.query(itemsQuery, [invoice.invoice_id], (err, items) => {
-                    if (err) {
-                        reject(err);
-                    } else {
-                        // Calculate the extension for each item and add it to the item object
-                        items.forEach((item) => {
-                            item.extension = item.price * item.quantity;
-                        });
-                
-                        // Calculate the total for the invoice
-                        const total = items.reduce((acc, item) => acc + item.extension, 0);
-                        
-                        invoice.items = items;
-                        invoice.total = total; // Add the total to the invoice object
-                        resolve();
-                    }
-                });
-            });
-        });
-
-        Promise.all(promises)
-            .then(() => {
-                res.render('invoices', { title: 'Invoices', invoices, search });
-            })
-            .catch((error) => {
-                console.error('Error fetching items for invoices:', error);
-                res.status(500).send('Internal Server Error');
-            });
+        res.render('invoices-summary', { title: 'Invoices Summary', invoices });
     });
 });
 
