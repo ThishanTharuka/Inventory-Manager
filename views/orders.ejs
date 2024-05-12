@@ -41,6 +41,13 @@
                             </p>
                             <p>Date: <%= order.order_date.toLocaleDateString() %>
                             </p>
+                            <p>
+                                <% if (order.invoice_id) { %>
+                                    Invoice ID: <%= order.invoice_id %>
+                                    <% } else { %>
+                                        Invoice ID: Not Available
+                                        <% } %>
+                            </p>
                             <table id="order-tbl">
                                 <thead>
                                     <tr>

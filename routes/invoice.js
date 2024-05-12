@@ -86,7 +86,7 @@ router.get('/invoices/edit/:id', (req, res) => {
 
     // Fetch invoice details and associated items from the database
     const query = `
-        SELECT i.invoice_id, i.invoice_date, ii.item_code, ii.quantity
+        SELECT i.invoice_id, i.invoice_date, ii.item_code, ii.quantity, ii.price_per_item
         FROM invoices i
         LEFT JOIN invoice_items ii ON i.invoice_id = ii.invoice_id
         WHERE i.invoice_id = ?
@@ -105,7 +105,8 @@ router.get('/invoices/edit/:id', (req, res) => {
             invoice_date: results[0].invoice_date,
             items: results.map(row => ({
                 item_code: row.item_code,
-                quantity: row.quantity
+                quantity: row.quantity,
+                price_per_item: row.price_per_item
             }))
         };
 
@@ -138,40 +139,55 @@ router.post('/update-invoice', (req, res) => {
                 res.status(500).send("Internal Server Error");
                 return; // Return here to prevent further execution
             }
-            // Proceed with updating item quantities
+            // Proceed with updating item quantities and prices
             updateItemQuantities();
         });
     } else {
-        // If no new date is provided, proceed with updating item quantities directly
+        // If no new date is provided, proceed with updating item quantities and prices directly
         updateItemQuantities();
     }
 
     function updateItemQuantities() {
-        // Update quantities for each item in the invoice_items table
+        // Update quantities, price_per_item, and extension for each item in the invoice_items table
         const updateItemsPromises = items.map(item => {
-            const updateItemQuery = `UPDATE invoice_items SET quantity = ? WHERE invoice_id = ? AND item_code = ?`;
+            const extension = item.quantity * item.price_per_item;
+            const updateItemQuery = `UPDATE invoice_items SET quantity = ?, price_per_item = ?, extention = ? WHERE invoice_id = ? AND item_code IN (?)`;
             return new Promise((resolve, reject) => {
-                database.query(updateItemQuery, [item.quantity, invoiceId, item.item_code], (err, result) => {
+                database.query(updateItemQuery, [item.quantity, item.price_per_item, extension, invoiceId, item.item_code], (err, result) => {
                     if (err) {
                         reject(err);
                     } else {
-                        resolve();
+                        resolve(extension); // Resolve with the extension value
                     }
                 });
             });
         });
-
+    
         Promise.all(updateItemsPromises)
-            .then(() => {
-                console.log("Invoice details updated successfully");
-                res.redirect("/invoices");
+            .then(extensions => {
+                // Calculate the total by summing up all extensions
+                const total = extensions.reduce((acc, curr) => acc + curr, 0);
+                // Update the total column in the invoices table
+                const updateTotalQuery = `UPDATE invoices SET total = ? WHERE invoice_id = ?`;
+                database.query(updateTotalQuery, [total, invoiceId], (err, result) => {
+                    if (err) {
+                        console.error("Error updating total:", err);
+                        res.status(500).send("Internal Server Error");
+                        return;
+                    }
+                    console.log("Invoice details updated successfully");
+                    res.redirect("/invoices");
+                });
             })
             .catch(error => {
-                console.error("Error updating item quantities:", error);
+                console.error("Error updating item quantities, prices, and extensions:", error);
                 res.status(500).send("Internal Server Error");
             });
     }
+    
+    
 });
+
 
 router.get('/items/remove/:item_code', (req, res) => {
     const itemCode = req.params.item_code;

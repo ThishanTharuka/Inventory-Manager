@@ -181,7 +181,7 @@ main {
   color: aliceblue;
 }
 
-.invoice-card, .order-card {
+.invoice-card {
   background-color: aliceblue;
   display: flex;
   flex-direction: column;
@@ -198,14 +198,41 @@ main {
   font-weight: 550;
 }
 
+.order-card {
+  background-color: aliceblue;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border: 1.5px solid #2e2e2e;
+  border-radius: 10px;
+  box-shadow: #8f8f8f 0px 1px 1px 0px;
+  width: 100%;
+  padding: 1rem;
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+  font-family: "Montserrat", sans-serif;
+  font-weight: 550;
+}
 
-.invoice-card,.order-card h3 {
-  margin-bottom: 1rem;
+.invoice-card h3 {
+  margin-bottom: 0.75rem;
   font-size: large;
   font-weight: 650;
 }
 
-.invoice-card,.order-card p {
+.order-card h3 {
+  margin-bottom: 0.75rem;
+  font-size: large;
+  font-weight: 650;
+}
+
+.invoice-card p {
+  margin-bottom: 0.5rem;
+  font-weight: 550;
+}
+
+.order-card p {
   margin-bottom: 0.5rem;
   font-weight: 550;
 }

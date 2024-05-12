@@ -41,11 +41,19 @@ router.get('/stocks', (req, res) => {
                 throw err;
             }
 
-            // Render stocks page with updated stock quantities
-            res.render('stocks', { title: 'Stocks', stocks, items });
+            // // Calculate stock quantities
+            // calculateStockQuantities((err) => {
+            //     if (err) {
+            //         res.status(500).send('Internal Server Error');
+            //         return;
+            //     }
+
+                // Render stocks page with updated stock quantities
+                res.render('stocks', { title: 'Stocks', stocks, items });
+            });
         });
     });
-});
+// });
 
 // Route to render the add stocks page
 router.get('/stocks/add', (req, res) => {
