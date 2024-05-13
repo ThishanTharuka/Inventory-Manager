@@ -110,7 +110,6 @@ router.get('/invoices/edit/:id', (req, res) => {
             }))
         };
 
-        console.log(invoice);
         // Render the edit invoice page with invoice details and associated items
         res.render('edit-invoice', { title: 'Edit Invoice', invoice });
     });
@@ -166,6 +165,7 @@ router.post('/update-invoice', (req, res) => {
         Promise.all(updateItemsPromises)
             .then(extensions => {
                 // Calculate the total by summing up all extensions
+                console.log(extensions);
                 const total = extensions.reduce((acc, curr) => acc + curr, 0);
                 // Update the total column in the invoices table
                 const updateTotalQuery = `UPDATE invoices SET total = ? WHERE invoice_id = ?`;

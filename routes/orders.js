@@ -311,7 +311,7 @@ router.get('/orders/edit/:id', (req, res) => {
 
     // Fetch order details and associated items from the database
     const query = `
-        SELECT o.order_id, o.order_date, o.dealer_id, o.invoice_id, op.item_code, op.quantity, op.price_per_item
+        SELECT o.order_id, o.order_date, o.dealer_id, o.invoice_id, op.item_code, op.quantity, op.price_per_item, op.discount
         FROM orders o
         LEFT JOIN order_items op ON o.order_id = op.order_id
         WHERE o.order_id = ?
@@ -333,6 +333,7 @@ router.get('/orders/edit/:id', (req, res) => {
             items: results.map(row => ({
                 item_code: row.item_code,
                 quantity: row.quantity,
+                discount: row.discount,
                 price_per_item: row.price_per_item
             }))
         };
@@ -376,10 +377,11 @@ router.post('/update-order', (req, res) => {
     function updateItemQuantities() {
         // Update quantities, prices, and calculate total extension for each item in the order_items table
         const updateItemsPromises = updatedItems.map(item => {
-            const extension = item.quantity * item.price_per_item;
-            const updateItemQuery = `UPDATE order_items SET quantity = ?, price_per_item = ?, total = ? WHERE order_id = ? AND item_code = ?`;
+            const discount = item.discount;
+            const extension = item.quantity * item.price_per_item * (1 - discount / 100);;
+            const updateItemQuery = `UPDATE order_items SET quantity = ?, price_per_item = ?, discount = ?, total = ? WHERE order_id = ? AND item_code = ?`;
             return new Promise((resolve, reject) => {
-                database.query(updateItemQuery, [item.quantity, item.price_per_item, extension, orderId, item.item_code[0]], (err, result) => {
+                database.query(updateItemQuery, [item.quantity, item.price_per_item, discount, extension, orderId, item.item_code], (err, result) => {
                     if (err) {
                         reject(err);
                     } else {
@@ -388,7 +390,7 @@ router.post('/update-order', (req, res) => {
                 });
             });
         });
-
+    
         // Update dealer ID in the orders table
         const updateDealerIdQuery = `UPDATE orders SET dealer_id = ? WHERE order_id = ?`;
         const dealerId = req.body.dealer_id; // Assuming dealer_id is provided in the request body
@@ -401,18 +403,23 @@ router.post('/update-order', (req, res) => {
                 }
             });
         });
-
-        Promise.all([...updateItemsPromises, updateDealerIdPromise])
+    
+        // Execute updateDealerIdPromise separately
+        updateDealerIdPromise
+            .then(() => {
+                console.log("Dealer ID updated successfully");
+            })
+            .catch(error => {
+                console.error("Error updating dealer ID:", error);
+                res.status(500).send("Internal Server Error");
+            });
+    
+        // Execute updateItemsPromises in Promise.all() without including updateDealerIdPromise
+        Promise.all(updateItemsPromises)
             .then(extensions => {
                 // Calculate the total by summing up all extensions
                 console.log(extensions);
-                const total = extensions.reduce((acc, curr) => {
-                    if (!isNaN(curr)) {
-                        return acc + curr;
-                    } else {
-                        return acc; // Exclude undefined or NaN values from the sum
-                    }
-                }, 0);
+                const total = extensions.reduce((acc, curr) => acc + curr, 0);
                 console.log(total);
                 // Update the total column in the orders table
                 const updateTotalQuery = `UPDATE orders SET total = ? WHERE order_id = ?`;
@@ -427,10 +434,11 @@ router.post('/update-order', (req, res) => {
                 });
             })
             .catch(error => {
-                console.error("Error updating item quantities, prices, and dealer ID:", error);
+                console.error("Error updating item quantities and prices:", error);
                 res.status(500).send("Internal Server Error");
             });
     }
+    
 
 });
 

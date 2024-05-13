@@ -45,6 +45,8 @@
                                 <tr>
                                     <td>
                                         <%= item.item_code %>
+                                            <input type="hidden" name="items[<%= index %>][item_code]"
+                                                value="<%= item.item_code %>">
                                     </td>
                                     <td>
                                         <%= item.description %>
@@ -52,14 +54,10 @@
                                     <td>
                                         <input type="text" name="items[<%= index %>][quantity]"
                                             value="<%= item.quantity %>">
-                                        <input type="hidden" name="items[<%= index %>][item_code]"
-                                            value="<%= item.item_code %>">
                                     </td>
                                     <td>
                                         <input type="text" name="items[<%= index %>][price_per_item]"
                                             value="<%= item.price_per_item %>">
-                                        <input type="hidden" name="items[<%= index %>][item_code]"
-                                            value="<%= item.item_code %>">
                                     </td>
                                     <td id="action">
                                         <div id="action-btns">

@@ -46,6 +46,7 @@
                                 <th>Item Code</th>
                                 <th>Item Name</th>
                                 <th>Quantity</th>
+                                <th>Discount</th>
                                 <th>Unit Price</th>
                             </tr>
                         </thead>
@@ -56,19 +57,21 @@
                                     <!-- Display product details and allow editing -->
                                     <td>
                                         <%= item.item_code %>
+                                            <input type="hidden" name="items[<%= index %>][item_code]"
+                                                value="<%= item.item_code %>">
                                     </td>
                                     <td>
                                         <%= item.description %>
                                     </td>
-                                    <td><input type="number" name="items[<%= index %>][quantity]"
+                                    <td><input type="text" name="items[<%= index %>][quantity]"
                                             value="<%= item.quantity %>">
-                                        <input type="hidden" name="items[<%= index %>][item_code]"
-                                            value="<%= item.item_code %>">
+                                    </td>
+                                    <td><input type="text" name="items[<%= index %>][discount]"
+                                            value="<%= item.discount %>">
                                     </td>
                                     <td><input type="number" step="0.01" name="items[<%= index %>][price_per_item]"
-                                            value="<%= item.price_per_item %>"></td>
-                                    <input type="hidden" name="items[<%= index %>][item_code]"
-                                        value="<%= item.item_code %>">
+                                            value="<%= item.price_per_item %>">
+                                    </td>
                                 </tr>
                                 <% }); %>
                         </tbody>
