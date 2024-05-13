@@ -1,5 +1,7 @@
 const express = require('express');
 const session = require('express-session');
+const cookieParser = require('cookie-parser');
+const flash = require('connect-flash');
 const itemRoutes = require('./routes/items');
 const shopRoutes = require('./routes/shops');
 const stockRoutes = require('./routes/stocks');
@@ -15,6 +17,12 @@ app.use(session({
     resave: false,
     saveUninitialized: true,
 }));
+
+// configure cookie-parser middleware
+app.use(cookieParser());
+
+// configure connect-flash middleware
+app.use(flash());
 
 //register view engine
 app.set('view engine', 'ejs');
