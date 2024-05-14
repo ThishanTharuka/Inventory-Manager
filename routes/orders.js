@@ -375,6 +375,43 @@ router.post('/update-order', (req, res) => {
     }
 
     function updateItemQuantities() {
+        // Iterate over each updated item
+        updatedItems.forEach(item => {
+            const oldQuantity = item.old_quantity; // Retrieve the old quantity from the hidden input field
+            const newQuantity = item.quantity;
+
+            // Calculate the difference between old and new quantities
+            const quantityDifference = newQuantity - oldQuantity;
+
+            // If the quantity difference is positive, it means more items have been removed from the stock than before, so we should decrease the stock
+            if (quantityDifference > 0) {
+                // Update the stock table by subtracting the quantity difference
+                const increaseStockQuery = `UPDATE stocks SET quantity = quantity - ? WHERE item_code = ?`;
+                database.query(increaseStockQuery, [quantityDifference, item.item_code], (err, result) => {
+                    if (err) {
+                        console.error("Error increasing stock:", err);
+                        res.status(500).send("Internal Server Error");
+                        return;
+                    }
+                    console.log(`Stock for item ${item.item_code} increased by ${quantityDifference}`);
+                });
+            }
+            // If the quantity difference is negative, it means less items are removed from the stock than before, so we should increase the stock
+            else if (quantityDifference < 0) {
+                // Update the stock table by adding the absolute value of the quantity difference
+                const decreaseStockQuery = `UPDATE stocks SET quantity = quantity + ? WHERE item_code = ?`;
+                database.query(decreaseStockQuery, [-quantityDifference, item.item_code], (err, result) => {
+                    if (err) {
+                        console.error("Error decreasing stock:", err);
+                        res.status(500).send("Internal Server Error");
+                        return;
+                    }
+                    console.log(`Stock for item ${item.item_code} decreased by ${-quantityDifference}`);
+                });
+            }
+            // If the quantity difference is zero, no change in stock is required
+        });
+
         // Update quantities, prices, and calculate total extension for each item in the order_items table
         const updateItemsPromises = updatedItems.map(item => {
             const discount = item.discount;
@@ -390,7 +427,7 @@ router.post('/update-order', (req, res) => {
                 });
             });
         });
-    
+
         // Update dealer ID in the orders table
         const updateDealerIdQuery = `UPDATE orders SET dealer_id = ? WHERE order_id = ?`;
         const dealerId = req.body.dealer_id; // Assuming dealer_id is provided in the request body
@@ -403,7 +440,7 @@ router.post('/update-order', (req, res) => {
                 }
             });
         });
-    
+
         // Execute updateDealerIdPromise separately
         updateDealerIdPromise
             .then(() => {
@@ -413,7 +450,7 @@ router.post('/update-order', (req, res) => {
                 console.error("Error updating dealer ID:", error);
                 res.status(500).send("Internal Server Error");
             });
-    
+
         // Execute updateItemsPromises in Promise.all() without including updateDealerIdPromise
         Promise.all(updateItemsPromises)
             .then(extensions => {
@@ -438,8 +475,6 @@ router.post('/update-order', (req, res) => {
                 res.status(500).send("Internal Server Error");
             });
     }
-    
-
 });
 
 

@@ -138,55 +138,65 @@ router.post('/update-invoice', (req, res) => {
                 res.status(500).send("Internal Server Error");
                 return; // Return here to prevent further execution
             }
-            // Proceed with updating item quantities and prices
-            updateItemQuantities();
+            // Proceed with updating item quantities, prices, and stock
+            updateItemDetails();
         });
     } else {
-        // If no new date is provided, proceed with updating item quantities and prices directly
-        updateItemQuantities();
+        // If no new date is provided, proceed with updating item quantities, prices, and stock directly
+        updateItemDetails();
     }
 
-    function updateItemQuantities() {
-        // Update quantities, price_per_item, and extension for each item in the invoice_items table
-        const updateItemsPromises = items.map(item => {
+    function updateItemDetails() {
+        // Define promises array for updating item details and stock
+        const updatePromises = [];
+
+        // Loop through each item in the invoice
+        items.forEach(item => {
+            // Calculate extension
             const extension = item.quantity * item.price_per_item;
-            const updateItemQuery = `UPDATE invoice_items SET quantity = ?, price_per_item = ?, extention = ? WHERE invoice_id = ? AND item_code IN (?)`;
-            return new Promise((resolve, reject) => {
+
+            // Update item details in the invoice_items table
+            const updateItemQuery = `UPDATE invoice_items SET quantity = ?, price_per_item = ?, extention = ? WHERE invoice_id = ? AND item_code = ?`;
+            updatePromises.push(new Promise((resolve, reject) => {
                 database.query(updateItemQuery, [item.quantity, item.price_per_item, extension, invoiceId, item.item_code], (err, result) => {
                     if (err) {
                         reject(err);
                     } else {
-                        resolve(extension); // Resolve with the extension value
+                        resolve({ itemCode: item.item_code, quantity: item.quantity }); // Resolve with item code and updated quantity
                     }
                 });
-            });
+            }));
+
+            // Determine the change in quantity and update stock accordingly
+            const quantityChange = item.quantity - item.old_quantity; // Calculate the change in quantity
+            if (quantityChange !== 0) { // If there is a change in quantity
+                // Update stock table
+                const updateStockQuery = `UPDATE stocks SET quantity = quantity + ? WHERE item_code = ?`;
+                updatePromises.push(new Promise((resolve, reject) => {
+                    database.query(updateStockQuery, [quantityChange, item.item_code], (err, result) => {
+                        if (err) {
+                            reject(err);
+                        } else {
+                            resolve(); // Resolve if stock update is successful
+                        }
+                    });
+                }));
+            }
         });
-    
-        Promise.all(updateItemsPromises)
-            .then(extensions => {
-                // Calculate the total by summing up all extensions
-                console.log(extensions);
-                const total = extensions.reduce((acc, curr) => acc + curr, 0);
-                // Update the total column in the invoices table
-                const updateTotalQuery = `UPDATE invoices SET total = ? WHERE invoice_id = ?`;
-                database.query(updateTotalQuery, [total, invoiceId], (err, result) => {
-                    if (err) {
-                        console.error("Error updating total:", err);
-                        res.status(500).send("Internal Server Error");
-                        return;
-                    }
-                    console.log("Invoice details updated successfully");
-                    res.redirect("/invoices");
-                });
+
+        // Execute all update promises
+        Promise.all(updatePromises)
+            .then(() => {
+                console.log("Invoice details and stock updated successfully");
+                res.redirect("/invoices");
             })
             .catch(error => {
-                console.error("Error updating item quantities, prices, and extensions:", error);
+                console.error("Error updating invoice details and stock:", error);
                 res.status(500).send("Internal Server Error");
             });
     }
-    
-    
 });
+
 
 
 router.get('/items/remove/:item_code', (req, res) => {

@@ -15,67 +15,67 @@
 <body>
     <!-- Include the navigation partial -->
     <%- include('./partials/nav.ejs') %>
-        <div id="container">
-            <form action='/update-invoice' method="POST">
-                <div class="header">
-                    <h3>Invoice ID: <%= invoice.invoice_id %>
-                    </h3>
-                    <input type="hidden" name="invoice_id" value="<%= invoice.invoice_id %>">
-                    <h3>Invoice Date: <%= invoice.invoice_date.toLocaleDateString() %>
-                    </h3>
-                </div>
-                <!-- Input field for new invoice date -->
-                <div class="date">
-                    <label for="invoiceDate">New Invoice Date:</label>
-                    <input type="date" id="invoiceDate" name="invoiceDate" value="<%= invoice.invoice_date %>">
-                </div>
-                <div class="invoice-table">
-                    <table>
-                        <thead>
+    <div id="container">
+        <form action='/update-invoice' method="POST">
+            <div class="header">
+                <h3>Invoice ID: <%= invoice.invoice_id %>
+                </h3>
+                <input type="hidden" name="invoice_id" value="<%= invoice.invoice_id %>">
+                <h3>Invoice Date: <%= invoice.invoice_date.toLocaleDateString() %>
+                </h3>
+            </div>
+            <!-- Input field for new invoice date -->
+            <div class="date">
+                <label for="invoiceDate">New Invoice Date:</label>
+                <input type="date" id="invoiceDate" name="invoiceDate" value="<%= invoice.invoice_date %>">
+            </div>
+            <div class="invoice-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Item Code</th>
+                            <th>Item Name</th>
+                            <th>Quantity</th>
+                            <th>Unit Price</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% invoice.items.forEach((item, index) => { %>
                             <tr>
-                                <th>Item Code</th>
-                                <th>Item Name</th>
-                                <th>Quantity</th>
-                                <th>Unit Price</th>
-                                <th>Action</th>
+                                <td>
+                                    <%= item.item_code %>
+                                    <input type="hidden" name="items[<%= index %>][item_code]" value="<%= item.item_code %>">
+                                </td>
+                                <td>
+                                    <%= item.description %>
+                                </td>
+                                <td>
+                                    <!-- Include hidden input field for old quantity -->
+                                    <input type="hidden" name="items[<%= index %>][old_quantity]" value="<%= item.quantity %>">
+                                    <!-- Input field for new quantity -->
+                                    <input type="text" name="items[<%= index %>][quantity]" value="<%= item.quantity %>">
+                                </td>
+                                <td>
+                                    <input type="text" name="items[<%= index %>][price_per_item]" value="<%= item.price_per_item %>">
+                                </td>
+                                <td id="action">
+                                    <div id="action-btns">
+                                        <a href="/items/remove/<%= item.item_code %>?invoice_id=<%= invoice.invoice_id %>"
+                                            class="delete-btn">Remove</a>
+                                    </div>
+                                </td>
                             </tr>
-                        </thead>
-                        <tbody>
-                            <% invoice.items.forEach((item, index)=> { %>
-                                <tr>
-                                    <td>
-                                        <%= item.item_code %>
-                                            <input type="hidden" name="items[<%= index %>][item_code]"
-                                                value="<%= item.item_code %>">
-                                    </td>
-                                    <td>
-                                        <%= item.description %>
-                                    </td>
-                                    <td>
-                                        <input type="text" name="items[<%= index %>][quantity]"
-                                            value="<%= item.quantity %>">
-                                    </td>
-                                    <td>
-                                        <input type="text" name="items[<%= index %>][price_per_item]"
-                                            value="<%= item.price_per_item %>">
-                                    </td>
-                                    <td id="action">
-                                        <div id="action-btns">
-                                            <a href="/items/remove/<%= item.item_code %>?invoice_id=<%= invoice.invoice_id %>"
-                                                class="delete-btn">Remove</a>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <% }); %>
-                        </tbody>
-                    </table>
-                </div>
-                <div class="submit-btn">
-                    <!-- Submit button -->
-                    <button type="submit">Update Invoice</button>
-                </div>
-            </form>
-        </div>
+                        <% }); %>
+                    </tbody>
+                </table>
+            </div>
+            <div class="submit-btn">
+                <!-- Submit button -->
+                <button type="submit">Update Invoice</button>
+            </div>
+        </form>
+    </div>
 </body>
 
 </html>

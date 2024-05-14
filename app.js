@@ -11,15 +11,16 @@ const orderRoutes = require('./routes/orders')
 //express app
 const app = express();
 
+// configure cookie-parser middleware
+app.use(cookieParser('SecretStringForCookies'));
+
 // configure express-session middleware
 app.use(session({
     secret: 'QWERtyui1234', // Replace with a strong, random string
+    cookie: {maxAge: 6000},
     resave: false,
-    saveUninitialized: true,
+    saveUninitialized: false,
 }));
-
-// configure cookie-parser middleware
-app.use(cookieParser());
 
 // configure connect-flash middleware
 app.use(flash());

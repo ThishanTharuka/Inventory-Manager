@@ -65,6 +65,9 @@
                                     </td>
                                     <td><input type="text" name="items[<%= index %>][quantity]"
                                             value="<%= item.quantity %>">
+                                        <!-- Hidden input field for old quantity -->
+                                        <input type="hidden" name="items[<%= index %>][old_quantity]"
+                                            value="<%= item.quantity %>">
                                     </td>
                                     <td><input type="text" name="items[<%= index %>][discount]"
                                             value="<%= item.discount %>">
