@@ -309,46 +309,65 @@ router.get('/orders/delete/:id', (req, res) => {
 router.get('/orders/edit/:id', (req, res) => {
     const orderId = req.params.id;
 
-    // Fetch order details and associated items from the database
+    // Fetch order details, associated items, and dealer names from the database
     const query = `
-        SELECT o.order_id, o.order_date, o.dealer_id, o.invoice_id, op.item_code, op.quantity, op.price_per_item, op.discount
+        SELECT o.order_id, o.order_date, o.dealer_id, o.invoice_id, op.item_code, op.quantity, op.price_per_item, op.discount, i.description AS item_name
         FROM orders o
         LEFT JOIN order_items op ON o.order_id = op.order_id
+        LEFT JOIN items i ON op.item_code = i.item_code
         WHERE o.order_id = ?
     `;
 
-    database.query(query, [orderId], (err, results) => {
+
+    const dealersQuery = `SELECT shop_id, shop_name FROM dealers`;
+
+    database.query(query, [orderId], (err, orderResults) => {
         if (err) {
             console.error('Error fetching order details:', err);
             res.status(500).send('Internal Server Error');
             return;
         }
 
-        // Organize fetched data into a structured format
-        const order = {
-            order_id: results[0].order_id,
-            order_date: results[0].order_date,
-            dealer_id: results[0].dealer_id,
-            invoice_id: results[0].invoice_id,
-            items: results.map(row => ({
-                item_code: row.item_code,
-                quantity: row.quantity,
-                discount: row.discount,
-                price_per_item: row.price_per_item
-            }))
-        };
+        // Fetch dealer names
+        database.query(dealersQuery, (err, dealerResults) => {
+            if (err) {
+                console.error('Error fetching dealer names:', err);
+                res.status(500).send('Internal Server Error');
+                return;
+            }
 
-        // Render the edit order page with order details and associated items
-        res.render('edit-order', { title: 'Edit Order', order });
+            // Organize fetched data into a structured format
+            const order = {
+                order_id: orderResults[0].order_id,
+                order_date: orderResults[0].order_date,
+                dealer_id: orderResults[0].dealer_id,
+                invoice_id: orderResults[0].invoice_id,
+                items: orderResults.map(row => ({
+                    item_code: row.item_code,
+                    item_name: row.item_name,
+                    quantity: row.quantity,
+                    discount: row.discount,
+                    price_per_item: row.price_per_item
+                }))
+            };
+
+            const dealers = dealerResults;
+
+            // Render the edit order page with order details, associated items, and dealer names
+            res.render('edit-order', { title: 'Edit Order', order, dealers });
+        });
     });
 });
+
+
 
 router.post('/update-order', (req, res) => {
     const orderId = req.body.order_id;
     const newOrderDate = req.body.orderDate;
     const updatedItems = req.body.items;
+    const shopId = req.body.shop_name; // Even though it says shop name it takes shop id from body
 
-    console.log(orderId, newOrderDate, updatedItems);
+    console.log(orderId, newOrderDate, updatedItems, shopId);
 
     // Validate if updatedItems is an array
     if (!Array.isArray(updatedItems)) {
@@ -412,6 +431,23 @@ router.post('/update-order', (req, res) => {
             // If the quantity difference is zero, no change in stock is required
         });
 
+        // Update dealer ID in the orders table
+        const updateDealerIdQuery = `UPDATE orders SET dealer_id = ? WHERE order_id = ?`;
+        database.query(updateDealerIdQuery, [shopId, orderId], (err, result) => {
+            if (err) {
+                console.error("Error updating dealer ID:", err);
+                res.status(500).send("Internal Server Error");
+                return;
+            }
+            console.log("Dealer ID updated successfully");
+        });
+
+        // Proceed with updating item quantities and prices
+        updateItemQuantitiesAndTotal();
+
+    }
+
+    function updateItemQuantitiesAndTotal() {
         // Update quantities, prices, and calculate total extension for each item in the order_items table
         const updateItemsPromises = updatedItems.map(item => {
             const discount = item.discount;
@@ -428,30 +464,7 @@ router.post('/update-order', (req, res) => {
             });
         });
 
-        // Update dealer ID in the orders table
-        const updateDealerIdQuery = `UPDATE orders SET dealer_id = ? WHERE order_id = ?`;
-        const dealerId = req.body.dealer_id; // Assuming dealer_id is provided in the request body
-        const updateDealerIdPromise = new Promise((resolve, reject) => {
-            database.query(updateDealerIdQuery, [dealerId, orderId], (err, result) => {
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve();
-                }
-            });
-        });
-
-        // Execute updateDealerIdPromise separately
-        updateDealerIdPromise
-            .then(() => {
-                console.log("Dealer ID updated successfully");
-            })
-            .catch(error => {
-                console.error("Error updating dealer ID:", error);
-                res.status(500).send("Internal Server Error");
-            });
-
-        // Execute updateItemsPromises in Promise.all() without including updateDealerIdPromise
+        // Execute updateItemsPromises in Promise.all()
         Promise.all(updateItemsPromises)
             .then(extensions => {
                 // Calculate the total by summing up all extensions
@@ -476,6 +489,7 @@ router.post('/update-order', (req, res) => {
             });
     }
 });
+
 
 
 

@@ -31,12 +31,17 @@
                 </div>
                 <div>
                     <label for="invoice_id">Invoice ID</label>
-                    <input type="text" id="invoice_id" name="invoice_id" value="<%= order.invoice_id %>">
+                    <input type="number" id="invoice_id" name="invoice_id" value="<%= order.invoice_id %>">
                 </div>
                 <div>
-                    <label for="dealer_id">Dealer Name</label>
-                    <input type="text" id="dealer_id" name="dealer_id" value="<%= order.dealer_id %>">
+                    <label for="shop_name">Dealer Name</label>
+                    <select id="shop_name" name="shop_name">
+                        <% dealers.forEach(dealer => { %>
+                            <option value="<%= dealer.shop_id %>" <% if (dealer.shop_id === order.dealer_id) { %> selected <% } %>><%= dealer.shop_name %></option>
+                        <% }); %>
+                    </select>
                 </div>
+                
                 <!-- Table for displaying/editing order products -->
                 <div class="order-table">
                     <table>
@@ -61,15 +66,15 @@
                                                 value="<%= item.item_code %>">
                                     </td>
                                     <td>
-                                        <%= item.description %>
+                                        <%= item.item_name %>
                                     </td>
-                                    <td><input type="text" name="items[<%= index %>][quantity]"
+                                    <td><input type="number" name="items[<%= index %>][quantity]"
                                             value="<%= item.quantity %>">
                                         <!-- Hidden input field for old quantity -->
                                         <input type="hidden" name="items[<%= index %>][old_quantity]"
                                             value="<%= item.quantity %>">
                                     </td>
-                                    <td><input type="text" name="items[<%= index %>][discount]"
+                                    <td><input type="number" name="items[<%= index %>][discount]"
                                             value="<%= item.discount %>">
                                     </td>
                                     <td><input type="number" step="0.01" name="items[<%= index %>][price_per_item]"

@@ -86,9 +86,10 @@ router.get('/invoices/edit/:id', (req, res) => {
 
     // Fetch invoice details and associated items from the database
     const query = `
-        SELECT i.invoice_id, i.invoice_date, ii.item_code, ii.quantity, ii.price_per_item
+        SELECT i.invoice_id, i.invoice_date, ii.item_code, ii.quantity, ii.price_per_item, o.description AS item_name
         FROM invoices i
         LEFT JOIN invoice_items ii ON i.invoice_id = ii.invoice_id
+        LEFT JOIN items o ON ii.item_code = o.item_code
         WHERE i.invoice_id = ?
     `;
 
@@ -105,6 +106,7 @@ router.get('/invoices/edit/:id', (req, res) => {
             invoice_date: results[0].invoice_date,
             items: results.map(row => ({
                 item_code: row.item_code,
+                item_name: row.item_name,
                 quantity: row.quantity,
                 price_per_item: row.price_per_item
             }))

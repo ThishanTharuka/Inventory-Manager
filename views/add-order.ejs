@@ -18,7 +18,7 @@
             <form action="/add-order" method="post">
                 <div id="input-fields">
                     <label for="Invoice">Order ID</label>
-                    <input type="text" id="order_id" name="order_id" required>
+                    <input type="number" id="order_id" name="order_id" required>
                 </div>
                 <div id="input-fields">
                     <label for="Date">Date</label>
@@ -38,7 +38,7 @@
                     <!-- Container to add items from an invoice-->
                     <p class="subtitle">Add Items from Invoice</p>
                     <label for="invoice_id">Invoice ID</label>
-                    <input type="text" id="invoice_id" name="invoice_id">
+                    <input type="number" id="invoice_id" name="invoice_id">
                     <div>
                         <button type="button" onclick="fetchInvoiceItems()">Add Items</button>
                     </div>
@@ -90,7 +90,7 @@
                             <td>${item.description}</td>
                             <td><input type="number" step="0.01" name="invoice_prices[]" value="${item.price}" required ></td>
                             <td><input type="number" name="invoice_quantities[]" value="${item.quantity}" required></td>
-                            <td><input type="text" name="invoice_discounts[]" placeholder="0" pattern="[0-9]+(\.[0-9]+)?" title="Please enter a valid number" required></td>
+                            <td><input type="number" name="invoice_discounts[]" placeholder="0" required></td>
                         `;
                             itemsBody.appendChild(row);
                         });
@@ -126,7 +126,7 @@
                         </div>
                         <div>
                             <label for="Discount">Discount</label>
-                            <input type="text" name="discounts[]" pattern="[0-9]+(\.[0-9]+)?" title="Please enter a valid number" required>
+                            <input type="number" name="discounts[]" required>
                         </div>
                         <div>
                             <button type="button" onclick="removeItem(this)">Remove</button>
