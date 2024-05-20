@@ -164,7 +164,7 @@ router.post('/update-invoice', (req, res) => {
                     if (err) {
                         reject(err);
                     } else {
-                        resolve({ itemCode: item.item_code, quantity: item.quantity }); // Resolve with item code and updated quantity
+                        resolve({ itemCode: item.item_code, quantity: item.quantity, extension: extension }); // Resolve with item code, updated quantity, and extension
                     }
                 });
             }));
@@ -188,9 +188,21 @@ router.post('/update-invoice', (req, res) => {
 
         // Execute all update promises
         Promise.all(updatePromises)
-            .then(() => {
-                console.log("Invoice details and stock updated successfully");
-                res.redirect("/invoices");
+            .then(updatedItems => {
+                // Calculate the total by summing up all extensions
+                const total = updatedItems.reduce((acc, item) => acc + item.extension, 0);
+
+                // Update the total column in the invoices table
+                const updateTotalQuery = `UPDATE invoices SET total = ? WHERE invoice_id = ?`;
+                database.query(updateTotalQuery, [total, invoiceId], (err, result) => {
+                    if (err) {
+                        console.error("Error updating total:", err);
+                        res.status(500).send("Internal Server Error");
+                        return;
+                    }
+                    console.log("Invoice details and stock updated successfully");
+                    res.redirect("/invoices");
+                });
             })
             .catch(error => {
                 console.error("Error updating invoice details and stock:", error);
