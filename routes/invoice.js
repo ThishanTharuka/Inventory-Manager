@@ -57,7 +57,7 @@ router.get('/invoices', (req, res) => {
                 price_per_item: row.price_per_item,
                 extention: row.extention
 
-                
+
             });
 
         });
@@ -149,48 +149,68 @@ router.post('/update-invoice', (req, res) => {
     }
 
     function updateItemDetails() {
-        // Define promises array for updating item details and stock
-        const updatePromises = [];
-
-        // Loop through each item in the invoice
+        // Iterate over each item in the invoice
         items.forEach(item => {
-            // Calculate extension
-            const extension = item.quantity * item.price_per_item;
+            const oldQuantity = item.old_quantity; // Retrieve the old quantity
+            const newQuantity = item.quantity;
 
-            // Update item details in the invoice_items table
+            // Calculate the difference between old and new quantities
+            const quantityDifference = newQuantity - oldQuantity;
+
+            // If the quantity difference is positive, it means more items have been added to the stock than before, so we should increase the stock
+            if (quantityDifference > 0) {
+                const increaseStockQuery = `UPDATE stocks SET quantity = quantity + ? WHERE item_code = ?`;
+                database.query(increaseStockQuery, [quantityDifference, item.item_code], (err, result) => {
+                    if (err) {
+                        console.error("Error increasing stock:", err);
+                        res.status(500).send("Internal Server Error");
+                        return;
+                    }
+                    console.log(`Stock for item ${item.item_code} increased by ${quantityDifference}`);
+                });
+            } 
+            // If the quantity difference is negative, it means less items have been added to the stock than before, so we should decrease the stock
+            else if (quantityDifference < 0) {
+                const decreaseStockQuery = `UPDATE stocks SET quantity = quantity - ? WHERE item_code = ?`;
+                database.query(decreaseStockQuery, [-quantityDifference, item.item_code], (err, result) => {
+                    if (err) {
+                        console.error("Error decreasing stock:", err);
+                        res.status(500).send("Internal Server Error");
+                        return;
+                    }
+                    console.log(`Stock for item ${item.item_code} decreased by ${-quantityDifference}`);
+                });
+            }
+            // If the quantity difference is zero, no change in stock is required
+        });
+
+        // Proceed with updating item quantities and prices
+        updateItemQuantitiesAndTotal();
+    }
+
+    function updateItemQuantitiesAndTotal() {
+        // Update quantities, prices, and calculate total extension for each item in the invoice_items table
+        const updateItemsPromises = items.map(item => {
+            const extension = item.quantity * item.price_per_item;
             const updateItemQuery = `UPDATE invoice_items SET quantity = ?, price_per_item = ?, extention = ? WHERE invoice_id = ? AND item_code = ?`;
-            updatePromises.push(new Promise((resolve, reject) => {
+            return new Promise((resolve, reject) => {
                 database.query(updateItemQuery, [item.quantity, item.price_per_item, extension, invoiceId, item.item_code], (err, result) => {
                     if (err) {
                         reject(err);
                     } else {
-                        resolve({ itemCode: item.item_code, quantity: item.quantity, extension: extension }); // Resolve with item code, updated quantity, and extension
+                        resolve(extension); // Resolve with the extension value
                     }
                 });
-            }));
-
-            // Determine the change in quantity and update stock accordingly
-            const quantityChange = item.quantity - item.old_quantity; // Calculate the change in quantity
-            if (quantityChange !== 0) { // If there is a change in quantity
-                // Update stock table
-                const updateStockQuery = `UPDATE stocks SET quantity = quantity + ? WHERE item_code = ?`;
-                updatePromises.push(new Promise((resolve, reject) => {
-                    database.query(updateStockQuery, [quantityChange, item.item_code], (err, result) => {
-                        if (err) {
-                            reject(err);
-                        } else {
-                            resolve(); // Resolve if stock update is successful
-                        }
-                    });
-                }));
-            }
+            });
         });
 
-        // Execute all update promises
-        Promise.all(updatePromises)
-            .then(updatedItems => {
+        // Execute updateItemsPromises in Promise.all()
+        Promise.all(updateItemsPromises)
+            .then(extensions => {
                 // Calculate the total by summing up all extensions
-                const total = updatedItems.reduce((acc, item) => acc + item.extension, 0);
+                console.log(extensions);
+                const total = extensions.reduce((acc, curr) => acc + curr, 0);
+                console.log(total);
 
                 // Update the total column in the invoices table
                 const updateTotalQuery = `UPDATE invoices SET total = ? WHERE invoice_id = ?`;
@@ -200,16 +220,17 @@ router.post('/update-invoice', (req, res) => {
                         res.status(500).send("Internal Server Error");
                         return;
                     }
-                    console.log("Invoice details and stock updated successfully");
+                    console.log("Invoice items updated successfully");
                     res.redirect("/invoices");
                 });
             })
             .catch(error => {
-                console.error("Error updating invoice details and stock:", error);
+                console.error("Error updating item quantities and prices:", error);
                 res.status(500).send("Internal Server Error");
             });
     }
 });
+
 
 
 
