@@ -27,13 +27,24 @@
       </div>
     </div>
     <main>
+      <div id="search">
+        <!-- Search form -->
+        <form id="search-form" action="/items/search" method="get">
+          <label for="item-search">Search Items:</label>
+          <input type="text" name="query" id="search-input" value="<%= searchTerm || '' %>">
+          <button type="submit" id="search-btn">Search</button>
+        </form>
+      </div>
+
       <table id="items">
         <thead>
-          <th>Item Code</th>
-          <th>Description</th>
-          <th>Unit</th>
-          <th>Price</th>
-          <th id="action">Actions</th>
+          <tr>
+            <th>Item Code</th>
+            <th>Description</th>
+            <th>Unit</th>
+            <th>Price</th>
+            <th id="action">Actions</th>
+          </tr>
         </thead>
         <tbody>
           <% items.forEach(item=> { %>

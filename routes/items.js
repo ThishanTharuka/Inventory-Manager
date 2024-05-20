@@ -110,6 +110,21 @@ router.post('/update-item', (req, res) => {
     });
 });
 
+// New route for search functionality
+router.get('/items/search', (req, res) => {
+    const searchTerm = req.query.query;
+    const query = `
+        SELECT * FROM items 
+        WHERE item_code LIKE ? OR description LIKE ?`;
+    const values = [`%${searchTerm}%`, `%${searchTerm}%`];
 
+    database.query(query, values, (err, items) => {
+        if (err) {
+            console.error('Error searching items:', err);
+            return res.status(500).send('Internal Server Error');
+        }
+        res.render('items', { title: 'Items', items, searchTerm });
+    });
+});
 
 module.exports = router;

@@ -17,7 +17,7 @@ body {
 #top-bar {
   display: flex;
   flex-direction: row;
-  justify-content: space-between !important; 
+  justify-content: space-between !important;
   padding-left: 2%;
   padding-right: 2%;
   padding-top: 1%;
@@ -59,11 +59,54 @@ a {
   color: aliceblue;
 }
 
+#search-btn {
+  font-family: "Montserrat", sans-serif;
+  font-weight: 550;
+  margin: auto;
+  text-decoration: none;
+  background-color: #ad9fff;
+  color: black;
+  border: 1px solid #ad9fff;
+  font-size: 1 rem;
+  padding: 0.5rem 1rem;
+  border-radius: 5rem;
+  transition: background-color 0.3s ease;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#search-btn:hover {
+  background-color: #755dfc;
+  cursor: pointer;
+  color: aliceblue;
+}
+
 
 main {
   width: 98%;
   padding-top: 1%;
   margin: auto;
+}
+
+#search {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+#search-form {
+  display: flex;
+  flex-direction: row;
+  padding-left: 0.5%;
+}
+
+#search-form input {
+  border-radius: 3px;
+  border: 1px solid #2e2e2e;
+  font-family: "Montserrat", sans-serif;
+  font-weight: 500;
+  width: 40%;
 }
 
 table {
@@ -312,39 +355,56 @@ button {
 
 /* Custom styles for SweetAlert dialog */
 .swal2-popup {
-  border-radius: 20px !important; /* Apply border radius */
-  font-family: "Montserrat", sans-serif; /* Apply custom font family */
+  border-radius: 20px !important;
+  /* Apply border radius */
+  font-family: "Montserrat", sans-serif;
+  /* Apply custom font family */
 }
 
 .swal2-title {
-  color: #333 !important; /* Apply title color */
-  font-size: 24px !important; /* Apply title font size */
-  font-weight: 600 !important; /* Apply title font weight */
-  font-family: "Montserrat", sans-serif; /* Apply custom font family */
+  color: #333 !important;
+  /* Apply title color */
+  font-size: 24px !important;
+  /* Apply title font size */
+  font-weight: 600 !important;
+  /* Apply title font weight */
+  font-family: "Montserrat", sans-serif;
+  /* Apply custom font family */
 }
 
 .swal2-content {
-  color: #555 !important; /* Apply content color */
-  font-size: 18px !important; /* Apply content font size */
-  font-family: "Montserrat", sans-serif; /* Apply custom font family */
+  color: #555 !important;
+  /* Apply content color */
+  font-size: 18px !important;
+  /* Apply content font size */
+  font-family: "Montserrat", sans-serif;
+  /* Apply custom font family */
 }
 
 .swal2-confirm,
 .swal2-cancel {
-  padding: 10px 20px !important; /* Apply button padding */
-  font-size: 18px !important; /* Apply button font size */
-  font-weight: 600 !important; /* Apply button font weight */
-  font-family: "Montserrat", sans-serif; /* Apply custom font family */
+  padding: 10px 20px !important;
+  /* Apply button padding */
+  font-size: 18px !important;
+  /* Apply button font size */
+  font-weight: 600 !important;
+  /* Apply button font weight */
+  font-family: "Montserrat", sans-serif;
+  /* Apply custom font family */
 }
 
 .swal2-confirm {
-  background-color: #e90c22 !important; /* Apply confirm button background color */
-  color: white !important; /* Apply confirm button text color */
+  background-color: #e90c22 !important;
+  /* Apply confirm button background color */
+  color: white !important;
+  /* Apply confirm button text color */
 }
 
 .swal2-cancel {
-  background-color: #686868 !important; /* Apply cancel button background color */
-  color: white !important; /* Apply cancel button text color */
+  background-color: #686868 !important;
+  /* Apply cancel button background color */
+  color: white !important;
+  /* Apply cancel button text color */
 }
 
 .button-group {
@@ -355,7 +415,9 @@ button {
   margin: 2px;
 }
 
-#add-new, #summary-btn, #invoice-btn {
+#add-new,
+#summary-btn,
+#invoice-btn {
   margin-left: 1rem;
   margin-right: 1rem;
 }
