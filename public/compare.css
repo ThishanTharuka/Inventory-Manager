@@ -40,11 +40,18 @@ main {
 #container {
     display: flex;
     flex-direction: row;
-    justify-content: space-around;
+    justify-content: space-between;
     align-items: center;
     margin-bottom: 1%;
 }
 
+#order-container {
+    width: 48%;
+}
+
+#invoice-container {
+    width: 48%;
+}
 
 
 #order-details {
@@ -59,7 +66,7 @@ main {
     padding: 1%;
 }
 
-#compare {
+#compare form {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
