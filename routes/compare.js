@@ -85,7 +85,7 @@ router.get('/compare-orders', (req, res) => {
     Promise.all([orderPromise, invoicePromise])
         .then(([order, invoice]) => {
             res.render('compare-orders', {
-                title: 'Compare Orders',
+                title: 'Order and Invoice Comparison',
                 order,
                 invoice,
                 searchOrder: order_id,

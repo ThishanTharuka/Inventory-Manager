@@ -10,6 +10,7 @@
     <title>
         <%= title %>
     </title>
+    <link rel="icon" href="/images/compare.svg" type="image/x-icon">
 </head>
 
 <body>
@@ -17,7 +18,7 @@
     <%- include('./partials/nav.ejs') %>
         <div id="top-bar">
             <div id="page-name">
-                <p>Compare Orders</p>
+                <p>Direct Sale Comparison</p>
             </div>
         </div>
         <main>
@@ -174,47 +175,85 @@
                     <table id="comparison-tbl">
                         <thead>
                             <tr>
-                                <th>Item Code</th>
-                                <th>Order Quantity</th>
-                                <th>Invoice Quantity</th>
-                                <th>Order Price</th>
+                                <th rowspan="2">Item Code</th>
+                                <th rowspan="2">Order Quantity</th>
+                                <th rowspan="2">Invoice Quantity</th>
+                                <th colspan="2">Invoice Details</th>
+                                <th colspan="2">Order Details</th>
+                                <th rowspan="2">Margin</th>
+                            </tr>
+                            <tr>
                                 <th>Invoice Price</th>
-                                <th>Difference</th>
+                                <th>Item Total</th>
+                                <th>Order Price</th>
+                                <th>Item Total</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <% order.items.forEach((orderItem)=> {
-                                const invoiceItem = invoice.items.find(item => item.item_code === orderItem.item_code);
-                                const quantityDifference = invoiceItem ? orderItem.quantity - invoiceItem.quantity :
-                                orderItem.quantity;
-                                const priceDifference = invoiceItem ? orderItem.price_per_item -
-                                invoiceItem.price_per_item : orderItem.price_per_item;
-                                %>
-                                <tr>
-                                    <td>
-                                        <%= orderItem.item_code %>
-                                    </td>
-                                    <td>
-                                        <%= orderItem.quantity %>
-                                    </td>
-                                    <td>
-                                        <%= invoiceItem ? invoiceItem.quantity : 'N/A' %>
-                                    </td>
-                                    <td>
-                                        <%= orderItem.price_per_item.toLocaleString(undefined, { minimumFractionDigits:
-                                            2, maximumFractionDigits: 2 }) %>
-                                    </td>
-                                    <td>
-                                        <%= invoiceItem ? invoiceItem.price_per_item.toLocaleString(undefined, {
-                                            minimumFractionDigits: 2, maximumFractionDigits: 2 }) : 'N/A' %>
-                                    </td>
-                                    <td>
-                                        <%= quantityDifference %> qty, <%= priceDifference.toLocaleString(undefined, {
-                                                minimumFractionDigits: 2, maximumFractionDigits: 2 }) %> price
-                                    </td>
-                                </tr>
-                                <% }) %>
+                            <% let totalOrderItemTotal=0; %>
+                                <% let totalInvoiceItemTotal=0; %>
+                                    <% let totalMargin=0; %>
+                                        <% order.items.forEach((orderItem)=> {
+                                            const invoiceItem = invoice.items.find(item => item.item_code ===
+                                            orderItem.item_code);
+                                            const orderItemTotal = orderItem.total;
+                                            const invoiceItemTotal = invoiceItem ? invoiceItem.extention : 0;
+                                            const itemMargin = invoiceItem ? ((orderItemTotal - invoiceItemTotal) /
+                                            invoiceItemTotal) * 100 : 0;
+                                            totalOrderItemTotal += orderItemTotal;
+                                            totalInvoiceItemTotal += invoiceItemTotal;
+                                            %>
+                                            <tr>
+                                                <td>
+                                                    <%= orderItem.item_code %>
+                                                </td>
+                                                <td>
+                                                    <%= orderItem.quantity %>
+                                                </td>
+                                                <td>
+                                                    <%= invoiceItem ? invoiceItem.quantity : 'N/A' %>
+                                                </td>
+                                                <td>
+                                                    <%= invoiceItem ?
+                                                        invoiceItem.price_per_item.toLocaleString(undefined, {
+                                                        minimumFractionDigits: 2, maximumFractionDigits: 2 }) : 'N/A' %>
+                                                </td>
+                                                <td>
+                                                    <%= invoiceItem ? invoiceItem.extention.toLocaleString(undefined, {
+                                                        minimumFractionDigits: 2, maximumFractionDigits: 2 }) : 'N/A' %>
+                                                </td>
+                                                <td>
+                                                    <%= orderItem.price_per_item.toLocaleString(undefined, {
+                                                        minimumFractionDigits: 2, maximumFractionDigits: 2 }) %>
+                                                </td>
+                                                <td>
+                                                    <%= orderItem.total.toLocaleString(undefined, {
+                                                        minimumFractionDigits: 2, maximumFractionDigits: 2 }) %>
+                                                </td>
+                                                <td>
+                                                    <%= invoiceItem ? itemMargin.toFixed(2) + '%' : 'N/A' %>
+                                                </td>
+                                            </tr>
+                                            <% }) %>
+                                                <tr>
+                                                    <td colspan="3">Total</td>
+                                                    <td></td>
+                                                    <td>
+                                                        <%= totalInvoiceItemTotal.toLocaleString(undefined, {
+                                                            minimumFractionDigits: 2, maximumFractionDigits: 2 }) %>
+                                                    </td>
+                                                    <td></td>
+                                                    <td>
+                                                        <%= totalOrderItemTotal.toLocaleString(undefined, {
+                                                            minimumFractionDigits: 2, maximumFractionDigits: 2 }) %>
+                                                    </td>
+                                                    <td>
+                                                        <%= (((totalOrderItemTotal - totalInvoiceItemTotal) /
+                                                            totalInvoiceItemTotal) * 100).toFixed(2) + '%' %>
+                                                    </td>
+                                                </tr>
                         </tbody>
+
                     </table>
                     <div id="total-comparison">
                         <p>

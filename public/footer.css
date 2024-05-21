@@ -22,6 +22,14 @@ footer {
     color: #a1a1a1;
 }
 
+p a {
+    font-family: "Montserrat", sans-serif;
+    font-weight: 550;
+    font-size: small;
+    color: #a1a1a1;
+
+}
+
 div #address {
     padding: 2%;
 }
