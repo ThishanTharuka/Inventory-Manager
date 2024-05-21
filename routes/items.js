@@ -13,7 +13,7 @@ router.get('/items', (req, res) => {
         }
 
         // Render the 'items' page with the fetched items
-        res.render('items', { title: 'Items', items });
+        res.render('items', { title: 'Items', items, searchTerm: ''  });
     });
 });
 
