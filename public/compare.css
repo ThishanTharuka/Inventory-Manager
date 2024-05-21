@@ -149,3 +149,25 @@ h2 {
     font-style: italic;
     font-weight: 700;
 }
+
+#date-range {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    margin: auto;
+    padding: 1% 2% 1% 2%;
+}
+
+.summary-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.summary-container table{
+    width: 95%;
+}
+
+#summary-table {
+    width: 100%;
+}

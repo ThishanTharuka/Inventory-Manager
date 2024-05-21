@@ -98,4 +98,57 @@ router.get('/compare-orders', (req, res) => {
         });
 });
 
+
+// GET route to render the form and optionally fetch comparison summary
+router.get('/comparison-summary', (req, res) => {
+    const { start_date, end_date } = req.query;
+
+    if (start_date && end_date) {
+        let comparisonQuery = `
+            SELECT 
+                o.order_id AS order_invoice, 
+                o.order_date, 
+                SUM(o.total) AS total_order_amount, 
+                i.invoice_id AS sales_invoice, 
+                i.invoice_date, 
+                SUM(i.total) AS total_invoice_amount
+            FROM 
+                orders o
+            LEFT JOIN 
+                invoices i ON o.invoice_id = i.invoice_id
+            WHERE 
+                o.order_date BETWEEN ? AND ?
+            GROUP BY 
+                o.order_id, i.invoice_id
+            ORDER BY 
+                o.order_date
+        `;
+
+        database.query(comparisonQuery, [start_date, end_date], (err, rows) => {
+            if (err) {
+                console.error('Error fetching comparison summary:', err);
+                res.status(500).send('Internal Server Error');
+            } else {
+                res.render('comparison-summary', {
+                    title: 'Comparison Summary',
+                    comparisonData: rows,
+                    startDate: start_date,
+                    endDate: end_date
+                });
+            }
+        });
+    } else {
+        res.render('comparison-summary', {
+            title: 'Comparison Summary',
+            comparisonData: [],
+            startDate: '',
+            endDate: ''
+        });
+    }
+});
+
+module.exports = router;
+
+
+
 module.exports = router;
