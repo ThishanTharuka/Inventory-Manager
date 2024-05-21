@@ -217,21 +217,27 @@
                         </tbody>
                     </table>
                     <div id="total-comparison">
-                        <p>Profit:
-                            <strong>
-                                <%= order.total.toLocaleString(undefined, { minimumFractionDigits: 2,
-                                    maximumFractionDigits: 2 }) %> - <%= invoice.total.toLocaleString(undefined, {
-                                        minimumFractionDigits: 2, maximumFractionDigits: 2 }) %> = <%= (order.total -
-                                            invoice.total).toLocaleString(undefined, { minimumFractionDigits: 2,
-                                            maximumFractionDigits: 2 }) %>
-                            </strong>
+                        <p>
+                            <span class="profit-label">Profit:</span>
+                            <%= order.total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits:
+                                2 }) %> -
+                                <%= invoice.total.toLocaleString(undefined, { minimumFractionDigits: 2,
+                                    maximumFractionDigits: 2 }) %> =
+                                    <span class="profit-amount">
+                                        <%= (order.total - invoice.total).toLocaleString(undefined, {
+                                            minimumFractionDigits: 2, maximumFractionDigits: 2 }) %>
+                                    </span>
                         </p>
                         <% const profitMargin=((order.total - invoice.total) / invoice.total) * 100; %>
-                            <p>Profit Margin: <strong>
-                                    <%= profitMargin.toFixed(2) %> %
-                                </strong></p>
+                            <p>
+                                <span class="profit-label">Profit Margin:</span>
+                                <span class="profit-margin">
+                                    <%= profitMargin.toFixed(2) %>%
+                                </span>
+                            </p>
                     </div>
                     <% } %>
+
                 </div>
         </main>
 </body>

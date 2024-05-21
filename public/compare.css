@@ -115,8 +115,8 @@ h2 {
     box-shadow: #8f8f8f 0px 1px 1px 0px;
     width: 100%;
     padding: 1rem;
-    margin-top: 2rem;
-    margin-bottom: 2rem;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
     font-family: "Montserrat", sans-serif;
     font-weight: 550;
 }
@@ -129,8 +129,23 @@ h2 {
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 1.5rem;
+    font-size: 1.25rem;
     font-weight: 400;
     font-family: "Montserrat", sans-serif;
     margin-top: 2rem;
+}
+
+.profit-amount {
+    font-weight: bold;
+    color: green;
+}
+
+.profit-margin {
+    font-weight: bold;
+    color: blue;
+}
+
+.profit-label {
+    font-style: italic;
+    font-weight: 700;
 }
