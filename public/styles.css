@@ -417,7 +417,8 @@ button {
 
 #add-new,
 #summary-btn,
-#invoice-btn {
+#invoice-btn,
+#mathara-btn {
   margin-left: 1rem;
   margin-right: 1rem;
 }

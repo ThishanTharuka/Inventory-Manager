@@ -8,6 +8,7 @@ const stockRoutes = require('./routes/stocks');
 const invoiceRoutes = require('./routes/invoice');
 const orderRoutes = require('./routes/orders');
 const compareRoutes = require('./routes/compare');
+const altStockRoutes = require('./routes/altStock');
 
 //express app
 const app = express();
@@ -47,6 +48,7 @@ app.use(stockRoutes);
 app.use(invoiceRoutes);
 app.use(orderRoutes);
 app.use(compareRoutes);
+app.use(altStockRoutes);
 
 // 404 page
 app.use((req, res) => {
