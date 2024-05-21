@@ -24,17 +24,75 @@
             <div id="compare">
                 <form action="/compare-orders" method="get">
                     <div>
-                        <label for="get-order">Search Order ID:</label>
-                        <input type="text" id="get-order" name="order_id" value="<%= searchOrder || '' %>">
-                    </div>
-                    <button id="search-btns" type="submit">Load Order and Invoice</button>
-                    <div>
                         <label for="get-invoice">Search Invoice ID:</label>
                         <input type="text" id="get-invoice" name="invoice_id" value="<%= searchInvoice || '' %>">
+                    </div>
+                    <div>
+                        <button id="search-btns" type="submit">Load Order and Invoice</button>
+                    </div>
+                    <a href="/compare-orders"><button id="search-btns" type="button">Reset</button></a>
+                    <div>
+                        <label for="get-order">Search Order ID:</label>
+                        <input type="text" id="get-order" name="order_id" value="<%= searchOrder || '' %>">
                     </div>
                 </form>
             </div>
             <div id="container">
+                <div id="invoice-container">
+                    <% if (invoice) { %>
+                        <div class="invoice-card">
+                            <div id="invoice-details">
+                                <h3>Invoice ID: <%= invoice.invoice_id %>
+                                </h3>
+                                <p>Invoice Date: <%= invoice.invoice_date.toLocaleDateString() %>
+                                </p>
+                            </div>
+                            <table id="invoice-tbl">
+                                <thead>
+                                    <tr>
+                                        <th class="left-align">Item Code</th>
+                                        <th class="left-align">Item Name</th>
+                                        <th>Quantity</th>
+                                        <th>Price</th>
+                                        <th>Extension</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% invoice.items.forEach((item)=> { %>
+                                        <tr>
+                                            <td class="left-align">
+                                                <%= item.item_code %>
+                                            </td>
+                                            <td class="left-align">
+                                                <%= item.description %>
+                                            </td>
+                                            <td>
+                                                <%= item.quantity %>
+                                            </td>
+                                            <td>
+                                                <%= item.price_per_item.toLocaleString(undefined, {
+                                                    minimumFractionDigits: 2, maximumFractionDigits: 2 }) %>
+                                            </td>
+                                            <td>
+                                                <%= item.extention.toLocaleString(undefined, { minimumFractionDigits: 2,
+                                                    maximumFractionDigits: 2 }) %>
+                                            </td>
+                                        </tr>
+                                        <% }) %>
+                                            <tr>
+                                                <td class="left-align" colspan="4">Total</td>
+                                                <td>
+                                                    <%= invoice.total.toLocaleString(undefined, { minimumFractionDigits:
+                                                        2, maximumFractionDigits: 2 }) %>
+                                                </td>
+                                            </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <% } else { %>
+                            <p id="not-found">No invoice found.</p>
+                            <% } %>
+                </div>
                 <div id="order-container">
                     <% if (order) { %>
                         <div class="order-card">
@@ -106,67 +164,12 @@
                             </table>
                         </div>
                         <% } else { %>
-                            <p>No order found.</p>
-                            <% } %>
-                </div>
-                <div id="invoice-container">
-                    <% if (invoice) { %>
-                        <div class="invoice-card">
-                            <div id="invoice-details">
-                                <h3>Invoice ID: <%= invoice.invoice_id %>
-                                </h3>
-                                <p>Invoice Date: <%= invoice.invoice_date.toLocaleDateString() %>
-                                </p>
-                            </div>
-                            <table id="invoice-tbl">
-                                <thead>
-                                    <tr>
-                                        <th class="left-align">Item Code</th>
-                                        <th class="left-align">Item Name</th>
-                                        <th>Quantity</th>
-                                        <th>Price</th>
-                                        <th>Extension</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <% invoice.items.forEach((item)=> { %>
-                                        <tr>
-                                            <td class="left-align">
-                                                <%= item.item_code %>
-                                            </td>
-                                            <td class="left-align">
-                                                <%= item.description %>
-                                            </td>
-                                            <td>
-                                                <%= item.quantity %>
-                                            </td>
-                                            <td>
-                                                <%= item.price_per_item.toLocaleString(undefined, {
-                                                    minimumFractionDigits: 2, maximumFractionDigits: 2 }) %>
-                                            </td>
-                                            <td>
-                                                <%= item.extention.toLocaleString(undefined, { minimumFractionDigits: 2,
-                                                    maximumFractionDigits: 2 }) %>
-                                            </td>
-                                        </tr>
-                                        <% }) %>
-                                            <tr>
-                                                <td class="left-align" colspan="4">Total</td>
-                                                <td>
-                                                    <%= invoice.total.toLocaleString(undefined, { minimumFractionDigits:
-                                                        2, maximumFractionDigits: 2 }) %>
-                                                </td>
-                                            </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                        <% } else { %>
-                            <p>No invoice found.</p>
+                            <p id="not-found">No order found.</p>
                             <% } %>
                 </div>
             </div>
-            <div id="comparison-container">
-                <% if (order && invoice) { %>
+            <% if (order && invoice) { %>
+                <div id="comparison-container">
                     <h2>Comparison</h2>
                     <table id="comparison-tbl">
                         <thead>
@@ -181,8 +184,7 @@
                         </thead>
                         <tbody>
                             <% order.items.forEach((orderItem)=> {
-                                const invoiceItem = invoice.items.find(item => item.item_code ===
-                                orderItem.item_code);
+                                const invoiceItem = invoice.items.find(item => item.item_code === orderItem.item_code);
                                 const quantityDifference = invoiceItem ? orderItem.quantity - invoiceItem.quantity :
                                 orderItem.quantity;
                                 const priceDifference = invoiceItem ? orderItem.price_per_item -
@@ -214,12 +216,23 @@
                                 <% }) %>
                         </tbody>
                     </table>
+                    <div id="total-comparison">
+                        <p>Profit:
+                            <strong>
+                                <%= order.total.toLocaleString(undefined, { minimumFractionDigits: 2,
+                                    maximumFractionDigits: 2 }) %> - <%= invoice.total.toLocaleString(undefined, {
+                                        minimumFractionDigits: 2, maximumFractionDigits: 2 }) %> = <%= (order.total -
+                                            invoice.total).toLocaleString(undefined, { minimumFractionDigits: 2,
+                                            maximumFractionDigits: 2 }) %>
+                            </strong>
+                        </p>
+                        <% const profitMargin=((order.total - invoice.total) / invoice.total) * 100; %>
+                            <p>Profit Margin: <strong>
+                                    <%= profitMargin.toFixed(2) %> %
+                                </strong></p>
+                    </div>
                     <% } %>
-                    <p><%= order.total.toLocaleString(undefined, { minimumFractionDigits:
-                        2, maximumFractionDigits: 2 }) %> - <%= invoice.total.toLocaleString(undefined, { minimumFractionDigits:
-                            2, maximumFractionDigits: 2 }) %> = <%= (order.total - invoice.total).toLocaleString(undefined, { minimumFractionDigits:
-                                2, maximumFractionDigits: 2 }) %></p>
-            </div>
+                </div>
         </main>
 </body>
 
