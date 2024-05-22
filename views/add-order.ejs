@@ -17,7 +17,7 @@
         <div id="container">
             <form action="/add-order" method="post">
                 <div id="input-fields">
-                    <label for="Invoice">Order ID</label>
+                    <label for="Invoice">Dealer Invoice ID</label>
                     <input type="number" id="order_id" name="order_id" required>
                 </div>
                 <div id="input-fields">
@@ -49,6 +49,7 @@
                             <th>Unit Price</th>
                             <th>Quantity</th>
                             <th>Discount (%)</th>
+                            <th>Total</th>
                         </thead>
                         <tbody id="items-body">
                             <!-- Items will be dynamically added here -->
@@ -88,9 +89,10 @@
                                 </select>
                             </td>
                             <td>${item.description}</td>
-                            <td><input type="number" step="0.01" name="invoice_prices[]" value="${item.price}" required ></td>
-                            <td><input type="number" name="invoice_quantities[]" value="${item.quantity}" required></td>
-                            <td><input type="number" name="invoice_discounts[]" placeholder="0" required></td>
+                            <td><input type="number" step="0.01" name="invoice_prices[]" value="${item.price}" required oninput="updateTotal(this)"></td>
+                            <td><input type="number" name="invoice_quantities[]" value="${item.quantity}" required oninput="updateTotal(this)"></td>
+                            <td><input type="number" name="invoice_discounts[]" placeholder="0" required oninput="updateTotal(this)"></td>
+                            <td class="item-total">0.00</td>
                         `;
                             itemsBody.appendChild(row);
                         });
@@ -118,15 +120,19 @@
                         </div>
                         <div>
                             <label for="Price">Unit Price</label>
-                            <input type="number" step="0.01" name="prices[]" required>
+                            <input type="number" step="0.01" name="prices[]" required oninput="updateTotal(this)">
                         </div>
                         <div>
                             <label for="Quantity">Quantity</label>
-                            <input type="number" name="quantities[]" required>
+                            <input type="number" name="quantities[]" required oninput="updateTotal(this)">
                         </div>
                         <div>
                             <label for="Discount">Discount</label>
-                            <input type="number" name="discounts[]" required>
+                            <input type="number" name="discounts[]" required oninput="updateTotal(this)">
+                        </div>
+                        <div>
+                            <label for="Total">Total</label>
+                            <span class="item-total">0.00</span>
                         </div>
                         <div>
                             <button type="button" onclick="removeItem(this)">Remove</button>
@@ -139,22 +145,44 @@
             function removeItem(button) {
                 const itemField = button.closest('.item-field');
                 itemField.remove();
+                updateGrandTotal();
             }
 
-            // JavaScript function to fetch the item name and price based on the selected item code 
             function fetchItemName(selectElement) {
                 const itemCode = selectElement.value;
                 const itemField = selectElement.closest('.item-field');
                 const itemNameInput = itemField.querySelector('.item-name');
+                const itemPriceInput = itemField.querySelector('[name="prices[]"]');
                 fetch(`/items/${itemCode}`)
                     .then(response => response.json())
                     .then(data => {
-                        console.log('Received data:', data); // Log received data
                         itemNameInput.value = data.description;
+                        itemPriceInput.value = data.price;
+                        updateTotal(itemPriceInput); // Update the total when the item name and price are fetched
                     })
                     .catch(error => console.error('Error fetching item details:', error));
             }
 
+            function updateTotal(inputElement) {
+                const itemField = inputElement.closest('.item-field, tr');
+                const price = parseFloat(itemField.querySelector('[name="prices[]"], [name="invoice_prices[]"]').value) || 0;
+                const quantity = parseFloat(itemField.querySelector('[name="quantities[]"], [name="invoice_quantities[]"]').value) || 0;
+                const discount = parseFloat(itemField.querySelector('[name="discounts[]"], [name="invoice_discounts[]"]').value) || 0;
+
+                const total = (price * quantity) * (1 - discount / 100);
+                itemField.querySelector('.item-total').textContent = total.toFixed(2);
+
+                updateGrandTotal();
+            }
+
+            function updateGrandTotal() {
+                const totals = document.querySelectorAll('.item-total');
+                let grandTotal = 0;
+                totals.forEach(total => {
+                    grandTotal += parseFloat(total.textContent);
+                });
+                document.getElementById('grand-total').textContent = grandTotal.toFixed(2);
+            }
         </script>
 </body>
 
