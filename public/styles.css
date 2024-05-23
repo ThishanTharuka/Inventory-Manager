@@ -41,7 +41,7 @@ a {
   font-weight: 550;
   margin: auto;
   text-decoration: none;
-  background-color: #ad9fff;
+  background-color: #9fff9f;
   color: black;
   border: 1px solid #ad9fff;
   font-size: 1 rem;
@@ -54,7 +54,7 @@ a {
 }
 
 #add-new-btn:hover {
-  background-color: #755dfc;
+  background-color: #08c408;
   cursor: pointer;
   color: aliceblue;
 }
@@ -426,4 +426,27 @@ button {
 .left-align {
   text-align: left;
   padding-left: 1rem
+}
+
+#compare-btn {
+  font-family: "Montserrat", sans-serif;
+  font-weight: 550;
+  margin: auto;
+  text-decoration: none;
+  background-color: #ad9fff;
+  color: black;
+  border: 1px solid #ad9fff;
+  font-size: 1 rem;
+  padding: 0.5rem 1rem;
+  border-radius: 5rem;
+  transition: background-color 0.3s ease;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#compare-btn:hover {
+  background-color: #755dfc;
+  cursor: pointer;
+  color: aliceblue;
 }
