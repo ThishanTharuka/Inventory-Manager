@@ -74,7 +74,42 @@ router.get('/compare-orders', (req, res) => {
                             extention: row.extention
                         });
                     });
-                    resolve(invoice);
+
+                    // Check for order related to the invoice if order_id is not provided
+                    if (!order_id) {
+                        let orderQuery = `
+                            SELECT o.*, d.shop_name AS dealer_name
+                            FROM orders o
+                            JOIN dealers d ON o.dealer_id = d.shop_id
+                            WHERE o.invoice_id = ?
+                        `;
+                        database.query(orderQuery, [invoice_id], (err, orders) => {
+                            if (err) {
+                                reject(err);
+                            } else if (orders.length > 0) {
+                                const order = orders[0];
+                                const itemsQuery = `
+                                    SELECT oi.item_code, i.description, oi.quantity, oi.price_per_item, oi.total, oi.discount
+                                    FROM order_items oi
+                                    JOIN items i ON oi.item_code = i.item_code
+                                    WHERE oi.order_id = ?
+                                `;
+                                database.query(itemsQuery, [order.order_id], (err, items) => {
+                                    if (err) {
+                                        reject(err);
+                                    } else {
+                                        order.order_date = new Date(order.order_date);
+                                        order.items = items;
+                                        resolve({ order, invoice });
+                                    }
+                                });
+                            } else {
+                                resolve({ order: null, invoice });
+                            }
+                        });
+                    } else {
+                        resolve({ order: null, invoice });
+                    }
                 } else {
                     resolve(null);
                 }
@@ -83,11 +118,16 @@ router.get('/compare-orders', (req, res) => {
     }
 
     Promise.all([orderPromise, invoicePromise])
-        .then(([order, invoice]) => {
+        .then(([orderResult, invoiceResult]) => {
+            if (invoice_id && !order_id && invoiceResult) {
+                orderResult = invoiceResult.order;
+                invoiceResult = invoiceResult.invoice;
+            }
+
             res.render('compare-orders', {
                 title: 'Order and Invoice Comparison',
-                order,
-                invoice,
+                order: orderResult,
+                invoice: invoiceResult,
                 searchOrder: order_id,
                 searchInvoice: invoice_id
             });
@@ -98,56 +138,6 @@ router.get('/compare-orders', (req, res) => {
         });
 });
 
-
-// GET route to render the form and optionally fetch comparison summary
-router.get('/comparison-summary', (req, res) => {
-    const { start_date, end_date } = req.query;
-
-    if (start_date && end_date) {
-        let comparisonQuery = `
-            SELECT 
-                o.order_id AS order_invoice, 
-                o.order_date, 
-                SUM(o.total) AS total_order_amount, 
-                i.invoice_id AS sales_invoice, 
-                i.invoice_date, 
-                SUM(i.total) AS total_invoice_amount
-            FROM 
-                orders o
-            LEFT JOIN 
-                invoices i ON o.invoice_id = i.invoice_id
-            WHERE 
-                o.order_date BETWEEN ? AND ?
-            GROUP BY 
-                o.order_id, i.invoice_id
-            ORDER BY 
-                o.order_date
-        `;
-
-        database.query(comparisonQuery, [start_date, end_date], (err, rows) => {
-            if (err) {
-                console.error('Error fetching comparison summary:', err);
-                res.status(500).send('Internal Server Error');
-            } else {
-                res.render('comparison-summary', {
-                    title: 'Comparison Summary',
-                    comparisonData: rows,
-                    startDate: start_date,
-                    endDate: end_date
-                });
-            }
-        });
-    } else {
-        res.render('comparison-summary', {
-            title: 'Comparison Summary',
-            comparisonData: [],
-            startDate: '',
-            endDate: ''
-        });
-    }
-});
-
-module.exports = router;
 
 
 
