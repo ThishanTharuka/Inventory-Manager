@@ -218,3 +218,24 @@ tr {
 td input {
   width: 50% !important;
 }
+
+#total-amount p {
+  font-family: "Montserrat", sans-serif;
+  font-weight: 550;
+  font-size: 1.2rem;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+#total-amount {
+  display: flex;
+  justify-content: space-around;
+  width: 95%;
+  align-items: center;
+  margin: auto;
+}
+
+#grand-total {
+  color: #bd4848;
+  font-weight: 700;
+}
