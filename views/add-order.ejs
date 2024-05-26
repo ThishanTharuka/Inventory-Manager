@@ -27,11 +27,11 @@
                 <div id="input-fields">
                     <label for="Dealer">Dealer Name</label>
                     <select id="dealer_name" name="dealer_name" required>
-                        <% dealers.forEach(dealer=> { %>
+                        <% dealers.forEach(dealer => { %>
                             <option value="<%= dealer.shop_name %>">
                                 <%= dealer.shop_name %>
                             </option>
-                            <% }); %>
+                        <% }); %>
                     </select>
                 </div>
                 <div id="invoice-container">
@@ -55,10 +55,9 @@
                             <!-- Items will be dynamically added here -->
                         </tbody>
                     </table>
-                    
                 </div>
                 <div id="total-amount">
-                    <p> Total Amount: <span id="grand-total">0.00</span></p>
+                    <p>Total Amount: <span id="grand-total">0.00</span></p>
                 </div>
                 <div id="items-container">
                     <p class="subtitle">Add Other Items</p>
@@ -73,6 +72,8 @@
         </div>
 
         <script>
+            const items = <%- JSON.stringify(items) %>;
+
             function fetchInvoiceItems() {
                 const invoiceId = document.getElementById('invoice_id').value;
                 fetch(`/orders/invoice-items/${invoiceId}`)
@@ -110,17 +111,15 @@
                     <div class="item-field">
                         <div>
                             <label for="Item">Item Code</label>
-                            <select name="item_codes[]" onchange="fetchItemName(this)" required>
-                                <% items.forEach(item=> { %>
-                                    <option value="<%= item.item_code %>">
-                                        <%= item.item_code %>
-                                    </option>
-                                <% }); %>
+                            <select name="item_codes[]" onchange="syncItemDetails(this, 'code')" required>
+                                ${items.map(item => `<option value="${item.item_code}">${item.item_code}</option>`).join('')}
                             </select>
                         </div>
-                        <div>
+                        <div id="item-name">
                             <label for="Description">Item Name</label>
-                            <input type="text" name="descriptions[]" class="item-name" required readonly>
+                            <select name="descriptions[]" onchange="syncItemDetails(this, 'name')" required>
+                                ${items.map(item => `<option value="${item.description}">${item.description}</option>`).join('')}
+                            </select>
                         </div>
                         <div>
                             <label for="Price">Unit Price</label>
@@ -152,19 +151,20 @@
                 updateGrandTotal();
             }
 
-            function fetchItemName(selectElement) {
-                const itemCode = selectElement.value;
-                const itemField = selectElement.closest('.item-field');
-                const itemNameInput = itemField.querySelector('.item-name');
-                const itemPriceInput = itemField.querySelector('[name="prices[]"]');
-                fetch(`/items/${itemCode}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        itemNameInput.value = data.description;
-                        itemPriceInput.value = data.price;
-                        updateTotal(itemPriceInput); // Update the total when the item name and price are fetched
-                    })
-                    .catch(error => console.error('Error fetching item details:', error));
+            function syncItemDetails(selectElement, type) {
+                const selectedValue = selectElement.value;
+                const itemField = selectElement.closest('.item-field, tr');
+                const itemCodeSelect = itemField.querySelector('[name="item_codes[]"], [name="invoice_item_codes[]"]');
+                const itemNameSelect = itemField.querySelector('[name="descriptions[]"], [name="invoice_descriptions[]"]');
+                
+                if (type === 'code') {
+                    const selectedItem = items.find(item => item.item_code === selectedValue);
+                    itemNameSelect.value = selectedItem.description;
+                } else {
+                    const selectedItem = items.find(item => item.description === selectedValue);
+                    itemCodeSelect.value = selectedItem.item_code;
+                }
+                
             }
 
             function updateTotal(inputElement) {

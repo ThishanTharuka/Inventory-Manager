@@ -239,3 +239,7 @@ td input {
   color: #bd4848;
   font-weight: 700;
 }
+
+#item-name select{
+  width: 100%;
+}
