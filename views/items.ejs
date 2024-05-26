@@ -39,26 +39,26 @@
       <table id="items">
         <thead>
           <tr>
-            <th>Item Code</th>
-            <th>Description</th>
-            <th>Unit</th>
-            <th>Price</th>
+            <th class="left-align">Item Code</th>
+            <th class="left-align">Description</th>
+            <th class="left-align">Unit</th>
+            <th class="left-align">Price</th>
             <th id="action">Actions</th>
           </tr>
         </thead>
         <tbody>
           <% items.forEach(item=> { %>
             <tr>
-              <td>
+              <td class="left-align">
                 <%= item.item_code %>
               </td>
-              <td>
+              <td class="left-align">
                 <%= item.description %>
               </td>
-              <td>
+              <td class="left-align">
                 <%= item.unit %>
               </td>
-              <td>
+              <td class="left-align">
                 <% if (item.price !=null) { %>
                   <%= item.price.toLocaleString() %>
                     <% } else { %>

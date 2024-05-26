@@ -41,21 +41,21 @@
     <main>
       <table id="shops">
         <thead>
-          <th>Items</th>
-          <th>Description</th>
-          <th>Quantity</th>
+          <th class="left-align">Items</th>
+          <th class="left-align">Description</th>
+          <th class="left-align">Quantity</th>
           <!-- <th>Actions</th> -->
         </thead>
         <tbody>
           <% stocks.forEach(stock=> { %>
             <tr>
-              <td>
+              <td class="left-align">
                 <%= stock.item_code %>
               </td>
-              <td>
+              <td class="left-align">
                 <%= stock.description %>
               </td>
-              <td>
+              <td class="left-align">
                 <%= stock.quantity %>
               </td>
               <!-- <td id="action">

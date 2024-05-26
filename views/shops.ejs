@@ -30,10 +30,10 @@
       <table id="shops">
         <thead>
           <th class="left-align">Dealership Name</th>
-          <th>Contact No</th>
-          <th>City</th>
-          <th>Address</th>
-          <th id="action">Actions</th>
+          <th class="left-align">Contact No</th>
+          <th class="left-align">City</th>
+          <th class="left-align">Address</th>
+          <th class="left-align" id="action">Actions</th>
         </thead>
         <tbody>
           <% shops.forEach(shop=> { %>
@@ -41,10 +41,10 @@
               <td class="left-align" >
                 <%= shop.shop_name %>
               </td>
-              <td>
+              <td class="left-align">
                 <%= shop.contact_no %>
               </td>
-              <td>
+              <td class="left-align">
                 <%= shop.location %>
               </td>
               <td class="left-align" >
