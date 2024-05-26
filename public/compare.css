@@ -164,10 +164,31 @@ h2 {
     justify-content: space-between;
 }
 
-.summary-container table{
+.summary-container table {
     width: 95%;
 }
 
 #summary-table {
     width: 100%;
+}
+
+th.sortable {
+    cursor: pointer;
+    position: relative;
+    padding-right: 20px;
+}
+
+th.sortable .sort-icon {
+    width: 15px;
+    height: 15px;
+    position: absolute;
+    right: 5px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: none;
+}
+
+th.sortable.asc .sort-icon.asc,
+th.sortable.desc .sort-icon.desc {
+    display: block;
 }

@@ -1,102 +1,129 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="/styles.css">
     <link rel="stylesheet" href="compare.css">
     <link rel="stylesheet" href="/nav.css">
-    <title>
-        <%= title %>
-    </title>
+    <title><%= title %></title>
     <link rel="icon" href="/images/compare.svg" type="image/x-icon">
 </head>
-
 <body>
     <!-- Include the navigation partial -->
     <%- include('./partials/nav.ejs') %>
-        <div id="top-bar">
-            <div id="page-name">
-                <p>Direct Sale Comparison Summary</p>
-            </div>
+    <div id="top-bar">
+        <div id="page-name">
+            <p>Direct Sale Comparison Summary</p>
         </div>
-        <div class="summary-container">
-            <div>
-                <form action="/comparison-summary" method="get">
-                    <div id="date-range">
-                        <div>
-                            <label for="start_date">Start Date:</label>
-                            <input type="date" id="start_date" name="start_date" required value="<%= startDate %>">
-                        </div>
-                        <div>
-                            <button type="submit" id="search-btns">Load</button>
-                        </div>
-                        <div>
-                            <label for="end_date">End Date:</label>
-                            <input type="date" id="end_date" name="end_date" required value="<%= endDate %>">
-                        </div>
+    </div>
+    <div class="summary-container">
+        <div>
+            <form action="/comparison-summary" method="get">
+                <div id="date-range">
+                    <div>
+                        <label for="start_date">Start Date:</label>
+                        <input type="date" id="start_date" name="start_date" required value="<%= startDate %>">
                     </div>
-                </form>
-            </div>
-            <div id="summary-table">
-                <% if (comparisonData.length> 0) { %>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>No.</th>
-                                <th>Order Invoice</th>
-                                <th>Order Date</th>
-                                <th>Total Order Amount</th>
-                                <th>Sales Invoice</th>
-                                <th>Invoice Date</th>
-                                <th>Total Invoice Amount</th>
-                                <th>Margin</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <% let totalOrderAmount=0; %>
-                                <% let totalInvoiceAmount=0; %>
-                                    <% comparisonData.forEach((data, index)=> {
-                                        totalOrderAmount += data.total_order_amount;
-                                        totalInvoiceAmount += data.total_invoice_amount;
-                                        const margin = ((data.total_order_amount - data.total_invoice_amount) /
-                                        data.total_invoice_amount) * 100;
-                                        %>
-                                        <tr>
-                                            <td>
-                                                <%= index + 1 %>
-                                            </td>
-                                            <td>
-                                                <%= data.order_invoice %>
-                                            </td>
-                                            <td>
-                                                <%= new Date(data.order_date).toLocaleDateString() %>
-                                            </td>
-                                            <td>
-                                                <%= data.total_order_amount.toFixed(2) %>
-                                            </td>
-                                            <td>
-                                                <%= data.sales_invoice %>
-                                            </td>
-                                            <td>
-                                                <%= new Date(data.invoice_date).toLocaleDateString() %>
-                                            </td>
-                                            <td>
-                                                <%= data.total_invoice_amount.toFixed(2) %>
-                                            </td>
-                                            <td>
-                                                <%= margin.toFixed(2) %> %
-                                            </td>
-                                        </tr>
-                                        <% }) %>
-                        </tbody>
-                    </table>
-                    <% } else { %>
-                        <p id="not-found">No data available for the selected date range.</p>
-                        <% } %>
-            </div>
+                    <div>
+                        <button type="submit" id="search-btns">Load</button>
+                    </div>
+                    <div>
+                        <label for="end_date">End Date:</label>
+                        <input type="date" id="end_date" name="end_date" required value="<%= endDate %>">
+                    </div>
+                </div>
+            </form>
         </div>
-</body>
+        <div id="summary-table">
+            <% if (comparisonData.length > 0) { %>
+                <table id="comparisonTable">
+                    <thead>
+                        <tr>
+                            <th>No.</th>
+                            <th>Order Invoice</th>
+                            <th>Order Date</th>
+                            <th>Total Order Amount</th>
+                            <th>Sales Invoice</th>
+                            <th>Invoice Date</th>
+                            <th>Total Invoice Amount</th>
+                            <th class="sortable" data-sort="margin">Margin
+                                <img src="/images/sort-asc.svg" class="sort-icon asc" alt="Ascending">
+                                <img src="/images/sort-desc.svg" class="sort-icon desc" alt="Descending">
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% let totalOrderAmount = 0; %>
+                        <% let totalInvoiceAmount = 0; %>
+                        <% comparisonData.forEach((data, index) => {
+                            totalOrderAmount += data.total_order_amount;
+                            totalInvoiceAmount += data.total_invoice_amount;
+                            const margin = ((data.total_order_amount - data.total_invoice_amount) / data.total_invoice_amount) * 100;
+                        %>
+                        <tr>
+                            <td><%= index + 1 %></td>
+                            <td><%= data.order_invoice %></td>
+                            <td><%= new Date(data.order_date).toLocaleDateString() %></td>
+                            <td><%= data.total_order_amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) %></td>
+                            <td><%= data.sales_invoice %></td>
+                            <td><%= new Date(data.invoice_date).toLocaleDateString() %></td>
+                            <td><%= data.total_invoice_amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) %></td>
+                            <td data-margin="<%= margin %>"><%= margin.toFixed(2) %> %</td>
+                        </tr>
+                        <% }) %>
+                    </tbody>
+                </table>
+            <% } else { %>
+                <p id="not-found">No data available for the selected date range.</p>
+            <% } %>
+        </div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const table = document.getElementById('comparisonTable');
+            const headers = table.querySelectorAll('.sortable');
+            let sortDirection = 1;
 
+            headers.forEach(header => {
+                header.addEventListener('click', () => {
+                    const sortAttribute = header.getAttribute('data-sort');
+                    const rows = Array.from(table.querySelector('tbody').rows);
+                    const isNumeric = sortAttribute === 'margin';
+
+                    // Determine the current sort direction and update it
+                    const currentDirection = header.classList.contains('asc') ? 'asc' : (header.classList.contains('desc') ? 'desc' : '');
+                    headers.forEach(h => {
+                        h.classList.remove('asc', 'desc');
+                        h.querySelector('.sort-icon.asc').style.display = 'none';
+                        h.querySelector('.sort-icon.desc').style.display = 'none';
+                    });
+
+                    if (currentDirection === 'asc') {
+                        sortDirection = -1;
+                        header.classList.add('desc');
+                        header.querySelector('.sort-icon.desc').style.display = 'block';
+                    } else {
+                        sortDirection = 1;
+                        header.classList.add('asc');
+                        header.querySelector('.sort-icon.asc').style.display = 'block';
+                    }
+
+                    rows.sort((rowA, rowB) => {
+                        const cellA = rowA.querySelector(`td[data-${sortAttribute}]`).dataset[sortAttribute];
+                        const cellB = rowB.querySelector(`td[data-${sortAttribute}]`).dataset[sortAttribute];
+
+                        if (isNumeric) {
+                            return sortDirection * (parseFloat(cellA) - parseFloat(cellB));
+                        } else {
+                            return sortDirection * cellA.localeCompare(cellB);
+                        }
+                    });
+
+                    rows.forEach(row => table.querySelector('tbody').appendChild(row));
+                });
+            });
+        });
+    </script>
+</body>
 </html>

@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router();
 const database = require('../database');
 
+
+
 // GET route to fetch all orders and invoices
 router.get('/compare-orders', (req, res) => {
     const { order_id, invoice_id } = req.query;
@@ -119,24 +121,78 @@ router.get('/compare-orders', (req, res) => {
 
     Promise.all([orderPromise, invoicePromise])
         .then(([orderResult, invoiceResult]) => {
-            if (invoice_id && !order_id && invoiceResult) {
+            if (orderResult && !invoiceResult && orderResult.invoice_id) {
+                let relatedInvoiceQuery = `
+                    SELECT i.*, ii.item_code, ii.quantity, ii.price_per_item, ii.extention, it.description 
+                    FROM invoices i
+                    JOIN invoice_items ii ON i.invoice_id = ii.invoice_id
+                    JOIN items it ON ii.item_code = it.item_code
+                    WHERE i.invoice_id = ?
+                `;
+                database.query(relatedInvoiceQuery, [orderResult.invoice_id], (err, rows) => {
+                    if (err) {
+                        console.error('Error fetching related invoice:', err);
+                        res.status(500).send('Internal Server Error');
+                    } else if (rows.length > 0) {
+                        const invoice = {
+                            invoice_id: rows[0].invoice_id,
+                            invoice_date: new Date(rows[0].invoice_date),
+                            total: rows[0].total,
+                            items: []
+                        };
+                        rows.forEach(row => {
+                            invoice.items.push({
+                                item_code: row.item_code,
+                                description: row.description,
+                                quantity: row.quantity,
+                                price_per_item: row.price_per_item,
+                                extention: row.extention
+                            });
+                        });
+                        res.render('compare-orders', {
+                            title: 'Order and Invoice Comparison',
+                            order: orderResult,
+                            invoice: invoice,
+                            searchOrder: order_id,
+                            searchInvoice: invoice_id
+                        });
+                    } else {
+                        res.render('compare-orders', {
+                            title: 'Order and Invoice Comparison',
+                            order: orderResult,
+                            invoice: null,
+                            searchOrder: order_id,
+                            searchInvoice: invoice_id
+                        });
+                    }
+                });
+            } else if (invoiceResult && !orderResult && invoiceResult.order) {
                 orderResult = invoiceResult.order;
                 invoiceResult = invoiceResult.invoice;
+                res.render('compare-orders', {
+                    title: 'Order and Invoice Comparison',
+                    order: orderResult,
+                    invoice: invoiceResult,
+                    searchOrder: order_id,
+                    searchInvoice: invoice_id
+                });
+            } else {
+                res.render('compare-orders', {
+                    title: 'Order and Invoice Comparison',
+                    order: orderResult,
+                    invoice: invoiceResult,
+                    searchOrder: order_id,
+                    searchInvoice: invoice_id
+                });
             }
-
-            res.render('compare-orders', {
-                title: 'Order and Invoice Comparison',
-                order: orderResult,
-                invoice: invoiceResult,
-                searchOrder: order_id,
-                searchInvoice: invoice_id
-            });
         })
         .catch(err => {
             console.error('Error fetching orders or invoices:', err);
             res.status(500).send('Internal Server Error');
         });
 });
+
+
 
 // GET route to render the form and optionally fetch comparison summary
 router.get('/comparison-summary', (req, res) => {
