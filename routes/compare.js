@@ -6,191 +6,105 @@ const database = require('../database');
 
 // GET route to fetch all orders and invoices
 router.get('/compare-orders', (req, res) => {
-    const { order_id, invoice_id } = req.query;
+    const { invoice_id } = req.query;
 
-    let orderPromise = Promise.resolve(null);
-    let invoicePromise = Promise.resolve(null);
+    if (!invoice_id) {
+        return res.render('compare-orders', {
+            title: 'Order and Invoice Comparison',
+            order: null,
+            invoice: null,
+            searchInvoice: ''
+        });
+    }
 
-    if (order_id) {
+    // Fetch invoice and its items
+    let invoiceQuery = `
+        SELECT i.*, ii.item_code, ii.quantity, ii.price_per_item, ii.extention, it.description 
+        FROM invoices i
+        JOIN invoice_items ii ON i.invoice_id = ii.invoice_id
+        JOIN items it ON ii.item_code = it.item_code
+        WHERE i.invoice_id = ?
+    `;
+
+    database.query(invoiceQuery, [invoice_id], (err, rows) => {
+        if (err) {
+            console.error('Error fetching invoice:', err);
+            return res.status(500).send('Internal Server Error');
+        }
+
+        if (rows.length === 0) {
+            return res.render('compare-orders', {
+                title: 'Order and Invoice Comparison',
+                order: null,
+                invoice: null,
+                searchInvoice: invoice_id
+            });
+        }
+
+        const invoice = {
+            invoice_id: rows[0].invoice_id,
+            invoice_date: new Date(rows[0].invoice_date),
+            total: rows[0].total,
+            items: rows.map(row => ({
+                item_code: row.item_code,
+                description: row.description,
+                quantity: row.quantity,
+                price_per_item: row.price_per_item,
+                extention: row.extention
+            }))
+        };
+
+        // Fetch order related to the invoice
         let orderQuery = `
             SELECT o.*, d.shop_name AS dealer_name
             FROM orders o
             JOIN dealers d ON o.dealer_id = d.shop_id
-            WHERE o.order_id = ?
+            WHERE o.invoice_id = ?
         `;
 
-        orderPromise = new Promise((resolve, reject) => {
-            database.query(orderQuery, [order_id], (err, orders) => {
-                if (err) {
-                    reject(err);
-                } else if (orders.length > 0) {
-                    const order = orders[0];
-                    const itemsQuery = `
-                        SELECT oi.item_code, i.description, oi.quantity, oi.price_per_item, oi.total, oi.discount
-                        FROM order_items oi
-                        JOIN items i ON oi.item_code = i.item_code
-                        WHERE oi.order_id = ?
-                    `;
-                    database.query(itemsQuery, [order.order_id], (err, items) => {
-                        if (err) {
-                            reject(err);
-                        } else {
-                            order.order_date = new Date(order.order_date);
-                            order.items = items;
-                            resolve(order);
-                        }
-                    });
-                } else {
-                    resolve(null);
-                }
-            });
-        });
-    }
+        database.query(orderQuery, [invoice_id], (err, orders) => {
+            if (err) {
+                console.error('Error fetching related order:', err);
+                return res.status(500).send('Internal Server Error');
+            }
 
-    if (invoice_id) {
-        let invoiceQuery = `
-            SELECT i.*, ii.item_code, ii.quantity, ii.price_per_item, ii.extention, it.description 
-            FROM invoices i
-            JOIN invoice_items ii ON i.invoice_id = ii.invoice_id
-            JOIN items it ON ii.item_code = it.item_code
-            WHERE i.invoice_id = ?
-        `;
-
-        invoicePromise = new Promise((resolve, reject) => {
-            database.query(invoiceQuery, [invoice_id], (err, rows) => {
-                if (err) {
-                    reject(err);
-                } else if (rows.length > 0) {
-                    const invoice = {
-                        invoice_id: rows[0].invoice_id,
-                        invoice_date: new Date(rows[0].invoice_date),
-                        total: rows[0].total,
-                        items: []
-                    };
-                    rows.forEach(row => {
-                        invoice.items.push({
-                            item_code: row.item_code,
-                            description: row.description,
-                            quantity: row.quantity,
-                            price_per_item: row.price_per_item,
-                            extention: row.extention
-                        });
-                    });
-
-                    // Check for order related to the invoice if order_id is not provided
-                    if (!order_id) {
-                        let orderQuery = `
-                            SELECT o.*, d.shop_name AS dealer_name
-                            FROM orders o
-                            JOIN dealers d ON o.dealer_id = d.shop_id
-                            WHERE o.invoice_id = ?
-                        `;
-                        database.query(orderQuery, [invoice_id], (err, orders) => {
-                            if (err) {
-                                reject(err);
-                            } else if (orders.length > 0) {
-                                const order = orders[0];
-                                const itemsQuery = `
-                                    SELECT oi.item_code, i.description, oi.quantity, oi.price_per_item, oi.total, oi.discount
-                                    FROM order_items oi
-                                    JOIN items i ON oi.item_code = i.item_code
-                                    WHERE oi.order_id = ?
-                                `;
-                                database.query(itemsQuery, [order.order_id], (err, items) => {
-                                    if (err) {
-                                        reject(err);
-                                    } else {
-                                        order.order_date = new Date(order.order_date);
-                                        order.items = items;
-                                        resolve({ order, invoice });
-                                    }
-                                });
-                            } else {
-                                resolve({ order: null, invoice });
-                            }
-                        });
-                    } else {
-                        resolve({ order: null, invoice });
-                    }
-                } else {
-                    resolve(null);
-                }
-            });
-        });
-    }
-
-    Promise.all([orderPromise, invoicePromise])
-        .then(([orderResult, invoiceResult]) => {
-            if (orderResult && !invoiceResult && orderResult.invoice_id) {
-                let relatedInvoiceQuery = `
-                    SELECT i.*, ii.item_code, ii.quantity, ii.price_per_item, ii.extention, it.description 
-                    FROM invoices i
-                    JOIN invoice_items ii ON i.invoice_id = ii.invoice_id
-                    JOIN items it ON ii.item_code = it.item_code
-                    WHERE i.invoice_id = ?
-                `;
-                database.query(relatedInvoiceQuery, [orderResult.invoice_id], (err, rows) => {
-                    if (err) {
-                        console.error('Error fetching related invoice:', err);
-                        res.status(500).send('Internal Server Error');
-                    } else if (rows.length > 0) {
-                        const invoice = {
-                            invoice_id: rows[0].invoice_id,
-                            invoice_date: new Date(rows[0].invoice_date),
-                            total: rows[0].total,
-                            items: []
-                        };
-                        rows.forEach(row => {
-                            invoice.items.push({
-                                item_code: row.item_code,
-                                description: row.description,
-                                quantity: row.quantity,
-                                price_per_item: row.price_per_item,
-                                extention: row.extention
-                            });
-                        });
-                        res.render('compare-orders', {
-                            title: 'Order and Invoice Comparison',
-                            order: orderResult,
-                            invoice: invoice,
-                            searchOrder: order_id,
-                            searchInvoice: invoice_id
-                        });
-                    } else {
-                        res.render('compare-orders', {
-                            title: 'Order and Invoice Comparison',
-                            order: orderResult,
-                            invoice: null,
-                            searchOrder: order_id,
-                            searchInvoice: invoice_id
-                        });
-                    }
-                });
-            } else if (invoiceResult && !orderResult && invoiceResult.order) {
-                orderResult = invoiceResult.order;
-                invoiceResult = invoiceResult.invoice;
-                res.render('compare-orders', {
+            if (orders.length === 0) {
+                return res.render('compare-orders', {
                     title: 'Order and Invoice Comparison',
-                    order: orderResult,
-                    invoice: invoiceResult,
-                    searchOrder: order_id,
-                    searchInvoice: invoice_id
-                });
-            } else {
-                res.render('compare-orders', {
-                    title: 'Order and Invoice Comparison',
-                    order: orderResult,
-                    invoice: invoiceResult,
-                    searchOrder: order_id,
+                    order: null,
+                    invoice: invoice,
                     searchInvoice: invoice_id
                 });
             }
-        })
-        .catch(err => {
-            console.error('Error fetching orders or invoices:', err);
-            res.status(500).send('Internal Server Error');
+
+            const order = orders[0];
+            let itemsQuery = `
+                SELECT oi.item_code, i.description, oi.quantity, oi.price_per_item, oi.total, oi.discount
+                FROM order_items oi
+                JOIN items i ON oi.item_code = i.item_code
+                WHERE oi.order_id = ?
+            `;
+
+            database.query(itemsQuery, [order.order_id], (err, items) => {
+                if (err) {
+                    console.error('Error fetching order items:', err);
+                    return res.status(500).send('Internal Server Error');
+                }
+
+                order.order_date = new Date(order.order_date);
+                order.items = items;
+
+                return res.render('compare-orders', {
+                    title: 'Order and Invoice Comparison',
+                    order: order,
+                    invoice: invoice,
+                    searchInvoice: invoice_id
+                });
+            });
         });
+    });
 });
+
 
 
 

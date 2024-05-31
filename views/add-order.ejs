@@ -156,15 +156,17 @@
                 const itemField = selectElement.closest('.item-field, tr');
                 const itemCodeSelect = itemField.querySelector('[name="item_codes[]"], [name="invoice_item_codes[]"]');
                 const itemNameSelect = itemField.querySelector('[name="descriptions[]"], [name="invoice_descriptions[]"]');
-                
+                const priceInput = itemField.querySelector('[name="prices[]"], [name="invoice_prices[]"]');
+
                 if (type === 'code') {
                     const selectedItem = items.find(item => item.item_code === selectedValue);
                     itemNameSelect.value = selectedItem.description;
+                    priceInput.value = selectedItem.price;
                 } else {
                     const selectedItem = items.find(item => item.description === selectedValue);
                     itemCodeSelect.value = selectedItem.item_code;
+                    priceInput.value = selectedItem.price;
                 }
-                
             }
 
             function updateTotal(inputElement) {

@@ -29,6 +29,7 @@
     <main>
       <table id="shops">
         <thead>
+          <th class="left-align">No.</th>
           <th class="left-align">Dealership Name</th>
           <th class="left-align">Contact No</th>
           <th class="left-align">City</th>
@@ -36,8 +37,11 @@
           <th class="left-align" id="action">Actions</th>
         </thead>
         <tbody>
-          <% shops.forEach(shop=> { %>
+          <% shops.forEach((shop, index)=> { %>
             <tr>
+              <td class="left-align">
+                <%= index + 1 %>
+              </td>
               <td class="left-align" >
                 <%= shop.shop_name %>
               </td>

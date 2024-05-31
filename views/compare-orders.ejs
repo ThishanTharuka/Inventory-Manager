@@ -25,17 +25,13 @@
             <div id="compare">
                 <form action="/compare-orders" method="get">
                     <div>
-                        <label for="get-invoice">Search Invoice ID:</label>
+                        <label for="get-invoice">Search from Invoice ID:</label>
                         <input type="text" id="get-invoice" name="invoice_id" value="<%= searchInvoice || '' %>">
                     </div>
                     <div>
                         <button id="search-btns" type="submit">Load Order and Invoice</button>
                     </div>
                     <a href="/compare-orders"><button id="search-btns" type="button">Reset</button></a>
-                    <div>
-                        <label for="get-order">Search Order ID:</label>
-                        <input type="text" id="get-order" name="order_id" value="<%= searchOrder || '' %>">
-                    </div>
                 </form>
             </div>
             <div id="container">
@@ -253,7 +249,6 @@
                                                     </td>
                                                 </tr>
                         </tbody>
-
                     </table>
                     <div id="total-comparison">
                         <p>
@@ -267,17 +262,9 @@
                                             minimumFractionDigits: 2, maximumFractionDigits: 2 }) %>
                                     </span>
                         </p>
-                        <% const profitMargin=((order.total - invoice.total) / invoice.total) * 100; %>
-                            <p>
-                                <span class="profit-label">Profit Margin:</span>
-                                <span class="profit-margin">
-                                    <%= profitMargin.toFixed(2) %>%
-                                </span>
-                            </p>
                     </div>
-                    <% } %>
-
                 </div>
+                <% } %>
         </main>
 </body>
 

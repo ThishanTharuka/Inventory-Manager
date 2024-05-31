@@ -31,7 +31,7 @@
         <!-- Search form -->
         <form id="search-form" action="/items/search" method="get">
           <label for="item-search">Search Items:</label>
-          <input type="text" name="query" id="search-input"  value="<%= searchTerm || '' %>">
+          <input type="text" name="query" id="search-input" value="<%= searchTerm || '' %>">
           <button type="submit" id="search-btn">Search</button>
         </form>
       </div>
@@ -39,6 +39,7 @@
       <table id="items">
         <thead>
           <tr>
+            <th class="left-align">No.</th>
             <th class="left-align">Item Code</th>
             <th class="left-align">Description</th>
             <th class="left-align">Unit</th>
@@ -47,8 +48,11 @@
           </tr>
         </thead>
         <tbody>
-          <% items.forEach(item=> { %>
+          <% items.forEach((item, index)=> { %>
             <tr>
+              <td class="left-align">
+                <%= index + 1 %>
+              </td>
               <td class="left-align">
                 <%= item.item_code %>
               </td>

@@ -15,35 +15,40 @@
 <body>
     <!-- Include the navigation partial -->
     <%- include('./partials/nav.ejs') %>
-    <div id="top-bar">
-        <div id="page-name">
-            <p>Invoice Summary</p>
+        <div id="top-bar">
+            <div id="page-name">
+                <p>Invoice Summary</p>
+            </div>
         </div>
-    </div>
-    <main>
-        <table id="invoices">
-            <thead>
-                <th>Invoice ID</th>
-                <th>Invoice Date</th>
-                <th>Total Amount</th>
-            </thead>
-            <tbody>
-                <% invoices.forEach(invoice => { %>
-                    <tr>
-                        <td>
-                            <%= invoice.invoice_id %>
-                        </td>
-                        <td>
-                            <%= invoice.invoice_date.toLocaleDateString() %>
-                        </td>
-                        <td>
-                            <%= invoice.total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) %>
-                        </td>                        
-                    </tr>
-                <% }); %>
-            </tbody>
-        </table>
-    </main>
+        <main>
+            <table id="invoices">
+                <thead>
+                    <th class="left-align">No.</th>
+                    <th>Invoice ID</th>
+                    <th>Invoice Date</th>
+                    <th>Total Amount</th>
+                </thead>
+                <tbody>
+                    <% invoices.forEach((invoice, index)=> { %>
+                        <tr>
+                            <td class="left-align">
+                                <%= index + 1 %>
+                            </td>
+                            <td>
+                                <%= invoice.invoice_id %>
+                            </td>
+                            <td>
+                                <%= invoice.invoice_date.toLocaleDateString() %>
+                            </td>
+                            <td>
+                                <%= invoice.total.toLocaleString(undefined, { minimumFractionDigits: 2,
+                                    maximumFractionDigits: 2 }) %>
+                            </td>
+                        </tr>
+                        <% }); %>
+                </tbody>
+            </table>
+        </main>
 </body>
 
 </html>

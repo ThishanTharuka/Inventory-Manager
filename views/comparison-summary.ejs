@@ -40,11 +40,11 @@
                 <table id="comparisonTable">
                     <thead>
                         <tr>
-                            <th class="sortable" data-sort="margin">No.
+                            <th class="sortable" data-sort="index">No.
                                 <img src="/images/sort-asc.svg" class="sort-icon asc" alt="Ascending">
                                 <img src="/images/sort-desc.svg" class="sort-icon desc" alt="Descending">
                             </th>
-                            <th class="sortable" data-sort="margin">Dealer Invoice
+                            <th class="sortable" data-sort="order_invoice">Dealer Invoice
                                 <img src="/images/sort-asc.svg" class="sort-icon asc" alt="Ascending">
                                 <img src="/images/sort-desc.svg" class="sort-icon desc" alt="Descending">
                             </th>
@@ -68,8 +68,8 @@
                             const margin = ((data.total_order_amount - data.total_invoice_amount) / data.total_invoice_amount) * 100;
                         %>
                         <tr>
-                            <td><%= index + 1 %></td>
-                            <td><%= data.order_invoice %></td>
+                            <td data-index="<%= index + 1 %>"><%= index + 1 %></td>
+                            <td data-order_invoice="<%= data.order_invoice %>"><%= data.order_invoice %></td>
                             <td><%= new Date(data.order_date).toLocaleDateString() %></td>
                             <td><%= data.total_order_amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) %></td>
                             <td><%= data.sales_invoice %></td>
@@ -95,7 +95,7 @@
                 header.addEventListener('click', () => {
                     const sortAttribute = header.getAttribute('data-sort');
                     const rows = Array.from(table.querySelector('tbody').rows);
-                    const isNumeric = sortAttribute === 'margin';
+                    const isNumeric = sortAttribute === 'margin' || sortAttribute === 'index';
 
                     // Determine the current sort direction and update it
                     const currentDirection = header.classList.contains('asc') ? 'asc' : (header.classList.contains('desc') ? 'desc' : '');
