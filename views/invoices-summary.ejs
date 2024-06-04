@@ -26,6 +26,7 @@
                     <th class="left-align">No.</th>
                     <th>Invoice ID</th>
                     <th>Invoice Date</th>
+                    <th>Stock Type</th>
                     <th>Total Amount</th>
                 </thead>
                 <tbody>
@@ -39,6 +40,9 @@
                             </td>
                             <td>
                                 <%= invoice.invoice_date.toLocaleDateString() %>
+                            </td>
+                            <td>
+                                <%= invoice.stock_type %>
                             </td>
                             <td>
                                 <%= invoice.total.toLocaleString(undefined, { minimumFractionDigits: 2,
