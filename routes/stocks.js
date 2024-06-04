@@ -48,12 +48,13 @@ router.get('/stocks', (req, res) => {
             //         return;
             //     }
 
-                // Render stocks page with updated stock quantities
-                res.render('stocks', { title: 'Stocks', stocks, items });
-            });
+            // Render stocks page with updated stock quantities
+            res.render('stocks', { title: 'Stocks', stocks, items });
         });
     });
+});
 // });
+
 
 // Route to render the add stocks page
 router.get('/stocks/add', (req, res) => {
@@ -80,6 +81,8 @@ router.post('/add-invoice', (req, res) => {
     const date = req.body.date;
     const itemCodes = req.body.item_codes;
     const quantities = req.body.quantities;
+    const isMatharaStock = req.body.mathara_stock === 'on'; // Check if Mathara stock is selected
+    const stockType = isMatharaStock ? 'mathara' : 'regular';
 
     // Check if the invoice ID already exists in the database
     const checkInvoiceQuery = 'SELECT COUNT(*) AS count FROM invoices WHERE invoice_id = ?';
@@ -135,10 +138,10 @@ router.post('/add-invoice', (req, res) => {
                     }
 
                     // SQL query to insert new invoice into invoices table
-                    const queryInsertInvoice = `INSERT INTO invoices (invoice_id, invoice_date, total) VALUES (?, ?, ?)`;
+                    const queryInsertInvoice = `INSERT INTO invoices (invoice_id, invoice_date, total, stock_type) VALUES (?, ?, ?, ?)`;
 
                     // Execute the query to insert new invoice
-                    database.query(queryInsertInvoice, [invoiceId, date, totalExtension], (err, result) => {
+                    database.query(queryInsertInvoice, [invoiceId, date, totalExtension, stockType], (err, result) => {
                         if (err) {
                             console.error('Error inserting invoice:', err);
                             // Rollback the transaction
@@ -171,12 +174,13 @@ router.post('/add-invoice', (req, res) => {
                                 });
                             }
 
-                            // Update stock quantities based on the invoice items within the transaction
-                            updateStockQuantitiesInTransaction(database, itemsData, err => {
+                            // Update stock quantities based on invoice items within a transaction
+                            updateStockQuantitiesInTransaction(database, itemsData, isMatharaStock, err => {
                                 if (err) {
+                                    console.error('Error updating stock quantities within transaction:', err);
                                     // Rollback the transaction
-                                    database.rollback(() => {
-                                        console.error('Transaction rolled back due to error in updating stock quantities');
+                                    return database.rollback(() => {
+                                        console.error('Transaction rolled back due to error');
                                         return res.status(500).send('Internal Server Error');
                                     });
                                 }
@@ -186,7 +190,7 @@ router.post('/add-invoice', (req, res) => {
                                     if (err) {
                                         console.error('Error committing transaction:', err);
                                         // Rollback the transaction
-                                        database.rollback(() => {
+                                        return database.rollback(() => {
                                             console.error('Transaction rolled back due to error');
                                             return res.status(500).send('Internal Server Error');
                                         });
@@ -197,7 +201,6 @@ router.post('/add-invoice', (req, res) => {
                                     res.redirect('/stocks/add');
                                 });
                             });
-
                         });
                     });
                 });
@@ -209,13 +212,8 @@ router.post('/add-invoice', (req, res) => {
     });
 });
 
-
-
-
-
-
 // Function to update stock quantities based on invoice items within a transaction
-function updateStockQuantitiesInTransaction(connection, itemsData, callback) {
+function updateStockQuantitiesInTransaction(connection, itemsData, isMatharaStock, callback) {
     // Create an object to store item codes, quantities, and descriptions
     const itemDetails = {};
 
@@ -268,11 +266,39 @@ function updateStockQuantitiesInTransaction(connection, itemsData, callback) {
             }
 
             console.log('Stock quantities updated successfully within transaction');
-            callback(null);
+
+            if (isMatharaStock) {
+                // Update Mathara stock quantities if the invoice is for Mathara stock
+                let updateMatharaStockQuery = 'INSERT INTO mathara_stocks (item_code, description, quantity) VALUES ';
+                const updateMatharaStockValues = [];
+
+                Object.entries(itemDetails).forEach(([itemCode, details]) => {
+                    updateMatharaStockQuery += '(?, ?, ?), ';
+                    updateMatharaStockValues.push(itemCode, details.description, details.quantity);
+                });
+
+                // Remove the trailing comma and space
+                updateMatharaStockQuery = updateMatharaStockQuery.slice(0, -2);
+
+                // Add ON DUPLICATE KEY UPDATE clause to handle existing entries
+                updateMatharaStockQuery += ' ON DUPLICATE KEY UPDATE quantity = quantity + VALUES(quantity)';
+
+                // Execute the query to update Mathara stock quantities within the transaction
+                connection.query(updateMatharaStockQuery, updateMatharaStockValues, (err, result) => {
+                    if (err) {
+                        console.error('Error updating Mathara stock quantities within transaction:', err);
+                        return callback(err);
+                    }
+
+                    console.log('Mathara stock quantities updated successfully within transaction');
+                    callback(null);
+                });
+            } else {
+                callback(null);
+            }
         });
     });
 }
-
 
 
 

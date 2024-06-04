@@ -15,6 +15,59 @@
 <body>
     <!-- Include the navigation partial -->
   <%- include('./partials/nav.ejs') %>
+    <div id="top-bar">
+      <div id="page-name">
+        <p>Mathara Stock</p>
+      </div>
+      <div id="top-bar">
+        <div id="mathara-btn">
+          <!-- Detailed Invoices button -->
+          <a href="/stocks" id="invoice-btn" >Main Stock</a>
+        </div>
+        <div id="summary-btn">
+          <!-- Invoice Summary button -->
+          <a href="/invoice-summary" id="invoice-btn" >Invoice Summary</a>
+        </div>
+        <div id="invoice-btn">
+          <!-- Detailed Invoices button -->
+          <a href="/invoices">Invoices Details</a>
+        </div>
+        <div id="add-new">
+          <!-- Add New Shop button -->
+          <a href="/stocks/add" id="add-new-btn">Add Invoice</a>
+        </div>
+      </div>
+    </div>
+  <main>
+    <table id="shops">
+        <thead>
+          <th class="left-align">No.</th>
+          <th class="left-align">Items</th>
+          <th class="left-align">Description</th>
+          <th class="left-align">Quantity</th>
+          <!-- <th>Actions</th> -->
+        </thead>
+        <tbody>
+          <% altStocks.forEach((altStock, index)=> { %>
+            <tr>
+              <td class="left-align">
+                <%= index + 1 %>
+            </td>
+              <td class="left-align">
+                <%= altStock.item_code %>
+              </td>
+              <td class="left-align">
+                <%= altStock.description %>
+              </td>
+              <td class="left-align">
+                <%= altStock.quantity %>
+              </td>
+            </tr>
+            <% }); %>
+        </tbody>
+
+      </table>
+  </main>
 
 </body>
 

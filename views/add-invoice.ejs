@@ -21,6 +21,10 @@
                     <label for="Invoice">Invoice ID</label>
                     <input type="number" id="invoice_id" name="invoice_id" required>
                 </div>
+                <div id="input-fields">
+                    <label for="mathara_stock">Mathara Stock</label>
+                    <input type="checkbox" id="mathara_stock" name="mathara_stock">
+                </div>
                 <div id="items-container">
                     <!-- Container to hold dynamically added items -->
                 </div>
@@ -45,10 +49,8 @@
                     <div>
                         <label for="Item">Item Code</label>
                         <select name="item_codes[]" onchange="fetchItemName(this)" required>
-                            <% items.forEach(item=> { %>
-                                <option value="<%= item.item_code %>">
-                                    <%= item.item_code %>
-                                </option>
+                            <% items.forEach(item => { %>
+                                <option value="<%= item.item_code %>"><%= item.item_code %></option>
                             <% }); %>
                         </select>
                     </div>
@@ -87,8 +89,6 @@
                     })
                     .catch(error => console.error('Error fetching item details:', error));
             }
-
-
         </script>
 </body>
 

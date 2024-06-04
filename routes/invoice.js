@@ -288,16 +288,23 @@ router.get('/items/remove/:item_code', (req, res) => {
 router.get('/invoices/delete/:id', (req, res) => {
     const invoiceId = req.params.id;
 
-    // SQL query to fetch invoice items quantities
-    const getInvoiceItemsQuery = `SELECT item_code, quantity FROM invoice_items WHERE invoice_id = ?`;
+    // SQL query to fetch invoice items quantities and the stock type
+    const getInvoiceDetailsQuery = `
+        SELECT ii.item_code, ii.quantity, i.stock_type 
+        FROM invoice_items ii 
+        JOIN invoices i ON ii.invoice_id = i.invoice_id 
+        WHERE ii.invoice_id = ?`;
 
-    // Execute the query to fetch invoice items quantities
-    database.query(getInvoiceItemsQuery, [invoiceId], (err, invoiceItems) => {
+    // Execute the query to fetch invoice items quantities and stock type
+    database.query(getInvoiceDetailsQuery, [invoiceId], (err, invoiceDetails) => {
         if (err) {
-            console.error('Error fetching invoice items:', err);
+            console.error('Error fetching invoice details:', err);
             res.status(500).send('Internal Server Error');
             return;
         }
+
+        // Determine the stock type of the invoice
+        const stockType = invoiceDetails.length > 0 ? invoiceDetails[0].stock_type : null;
 
         // SQL query to delete invoice items related to the invoice
         const deleteInvoiceItemsQuery = `DELETE FROM invoice_items WHERE invoice_id = ?`;
@@ -321,20 +328,46 @@ router.get('/invoices/delete/:id', (req, res) => {
                     return;
                 }
 
-                // Deduct removed item quantities from stock
-                invoiceItems.forEach(item => {
-                    const updateStockQuery = `UPDATE stocks SET quantity = quantity - ? WHERE item_code = ?`;
-                    database.query(updateStockQuery, [item.quantity, item.item_code], (err, result) => {
-                        if (err) {
-                            console.error('Error updating stock quantity:', err);
-                            res.status(500).send('Internal Server Error');
-                            return;
-                        }
+                // Deduct removed item quantities from the main stock table
+                const mainStockUpdates = invoiceDetails.map(item => {
+                    return new Promise((resolve, reject) => {
+                        const updateStockQuery = `UPDATE stocks SET quantity = quantity - ? WHERE item_code = ?`;
+                        database.query(updateStockQuery, [item.quantity, item.item_code], (err, result) => {
+                            if (err) {
+                                console.error('Error updating main stock quantity:', err);
+                                reject(err);
+                            } else {
+                                resolve();
+                            }
+                        });
                     });
                 });
 
-                console.log('Invoice deleted successfully');
-                res.redirect('/invoices');
+                // Deduct removed item quantities from the Mathara stock table if it's a Mathara invoice
+                const matharaStockUpdates = stockType === 'mathara' ? invoiceDetails.map(item => {
+                    return new Promise((resolve, reject) => {
+                        const updateMatharaStockQuery = `UPDATE mathara_stocks SET quantity = quantity - ? WHERE item_code = ?`;
+                        database.query(updateMatharaStockQuery, [item.quantity, item.item_code], (err, result) => {
+                            if (err) {
+                                console.error('Error updating Mathara stock quantity:', err);
+                                reject(err);
+                            } else {
+                                resolve();
+                            }
+                        });
+                    });
+                }) : [];
+
+                // Execute all stock updates in parallel
+                Promise.all([...mainStockUpdates, ...matharaStockUpdates])
+                    .then(() => {
+                        console.log('Invoice and stock quantities updated successfully');
+                        res.redirect('/invoices');
+                    })
+                    .catch(err => {
+                        console.error('Error updating stock quantities:', err);
+                        res.status(500).send('Internal Server Error');
+                    });
             });
         });
     });
