@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const database = require('../database');
+const generatePDF = require('../services/pdf-service');
 
 
 router.get('/invoices', (req, res) => {
@@ -168,7 +169,7 @@ router.post('/update-invoice', (req, res) => {
                     }
                     console.log(`Stock for item ${item.item_code} increased by ${quantityDifference}`);
                 });
-            } 
+            }
             // If the quantity difference is negative, it means less items have been added to the stock than before, so we should decrease the stock
             else if (quantityDifference < 0) {
                 const decreaseStockQuery = `UPDATE stocks SET quantity = quantity - ? WHERE item_code = ?`;
@@ -372,6 +373,58 @@ router.get('/invoices/delete/:id', (req, res) => {
         });
     });
 });
+
+
+
+router.get('/invoices/pdf/:id', (req, res) => {
+    const invoiceId = req.params.id;
+
+    const query = `
+      SELECT i.invoice_id, i.invoice_date, i.total, ii.item_code, ii.quantity, ii.price_per_item, ii.extention, it.description, it.unit
+      FROM invoices i
+      JOIN invoice_items ii ON i.invoice_id = ii.invoice_id
+      JOIN items it ON ii.item_code = it.item_code
+      WHERE i.invoice_id = ?
+    `;
+
+    database.query(query, [invoiceId], (err, rows) => {
+        if (err) {
+            console.error('Error fetching invoice details:', err);
+            res.status(500).send('Internal Server Error');
+            return;
+        }
+
+        if (rows.length === 0) {
+            res.status(404).send('Invoice not found');
+            return;
+        }
+
+        const invoice = {
+            invoice_id: rows[0].invoice_id,
+            invoice_date: rows[0].invoice_date,
+            total: rows[0].total,
+            items: rows.map(row => ({
+                item_code: row.item_code,
+                unit: row.unit,
+                description: row.description,
+                quantity: row.quantity,
+                price_per_item: row.price_per_item,
+                extention: row.extention
+            }))
+        };
+
+        // Set response headers for PDF download
+        res.writeHead(200, {
+            'Content-Type': 'application/pdf',
+            'Content-Disposition': `attachment;filename=invoice_${invoiceId}.pdf`,
+        });
+
+        // Generate the PDF and stream it to the response
+        generatePDF.generateInvoicePDF(invoice, (chunk) => res.write(chunk), () => res.end());
+    });
+});
+
+
 
 
 

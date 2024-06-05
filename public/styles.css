@@ -175,6 +175,25 @@ tr {
   cursor: pointer;
 }
 
+.pdf-btn {
+  width: 125% !important;
+  background-color: #ca9910;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 5rem;
+  transition: background-color 0.3s ease;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 7px;
+}
+
+.pdf-btn:hover {
+  background-color: #a1790b;
+  color: #ddd;
+  cursor: pointer;
+}
+
 .buttons a {
   display: flex;
   flex-direction: column;
