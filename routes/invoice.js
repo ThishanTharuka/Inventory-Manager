@@ -511,7 +511,7 @@ router.post('/invoices/send-pdf', (req, res) => {
         // Set response headers for PDF download
         res.writeHead(200, {
             'Content-Type': 'application/pdf',
-            'Content-Disposition': `attachment;filename=invoice_${invoice_id}.pdf`,
+            'Content-Disposition': `attachment;filename=POforInv${invoice_id}.pdf`,
         });
 
         // Generate the PDF and stream it to the response
