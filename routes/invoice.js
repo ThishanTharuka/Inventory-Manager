@@ -425,7 +425,99 @@ router.get('/invoices/pdf/:id', (req, res) => {
 });
 
 
+router.get('/invoices/show/:id', (req, res) => {
+    const invoiceId = req.params.id;
 
+    const query = `
+      SELECT i.invoice_id, i.invoice_date, i.total, ii.item_code, ii.quantity, ii.price_per_item, ii.extention, it.description, it.unit
+      FROM invoices i
+      JOIN invoice_items ii ON i.invoice_id = ii.invoice_id
+      JOIN items it ON ii.item_code = it.item_code
+      WHERE i.invoice_id = ?
+    `;
+
+    database.query(query, [invoiceId], (err, rows) => {
+        if (err) {
+            console.error('Error fetching invoice details:', err);
+            res.status(500).send('Internal Server Error');
+            return;
+        }
+
+        if (rows.length === 0) {
+            res.status(404).send('Invoice not found');
+            return;
+        }
+
+        const invoice = {
+            invoice_id: rows[0].invoice_id,
+            invoice_date: rows[0].invoice_date,
+            total: rows[0].total,
+            items: rows.map(row => ({
+                item_code: row.item_code,
+                unit: row.unit,
+                description: row.description,
+                quantity: row.quantity,
+                price_per_item: row.price_per_item,
+                extention: row.extention
+            }))
+        };
+
+        // Render the invoice details page
+        res.render('show-invoice', { title: 'Show Invoice', invoice });
+    });
+});
+
+router.post('/invoices/send-pdf', (req, res) => {
+    const { invoice_id, po_number, recipient } = req.body;
+
+    const query = `
+      SELECT i.invoice_id, i.invoice_date, i.total, ii.item_code, ii.quantity, ii.price_per_item, ii.extention, it.description, it.unit
+      FROM invoices i
+      JOIN invoice_items ii ON i.invoice_id = ii.invoice_id
+      JOIN items it ON ii.item_code = it.item_code
+      WHERE i.invoice_id = ?
+    `;
+
+    database.query(query, [invoice_id], (err, rows) => {
+        if (err) {
+            console.error('Error fetching invoice details:', err);
+            res.status(500).send('Internal Server Error');
+            return;
+        }
+
+        if (rows.length === 0) {
+            res.status(404).send('Invoice not found');
+            return;
+        }
+
+        const invoice = {
+            invoice_id: rows[0].invoice_id,
+            invoice_date: rows[0].invoice_date,
+            total: rows[0].total,
+            items: rows.map(row => ({
+                item_code: row.item_code,
+                unit: row.unit,
+                description: row.description,
+                quantity: row.quantity,
+                price_per_item: row.price_per_item,
+                extention: row.extention
+            }))
+        };
+
+        // Update the invoice object with the PO number and recipient
+        invoice.po_number = po_number;
+        invoice.recipient = recipient;
+
+        // Set response headers for PDF download
+        res.writeHead(200, {
+            'Content-Type': 'application/pdf',
+            'Content-Disposition': `attachment;filename=invoice_${invoice_id}.pdf`,
+        });
+
+        // Generate the PDF and stream it to the response
+        generatePDF.generateInvoicePDF(invoice, (chunk) => res.write(chunk), () => res.end());
+    });
+});
 
 
 module.exports = router;

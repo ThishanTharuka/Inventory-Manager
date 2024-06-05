@@ -176,7 +176,7 @@ tr {
 }
 
 .pdf-btn {
-  width: 125% !important;
+  width: 150% !important;
   background-color: #ca9910;
   border: none;
   padding: 0.5rem 1rem;
@@ -190,6 +190,25 @@ tr {
 
 .pdf-btn:hover {
   background-color: #a1790b;
+  color: #ddd;
+  cursor: pointer;
+}
+
+.show-btn {
+  width: 130% !important;
+  background-color: #4326eb;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 5rem;
+  transition: background-color 0.3s ease;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 7px;
+}
+
+.show-btn:hover {
+  background-color: #2d19a1;
   color: #ddd;
   cursor: pointer;
 }
