@@ -28,7 +28,7 @@ function generateInvoicePDF(invoice, dataCallback, endCallback) {
     const rectHeight = 25;
 
     // Draw the rectangle
-    doc.text(`PO No. ${invoice.po_number} `, 470, 110);
+    doc.fontSize(12).text(`PO No. ${invoice.po_number} `, 470, 110);
     doc.rect(rectX, rectY, rectWidth, rectHeight).stroke();
 
     doc.moveDown(2);
