@@ -11,14 +11,6 @@ function generateInvoicePDF(invoice, dataCallback, endCallback) {
     // Header Section
     doc.image('public/images/Header no bg.png', 0, 0, { width: doc.page.width }); // Add your logo image
 
-    // doc.image('public/images/logo.png', 30, 20, { width: 65 }); // Add your logo image
-    // doc.fillColor('#0d1170').font('Times-Bold').fontSize(16).text('HEBIMA PLUS (PVT) LTD', { align: 'center' });
-    // doc.fillColor('#0d1170').font('Times-Bold').fontSize(14).text('Purchase Order', { align: 'center' });
-    // doc.fillColor('black').font('Times-Roman').fontSize(10).text('No. 7, Weragampita Temple Road, Uyanwatta, Matara', { align: 'center' });
-    // doc.font('Helvetica').text('Tel – 0777121770/0716247541', { align: 'center' });
-    // doc.image('public/images/line.png', 0, 80, { width: doc.page.width }); // Add your logo image
-
-
     doc.moveDown(3);
 
     // Define position and size of the rectangle
@@ -34,14 +26,12 @@ function generateInvoicePDF(invoice, dataCallback, endCallback) {
     doc.moveDown(2);
 
     doc.font('Times-Roman').fontSize(12).text(`To: ${invoice.recipient} `, 30, 155, { continued: true });
-    // doc.text(`Invoice ID: ${invoice.invoice_id}`); // Dynamic insertion of invoice ID
 
     const formattedDate = new Date().toLocaleDateString('en-GB'); // 'en-GB' formats the date as dd/mm/yyyy
     doc.text(`Date: ${formattedDate}`, { align: 'right' });
 
     doc.moveDown(2);
 
-    // Define table structure
     // Define table structure with headers and datas
     const table = {
         headers: [
@@ -92,10 +82,7 @@ function generateInvoicePDF(invoice, dataCallback, endCallback) {
     const tableBottomY = doc.y;
 
     // Footer Section
-    // doc.moveDown(5);
-    // doc.fontSize(10).text(`..............................................`, { align: 'right' });
     doc.image('public/images/Stamp and sign white bg.png', { x: doc.page.width - 170, y: tableBottomY + 10, width: 150 }); // Position the image just below the table
-    // doc.text('Authorized Stamp & Signature', { align: 'right' });
 
     doc.end();
 }
