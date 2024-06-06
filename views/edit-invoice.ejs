@@ -23,6 +23,9 @@
                     <input type="hidden" name="invoice_id" value="<%= invoice.invoice_id %>">
                     <h3>Invoice Date: <%= invoice.invoice_date.toLocaleDateString() %>
                     </h3>
+                    <h3>Stock Type: <%= invoice.stock_type %>
+                    </h3>
+                    <input type="hidden" name="stock_type" value="<%= invoice.stock_type %>">
                 </div>
                 <!-- Input field for new invoice date -->
                 <div class="date">

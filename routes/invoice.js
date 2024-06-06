@@ -9,7 +9,8 @@ router.get('/invoices', (req, res) => {
     let invoiceQuery = `SELECT 
                             i.invoice_id, 
                             i.invoice_date, 
-                            i.total, 
+                            i.total,
+                            i.stock_type,
                             ii.item_code, 
                             ii.quantity, 
                             ii.price_per_item, 
@@ -44,6 +45,7 @@ router.get('/invoices', (req, res) => {
                 existingInvoice = {
                     invoice_id: row.invoice_id,
                     invoice_date: row.invoice_date,
+                    stock_type: row.stock_type,
                     total: row.total,
                     items: []
                 };
@@ -87,7 +89,7 @@ router.get('/invoices/edit/:id', (req, res) => {
 
     // Fetch invoice details and associated items from the database
     const query = `
-        SELECT i.invoice_id, i.invoice_date, ii.item_code, ii.quantity, ii.price_per_item, o.description AS item_name
+        SELECT i.invoice_id, i.invoice_date, i.stock_type, ii.item_code, ii.quantity, ii.price_per_item, o.description AS item_name
         FROM invoices i
         LEFT JOIN invoice_items ii ON i.invoice_id = ii.invoice_id
         LEFT JOIN items o ON ii.item_code = o.item_code
@@ -105,6 +107,7 @@ router.get('/invoices/edit/:id', (req, res) => {
         const invoice = {
             invoice_id: results[0].invoice_id,
             invoice_date: results[0].invoice_date,
+            stock_type: results[0].stock_type,
             items: results.map(row => ({
                 item_code: row.item_code,
                 item_name: row.item_name,
@@ -118,12 +121,14 @@ router.get('/invoices/edit/:id', (req, res) => {
     });
 });
 
+
 router.post('/update-invoice', (req, res) => {
     const invoiceId = req.body.invoice_id;
     const invoiceDate = req.body.invoiceDate;
+    const stockType = req.body.stock_type; // Get the stock type from the form
     const items = req.body.items;
 
-    console.log(invoiceId, invoiceDate, items);
+    console.log(invoiceId, invoiceDate, stockType, items);
 
     // Validate if items is an array
     if (!Array.isArray(items)) {
@@ -169,6 +174,18 @@ router.post('/update-invoice', (req, res) => {
                     }
                     console.log(`Stock for item ${item.item_code} increased by ${quantityDifference}`);
                 });
+
+                if (stockType === 'mathara') {
+                    const increaseMatharaStockQuery = `UPDATE mathara_stocks SET quantity = quantity + ? WHERE item_code = ?`;
+                    database.query(increaseMatharaStockQuery, [quantityDifference, item.item_code], (err, result) => {
+                        if (err) {
+                            console.error("Error increasing Mathara stock:", err);
+                            res.status(500).send("Internal Server Error");
+                            return;
+                        }
+                        console.log(`Mathara stock for item ${item.item_code} increased by ${quantityDifference}`);
+                    });
+                }
             }
             // If the quantity difference is negative, it means less items have been added to the stock than before, so we should decrease the stock
             else if (quantityDifference < 0) {
@@ -181,6 +198,18 @@ router.post('/update-invoice', (req, res) => {
                     }
                     console.log(`Stock for item ${item.item_code} decreased by ${-quantityDifference}`);
                 });
+
+                if (stockType === 'mathara') {
+                    const decreaseMatharaStockQuery = `UPDATE mathara_stocks SET quantity = quantity - ? WHERE item_code = ?`;
+                    database.query(decreaseMatharaStockQuery, [-quantityDifference, item.item_code], (err, result) => {
+                        if (err) {
+                            console.error("Error decreasing Mathara stock:", err);
+                            res.status(500).send("Internal Server Error");
+                            return;
+                        }
+                        console.log(`Mathara stock for item ${item.item_code} decreased by ${-quantityDifference}`);
+                    });
+                }
             }
             // If the quantity difference is zero, no change in stock is required
         });
@@ -284,6 +313,8 @@ router.get('/items/remove/:item_code', (req, res) => {
         });
     });
 });
+
+
 
 // Route to handle deleting an invoice
 router.get('/invoices/delete/:id', (req, res) => {

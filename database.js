@@ -5,7 +5,7 @@ var connection = mysql.createConnection({
   host: 'localhost',
   user: 'root',
   password: '', //enter your MySQL password here
-  database: 'inventory'
+  database: 'inventory1'
 });
 
 connection.connect((err) => {
