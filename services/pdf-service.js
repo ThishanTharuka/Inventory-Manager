@@ -36,15 +36,17 @@ function generateInvoicePDF(invoice, dataCallback, endCallback) {
     const table = {
         headers: [
             { label: 'No', property: 'no', width: 30 },
-            { label: 'Item Description', property: 'description', width: 245 },
-            { label: 'Units', property: 'units', width: 60, headerAlign: "center", align: "right" },
-            { label: 'QTY', property: 'quantity', width: 50, headerAlign: "center", align: "right" },
-            { label: 'Unit Rate', property: 'unit_rate', width: 75, headerAlign: "right", align: "right" },
-            { label: 'Amount in LKR', property: 'amount', width: 75, headerAlign: "right", align: "right" }
+            { label: 'Item Code', property: 'item_code', width: 75 },
+            { label: 'Item Description', property: 'description', width: 220 },
+            { label: 'Units', property: 'units', width: 50, headerAlign: "center", align: "right" },
+            { label: 'QTY', property: 'quantity', width: 40, headerAlign: "center", align: "right" },
+            { label: 'Unit Rate', property: 'unit_rate', width: 55, headerAlign: "right", align: "right" },
+            { label: 'Amount in LKR', property: 'amount', width: 65, headerAlign: "right", align: "right" }
         ],
         datas: invoice.items.map((item, index) => ({
             no: index + 1,
-            description: item.item_code + ' | ' + item.description,
+            item_code:  item.item_code,
+            description: item.description,
             units: item.unit || '',
             quantity: item.quantity,
             unit_rate: item.price_per_item.toFixed(2),
@@ -82,8 +84,7 @@ function generateInvoicePDF(invoice, dataCallback, endCallback) {
     const tableBottomY = doc.y;
 
     // Footer Section
-    doc.image('public/images/Stamp and sign white bg.png', { x: doc.page.width - 170, y: tableBottomY + 10, width: 150 }); // Position the image just below the table
-
+    doc.image('public/images/Stamp and sign white bg.png', { x: doc.page.width - 170, y: tableBottomY + 2, width: 150 }); // Position the image just below the table
     doc.end();
 }
 
