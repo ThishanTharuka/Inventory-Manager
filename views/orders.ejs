@@ -25,6 +25,9 @@
             <div>
                 <a href="/comparison-summary" id="compare-btn">Comparison Summary</a>
             </div>
+            <div>
+                <a href="/rep-orders" id="compare-btn">Rep's Orders</a>
+            </div>
             <div id="add-new">
                 <!-- Add New Shop button -->
                 <a href="/orders/add" id="add-new-btn">Add New</a>
@@ -45,7 +48,7 @@
                             </h3>
                             <p>Dealer Name: <%= order.dealer_name %>
                             </p>
-                            <p>Date: <%= order.order_date.toLocaleDateString() %>
+                            <p>Date: <%= order.order_date.toLocaleDateString('en-GB') %>
                             </p>
                             <p>
                                 <% if (order.invoice_id) { %>

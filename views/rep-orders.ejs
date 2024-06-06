@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/styles.css"> <!-- Create a shops.css file for styling -->
+    <link rel="stylesheet" href="/styles.css"> <!-- Create a styles.css file for styling -->
     <link rel="stylesheet" href="/nav.css">
     <title>
         <%= title %>
@@ -17,30 +17,27 @@
     <%- include('./partials/nav.ejs') %>
         <div id="top-bar">
             <div id="page-name">
-                <p>Invoices</p>
+                <p>Rep's Orders</p>
             </div>
             <div id="add-new">
                 <!-- Add New Invoice button -->
-                <a href="/stocks/add" id="add-new-btn">Add New</a>
+                <a href="/rep-orders/add" id="add-new-btn">Add New</a>
             </div>
         </div>
         <main>
-            <form class="top-bar" action="/invoices" method="get">
-                <label for="search">Search Invoice ID:</label>
+            <form class="top-bar" action="/rep-orders" method="get">
+                <label for="search">Search Order ID:</label>
                 <input type="text" id="search" name="search" value="<%= search || '' %>">
                 <button id="search-btns" type="submit">Search</button>
-                <a href="/invoices"><button id="search-btns" type="button">Reset</button></a>
+                <a href="/rep-orders"><button id="search-btns" type="button">Reset</button></a>
             </form>
             <div class="cards">
-                <% if (invoices.length> 0) { %>
-                    <% invoices.forEach((invoice)=> { %>
+                <% if (reps_orders.length> 0) { %>
+                    <% reps_orders.forEach((reps_order)=> { %>
                         <div class="invoice-card">
-                            <h3>Invoice ID: <%= invoice.invoice_id %>
+                            <h3>Order ID: <%= reps_order.order_id %>
                             </h3>
-                            <p>Invoice Date: <%= invoice.invoice_date.toLocaleDateString('en-GB') %>
-                            </p>
-                            <p>
-                                Stock Type: <%= invoice.stock_type %>
+                            <p>Order Date: <%= reps_order.order_date.toLocaleDateString('en-GB') %>
                             </p>
                             <table id="invoice-tbl">
                                 <thead>
@@ -49,11 +46,11 @@
                                         <th class="left-align">Item Name</th>
                                         <th>Quantity</th>
                                         <th>Price</th>
-                                        <th>Extention</th>
+                                        <th>Total</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <% invoice.items.forEach((item)=> { %>
+                                    <% reps_order.items.forEach((item)=> { %>
                                         <tr>
                                             <td class="left-align">
                                                 <%= item.item_code %>
@@ -66,34 +63,27 @@
                                             </td>
                                             <td>
                                                 <%= item.price_per_item.toLocaleString(undefined, {
-                                                    minimumFractionDigits: 2, maximumFractionDigits: 2 }) %> %>
+                                                    minimumFractionDigits: 2, maximumFractionDigits: 2 }) %>
                                             </td>
                                             <td>
-                                                <%= item.extention.toLocaleString(undefined, { minimumFractionDigits: 2,
+                                                <%= item.total.toLocaleString(undefined, { minimumFractionDigits: 2,
                                                     maximumFractionDigits: 2 }) %>
-                                            </td>
                                             </td>
                                         </tr>
                                         <% }); %>
                                             <tr>
                                                 <td class="left-align" colspan="4">Total</td>
                                                 <td>
-                                                    <%= invoice.total.toLocaleString(undefined, { minimumFractionDigits:
-                                                        2, maximumFractionDigits: 2 }) %>
+                                                    <%= reps_order.full_total.toLocaleString(undefined, {
+                                                        minimumFractionDigits: 2, maximumFractionDigits: 2 }) %>
                                                 </td>
                                             </tr>
                                 </tbody>
                             </table>
-                            <div class="button-group">
-                                <a href="/invoices/edit/<%= invoice.invoice_id %>" class="edit-btn">Edit</a>
-                                <a href="/invoices/delete/<%= invoice.invoice_id %>" class="delete-btn">Delete</a>
-                                <a href="/invoices/show/<%= invoice.invoice_id %>" class="show-btn">Show Invoice</a>
-                                <!-- <a href="/invoices/pdf/<%= invoice.invoice_id %>" class="pdf-btn">Download PDF</a> -->
-                              </div>
                         </div>
                         <% }); %>
                             <% } else { %>
-                                <p>No invoices found.</p>
+                                <p>No Orders found.</p>
                                 <% } %>
             </div>
         </main>

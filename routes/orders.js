@@ -250,6 +250,7 @@ router.post('/add-order', (req, res) => {
     });
 });
 
+
 // Route to handle deleting an order
 router.get('/orders/delete/:id', (req, res) => {
     const orderId = req.params.id;

@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/nav.css">
+    <link rel="stylesheet" href="/add-page.css">
+    <title>
+        <%= title %>
+    </title>
+    <link rel="icon" href="/images/stock.svg" type="image/x-icon">
+</head>
+
+<body>
+    <!-- Include the navigation partial -->
+    <%- include('./partials/nav.ejs') %>
+        <div id="container">
+            <form action="/rep-orders/add" method="post">
+                <div id="input-fields">
+                    <label for="order_id">Order ID</label>
+                    <input type="number" id="order_id" name="order_id" required>
+                </div>
+                <div id="input-fields">
+                    <label for="order_date">Order Date</label>
+                    <input type="date" id="order_date" name="order_date" required>
+                </div>
+                <div id="items-container">
+                    <!-- Container to hold dynamically added items -->
+                </div>
+                <div id="add-item-btn">
+                    <button type="button" onclick="addItem()">Add Item</button>
+                </div>
+                <div id="add-item-btn">
+                    <button type="submit">Add Order</button>
+                </div>
+            </form>
+        </div>
+        <script>
+            // JavaScript function to add a new item input field
+            function addItem() {
+                const itemsContainer = document.getElementById('items-container');
+                const newItemField = `
+            <div class="item-field">
+                <div>
+                    <label for="item_code">Item Code</label>
+                    <select name="item_codes[]" onchange="fetchItemName(this)" required>
+                        <% items.forEach(item => { %>
+                            <option value="<%= item.item_code %>"><%= item.item_code %></option>
+                        <% }); %>
+                    </select>
+                </div>
+                <div>
+                    <label for="description">Item Name</label>
+                    <input type="text" name="descriptions[]" class="item-name" required readonly>
+                </div>               
+                <div>
+                    <label for="quantity">Quantity</label>
+                    <input type="number" name="quantities[]" required>
+                </div>
+                <div>
+                    <label for="price_per_item">Price per Item</label>
+                    <input type="number" name="prices[]" step="0.01" required>
+                </div>
+                <div>
+                    <button type="button" onclick="removeItem(this)">Remove</button>
+                </div>
+            </div>
+        `;
+                itemsContainer.insertAdjacentHTML('beforeend', newItemField);
+            }
+
+            // JavaScript function to remove an item input field
+            function removeItem(button) {
+                const itemField = button.closest('.item-field');
+                itemField.remove();
+            }
+
+            // JavaScript function to fetch the item name based on the selected item code 
+            function fetchItemName(selectElement) {
+                const itemCode = selectElement.value;
+                const itemField = selectElement.closest('.item-field');
+                const itemNameInput = itemField.querySelector('.item-name');
+                fetch(`/items/${itemCode}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        itemNameInput.value = data.description;
+                    })
+                    .catch(error => console.error('Error fetching item details:', error));
+            }
+        </script>
+</body>
+
+</html>
