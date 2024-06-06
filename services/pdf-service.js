@@ -44,7 +44,7 @@ function generateInvoicePDF(invoice, dataCallback, endCallback) {
         ],
         datas: invoice.items.map((item, index) => ({
             no: index + 1,
-            description: item.description,
+            description: item.item_code + ' | ' + item.description,
             units: item.unit || '',
             quantity: item.quantity,
             unit_rate: item.price_per_item.toFixed(2),
