@@ -150,6 +150,76 @@ router.post('/rep-orders/add', (req, res) => {
 });
 
 
+// Handle the deletion of a rep order
+router.get('/rep-orders/delete/:order_id', (req, res) => {
+    const orderId = req.params.order_id;
+
+    // Retrieve the items of the order to adjust stock quantities
+    const getOrderItemsQuery = 'SELECT item_code, quantity FROM reps_order_items WHERE order_id = ?';
+
+    database.query(getOrderItemsQuery, [orderId], (err, items) => {
+        if (err) {
+            console.error('Error fetching order items:', err);
+            res.status(500).send('Internal Server Error');
+            return;
+        }
+
+        // Delete the order and its items
+        const deleteOrderItemsQuery = 'DELETE FROM reps_order_items WHERE order_id = ?';
+        const deleteOrderQuery = 'DELETE FROM reps_orders WHERE order_id = ?';
+
+        database.query(deleteOrderItemsQuery, [orderId], (err) => {
+            if (err) {
+                console.error('Error deleting order items:', err);
+                res.status(500).send('Internal Server Error');
+                return;
+            }
+
+            database.query(deleteOrderQuery, [orderId], (err) => {
+                if (err) {
+                    console.error('Error deleting order:', err);
+                    res.status(500).send('Internal Server Error');
+                    return;
+                }
+
+                // Update stock quantities in stocks, mathara_stocks, and rep_stocks
+                const updateStockQueries = items.flatMap(item => [
+                    new Promise((resolve, reject) => {
+                        const updateStockQuery = 'UPDATE stocks SET quantity = quantity + ? WHERE item_code = ?';
+                        database.query(updateStockQuery, [item.quantity, item.item_code], (err, result) => {
+                            if (err) reject(err);
+                            else resolve(result);
+                        });
+                    }),
+                    new Promise((resolve, reject) => {
+                        const updateMatharaStockQuery = 'UPDATE mathara_stocks SET quantity = quantity + ? WHERE item_code = ?';
+                        database.query(updateMatharaStockQuery, [item.quantity, item.item_code], (err, result) => {
+                            if (err) reject(err);
+                            else resolve(result);
+                        });
+                    }),
+                    new Promise((resolve, reject) => {
+                        const updateRepStockQuery = 'UPDATE rep_stocks SET quantity = quantity - ? WHERE item_code = ?';
+                        database.query(updateRepStockQuery, [item.quantity, item.item_code], (err, result) => {
+                            if (err) reject(err);
+                            else resolve(result);
+                        });
+                    })
+                ]);
+
+                Promise.all(updateStockQueries)
+                    .then(() => {
+                        res.redirect('/rep-orders');
+                    })
+                    .catch(err => {
+                        console.error('Error updating stock quantities:', err);
+                        res.status(500).send('Internal Server Error');
+                    });
+            });
+        });
+    });
+});
+
 
 
 module.exports = router;
