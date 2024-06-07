@@ -32,7 +32,7 @@ Run the following command to install the dependencies specified in the package.j
 npm install
 ```
 ### Create a database like this and link
-![image](https://github.com/ThishanTharuka/Inventory-Manager/assets/98091563/10a01d2a-9c54-436e-b7c2-70a153d8b531)
+![image](https://github.com/ThishanTharuka/Inventory-Manager/assets/98091563/f68b10ff-1662-47ea-a327-dd9e8701a1c0)
 
 ### Execute the following command to start the Node.js application:
 ```
