@@ -245,7 +245,6 @@ main {
 #invoice-btn {
   font-family: "Montserrat", sans-serif;
   font-weight: 550;
-  margin: auto;
   text-decoration: none;
   background-color: #ad9fff;
   color: black;
@@ -459,7 +458,7 @@ button {
 #add-new,
 #summary-btn,
 #invoice-btn,
-#mathara-btn {
+#stock-btn {
   margin-left: 1rem;
   margin-right: 1rem;
 }
@@ -492,8 +491,6 @@ button {
   color: aliceblue;
 }
 
-
-
 .bottom-bar {
   display: flex;
   flex-direction: row;
@@ -505,4 +502,32 @@ button {
   margin-bottom: 1rem;
   font-family: "Montserrat", sans-serif;
   font-weight: 550;
+}
+
+#stock-btn {
+  font-family: "Montserrat", sans-serif;
+  font-weight: 550;
+  text-decoration: none;
+  background-color: #f05186c7;
+  color: black;
+  border: 1px solid #eb2466;
+  font-size: 1 rem;
+  padding: 0.5rem 1rem;
+  border-radius: 5rem;
+  transition: background-color 0.3s ease;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#stock-btn:hover {
+  background-color: #eb2466;
+  cursor: pointer;
+  color: aliceblue;
+}
+
+.stock-btn,
+.summary-btn {
+  margin-left: 1rem;
+  margin-right: 1rem;
 }

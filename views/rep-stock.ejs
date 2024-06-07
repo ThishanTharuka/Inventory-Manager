@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/styles.css"> <!-- Create a shops.css file for styling -->
+    <link rel="stylesheet" href="/nav.css">
+    <title>
+        <%= title %>
+    </title>
+    <link rel="icon" href="/images/stock.svg" type="image/x-icon">
+</head>
+
+<body>
+    <!-- Include the navigation partial -->
+    <%- include('./partials/nav.ejs') %>
+        <div id="top-bar">
+            <div id="page-name">
+                <p>Rep's Stock</p>
+            </div>
+            <div id="top-bar">
+                <div class="stock-btn">
+                    <!-- Detailed Invoices button -->
+                    <a href="/stocks" id="stock-btn">Main Stock</a>
+                </div>
+                <div class="stock-btn">
+                    <!-- Detailed Invoices button -->
+                    <a href="/alt-stock" id="stock-btn">Mathara Stock</a>
+                </div>
+                <div id="summary-btn">
+                    <!-- Invoice Summary button -->
+                    <a href="/invoice-summary" id="invoice-btn">Invoice Summary</a>
+                </div>
+                <div id="invoice-btn">
+                    <!-- Detailed Invoices button -->
+                    <a href="/invoices" >Invoices Details</a>
+                </div>
+                <div id="add-new">
+                    <!-- Add New Shop button -->
+                    <a href="/stocks/add" id="add-new-btn">Add Invoice</a>
+                </div>
+            </div>
+        </div>
+        <main>
+            <table id="shops">
+                <thead>
+                    <th class="left-align">No.</th>
+                    <th class="left-align">Items</th>
+                    <th class="left-align">Description</th>
+                    <th class="left-align">Quantity</th>
+                    <!-- <th>Actions</th> -->
+                </thead>
+                <tbody>
+                    <% rep_stocks.forEach((rep_stock, index)=> { %>
+                        <tr>
+                            <td class="left-align">
+                                <%= index + 1 %>
+                            </td>
+                            <td class="left-align">
+                                <%= rep_stock.item_code %>
+                            </td>
+                            <td class="left-align">
+                                <%= rep_stock.description %>
+                            </td>
+                            <td class="left-align">
+                                <%= rep_stock.quantity %>
+                            </td>
+                        </tr>
+                        <% }); %>
+                </tbody>
+
+            </table>
+        </main>
+
+</body>
+
+</html>

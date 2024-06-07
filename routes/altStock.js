@@ -15,4 +15,15 @@ router.get('/alt-stock', (req, res) => {
 });
 
 
+router.get('/rep-stock', (req, res) => {
+    let query = "SELECT * FROM rep_stocks";
+    database.query(query, (err, rep_stocks) => {
+        if (err) {
+            res.redirect('/altStock');
+        }
+        res.render('rep-stock', { title: 'Rep\'s Stock', rep_stocks});
+    });
+});
+
+
 module.exports = router;
