@@ -213,4 +213,192 @@ router.get('/rep-orders/delete/:order_id', (req, res) => {
 });
 
 
+// Route to render the edit form for a rep order
+router.get('/rep-orders/edit/:order_id', (req, res) => {
+    const orderId = req.params.order_id;
+
+    // SQL query to fetch the order details
+    const orderQuery = `SELECT 
+                            i.order_id, 
+                            i.order_date, 
+                            ii.item_code, 
+                            ii.quantity, 
+                            it.description 
+                        FROM 
+                            reps_orders i 
+                            JOIN reps_order_items ii ON i.order_id = ii.order_id 
+                            JOIN items it ON ii.item_code = it.item_code 
+                        WHERE 
+                            i.order_id = ?`;
+
+    database.query(orderQuery, [orderId], (err, rows) => {
+        if (err) {
+            console.error('Error fetching order details:', err);
+            res.status(500).send('Internal Server Error');
+            return;
+        }
+
+        // If order not found, send 404 response
+        if (rows.length === 0) {
+            res.status(404).send('Order not found');
+            return;
+        }
+
+        // Process rows to organize data into a single order object
+        const order = {
+            order_id: rows[0].order_id,
+            order_date: rows[0].order_date,
+            items: rows.map(row => ({
+                item_code: row.item_code,
+                description: row.description,
+                quantity: row.quantity,
+                price: row.price
+            }))
+        };
+
+        // Fetch all items for the item dropdowns
+        const itemsQuery = 'SELECT item_code, description, price FROM items';
+        database.query(itemsQuery, (err, items) => {
+            if (err) {
+                console.error('Error fetching items:', err);
+                res.status(500).send('Internal Server Error');
+                return;
+            }
+
+            // Render the edit form with the order details and items
+            res.render('edit-rep-order', { title: 'Edit Rep Order', order, items });
+        });
+    });
+});
+
+
+// Handle the form submission to update a rep order
+router.post('/update-rep-order', (req, res) => {
+    const { order_id, orderDate, items } = req.body;
+
+    // Calculate the changes in quantity for each item
+    const updateItems = items.map(item => ({
+        item_code: item.item_code,
+        description: item.description,
+        old_quantity: parseInt(item.old_quantity, 10),
+        new_quantity: parseInt(item.quantity, 10)
+    }));
+
+    // Begin transaction
+    database.beginTransaction(err => {
+        if (err) {
+            console.error('Error beginning transaction:', err);
+            res.status(500).send('Internal Server Error');
+            return;
+        }
+
+        // Fetch the current order date to compare with the new order date
+        const fetchOrderQuery = 'SELECT order_date FROM reps_orders WHERE order_id = ?';
+        database.query(fetchOrderQuery, [order_id], (err, results) => {
+            if (err) {
+                console.error('Error fetching current order date:', err);
+                database.rollback(() => {
+                    res.status(500).send('Internal Server Error');
+                });
+                return;
+            }
+
+            const currentOrderDate = results[0].order_date;
+
+            // Only update the order date if it has changed and a new date is provided
+            const updateOrderDatePromise = (orderDate && new Date(orderDate).toLocaleDateString() !== new Date(currentOrderDate).toLocaleDateString())
+                ? new Promise((resolve, reject) => {
+                    const updateOrderDateQuery = 'UPDATE reps_orders SET order_date = ? WHERE order_id = ?';
+                    database.query(updateOrderDateQuery, [orderDate, order_id], (err) => {
+                        if (err) {
+                            reject(err);
+                        } else {
+                            resolve();
+                        }
+                    });
+                })
+                : Promise.resolve();
+
+            updateOrderDatePromise
+                .then(() => {
+                    // Update rep order items
+                    const updateOrderItemsQuery = 'UPDATE reps_order_items SET quantity = ? WHERE order_id = ? AND item_code = ?';
+                    const updateOrderItemsPromises = updateItems.map(item => {
+                        return new Promise((resolve, reject) => {
+                            database.query(updateOrderItemsQuery, [item.new_quantity, order_id, item.item_code], (err, result) => {
+                                if (err) {
+                                    reject(err);
+                                } else {
+                                    resolve(result);
+                                }
+                            });
+                        });
+                    });
+
+                    Promise.all(updateOrderItemsPromises)
+                        .then(() => {
+                            // Update stock quantities for each item in both stock tables
+                            const updateStockQueries = updateItems.flatMap(item => [
+                                new Promise((resolve, reject) => {
+                                    const updateStockQuery = 'UPDATE stocks SET quantity = quantity + ? WHERE item_code = ?';
+                                    database.query(updateStockQuery, [item.old_quantity - item.new_quantity, item.item_code], (err, result) => {
+                                        if (err) reject(err);
+                                        else resolve(result);
+                                    });
+                                }),
+                                new Promise((resolve, reject) => {
+                                    const updateMatharaStockQuery = 'UPDATE mathara_stocks SET quantity = quantity + ? WHERE item_code = ?';
+                                    database.query(updateMatharaStockQuery, [item.old_quantity - item.new_quantity, item.item_code], (err, result) => {
+                                        if (err) reject(err);
+                                        else resolve(result);
+                                    });
+                                }),
+                                new Promise((resolve, reject) => {
+                                    const updateRepStockQuery = 'INSERT INTO rep_stocks (item_code, description, quantity) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE quantity = quantity - ?';
+                                    database.query(updateRepStockQuery, [item.item_code, item.description, item.old_quantity - item.new_quantity, item.old_quantity - item.new_quantity], (err, result) => {
+                                        if (err) reject(err);
+                                        else resolve(result);
+                                    });
+                                })
+                            ]);
+
+                            Promise.all(updateStockQueries)
+                                .then(() => {
+                                    database.commit(err => {
+                                        if (err) {
+                                            console.error('Error committing transaction:', err);
+                                            database.rollback(() => {
+                                                res.status(500).send('Internal Server Error');
+                                            });
+                                            return;
+                                        }
+                                        res.redirect('/rep-orders');
+                                    });
+                                })
+                                .catch(err => {
+                                    console.error('Error updating stock quantities:', err);
+                                    database.rollback(() => {
+                                        res.status(500).send('Internal Server Error');
+                                    });
+                                });
+                        })
+                        .catch(err => {
+                            console.error('Error updating rep order items:', err);
+                            database.rollback(() => {
+                                res.status(500).send('Internal Server Error');
+                            });
+                        });
+                })
+                .catch(err => {
+                    console.error('Error updating rep order date:', err);
+                    database.rollback(() => {
+                        res.status(500).send('Internal Server Error');
+                    });
+                });
+        });
+    });
+});
+
+
+
 module.exports = router;

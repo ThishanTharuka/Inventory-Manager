@@ -47,10 +47,11 @@
     transform: translate(-50%, -50%);
 }
 
-nav img {
+#logo {
     width: 50%;
     margin: 2px;
 }
+
 
 .logOut_btn {
     text-decoration: none;
@@ -97,8 +98,4 @@ nav img {
 
 #btn {
     margin-right: 2rem;
-}
-
-div#logo:hover {
-    cursor: pointer;
 }

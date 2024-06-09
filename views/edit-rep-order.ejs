@@ -16,13 +16,13 @@
     <!-- Include the navigation partial -->
     <%- include('./partials/nav.ejs') %>
         <div id="container">
-            <form action='/update-order' method="POST">
+            <form action="/update-rep-order" method="POST">
                 <!-- Order header -->
                 <div class="header">
-                    <h3>Order ID: <%= order.order_id %>
+                    <h3>Rep's Order ID: <%= order.order_id %>
                     </h3>
                     <input type="hidden" name="order_id" value="<%= order.order_id %>">
-                    <h3>Order Date: <%= order.order_date.toLocaleDateString() %>
+                    <h3>Order Date: <%= order.order_date.toLocaleDateString('en-GB') %>
                     </h3>
                 </div>
                 <!-- Input field for new order date -->
@@ -30,19 +30,6 @@
                     <label for="orderDate">New Order Date:</label>
                     <input type="date" id="orderDate" name="orderDate" value="<%= order.order_date %>">
                 </div>
-                <div>
-                    <label for="invoice_id">Invoice ID</label>
-                    <input type="number" id="invoice_id" name="invoice_id" value="<%= order.invoice_id %>">
-                </div>
-                <div>
-                    <label for="shop_name">Dealer Name</label>
-                    <select id="shop_name" name="shop_name">
-                        <% dealers.forEach(dealer => { %>
-                            <option value="<%= dealer.shop_id %>" <% if (dealer.shop_id === order.dealer_id) { %> selected <% } %>><%= dealer.shop_name %></option>
-                        <% }); %>
-                    </select>
-                </div>
-                
                 <!-- Table for displaying/editing order products -->
                 <div class="order-table">
                     <table>
@@ -52,8 +39,7 @@
                                 <th>Item Code</th>
                                 <th>Item Name</th>
                                 <th>Quantity</th>
-                                <th>Discount</th>
-                                <th>Unit Price</th>
+
                             </tr>
                         </thead>
                         <!-- Table body -->
@@ -67,19 +53,15 @@
                                                 value="<%= item.item_code %>">
                                     </td>
                                     <td>
-                                        <%= item.item_name %>
+                                        <%= item.description %>
+                                            <input type="hidden" name="items[<%= index %>][description]"
+                                                value="<%= item.description %>">
                                     </td>
                                     <td><input type="number" name="items[<%= index %>][quantity]"
                                             value="<%= item.quantity %>">
                                         <!-- Hidden input field for old quantity -->
                                         <input type="hidden" name="items[<%= index %>][old_quantity]"
                                             value="<%= item.quantity %>">
-                                    </td>
-                                    <td><input type="number" name="items[<%= index %>][discount]"
-                                            value="<%= item.discount %>">
-                                    </td>
-                                    <td><input type="number" step="0.01" name="items[<%= index %>][price_per_item]"
-                                            value="<%= item.price_per_item %>">
                                     </td>
                                 </tr>
                                 <% }); %>
@@ -92,7 +74,6 @@
                 </div>
             </form>
         </div>
-
 </body>
 
 </html>
