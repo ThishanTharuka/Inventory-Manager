@@ -3,57 +3,29 @@ const router = express.Router();
 const async = require('async');
 const database = require('../database');
 
-// // Function to calculate stock quantities
-// function calculateStockQuantities(callback) {
-//     // Remove entries from stocks table where quantity is 0
-//     const removeZeroQuantityQuery = `DELETE FROM stocks WHERE quantity = 0`;
-
-//     // Execute the query
-//     database.query(removeZeroQuantityQuery, (err, result) => {
-//         if (err) {
-//             console.error('Error removing entries with zero quantity:', err);
-//             callback(err);
-//             return;
-//         }
-
-//         console.log('Entries with zero quantity removed successfully');
-//         callback(null);
-//     });
-// }
 
 // Route to render the stocks page
 router.get('/stocks', (req, res) => {
-    // SQL query to fetch all stocks
-    const query = 'SELECT * FROM stocks';
+    // SQL query to fetch all stocks with quantities from different tables
+    const combinedQuery = `
+        SELECT s.item_code, s.description, s.quantity AS stock_quantity, 
+               ms.quantity AS mathara_quantity, rs.quantity AS rep_quantity
+        FROM stocks s
+        LEFT JOIN mathara_stocks ms ON s.item_code = ms.item_code
+        LEFT JOIN rep_stocks rs ON s.item_code = rs.item_code;
+    `;
 
-    // Execute the query to fetch stocks
-    database.query(query, (err, stocks) => {
+    // Execute the query
+    database.query(combinedQuery, (err, stocks) => {
         if (err) {
             throw err;
         }
 
-        // SQL query to fetch all items
-        const query1 = 'SELECT * FROM items';
-
-        // Execute the query to fetch items
-        database.query(query1, (err, items) => {
-            if (err) {
-                throw err;
-            }
-
-            // // Calculate stock quantities
-            // calculateStockQuantities((err) => {
-            //     if (err) {
-            //         res.status(500).send('Internal Server Error');
-            //         return;
-            //     }
-
-            // Render stocks page with updated stock quantities
-            res.render('stocks', { title: 'Stocks', stocks, items });
-        });
+        // Render stocks page with updated stock quantities
+        res.render('stocks', { title: 'Stocks', stocks });
     });
 });
-// });
+
 
 
 // Route to render the add stocks page

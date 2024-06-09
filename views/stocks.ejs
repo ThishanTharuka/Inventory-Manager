@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="/styles.css"> <!-- Create a shops.css file for styling -->
+  <link rel="stylesheet" href="/styles.css">
   <link rel="stylesheet" href="/nav.css">
   <title>
     <%= title %>
@@ -13,7 +13,6 @@
 </head>
 
 <body>
-  <!-- Include the navigation partial -->
   <%- include('./partials/nav.ejs') %>
     <div id="top-bar">
       <div id="page-name">
@@ -21,23 +20,18 @@
       </div>
       <div id="top-bar">
         <div class="stock-btn">
-          <!-- Detailed Invoices button -->
           <a href="/rep-stock" id="stock-btn">Rep's Stock</a>
         </div>
         <div class="stock-btn">
-          <!-- Detailed Invoices button -->
           <a href="/alt-stock" id="stock-btn">Mathara Stock</a>
         </div>
         <div class="summary-btn">
-          <!-- Invoice Summary button -->
           <a href="/invoice-summary" id="invoice-btn">Invoice Summary</a>
         </div>
         <div id="invoice-btn">
-          <!-- Detailed Invoices button -->
           <a href="/invoices">Invoices Details</a>
         </div>
         <div id="add-new">
-          <!-- Add New Shop button -->
           <a href="/stocks/add" id="add-new-btn">Add Invoice</a>
         </div>
       </div>
@@ -48,8 +42,9 @@
           <th class="left-align">No.</th>
           <th class="left-align">Items</th>
           <th class="left-align">Description</th>
-          <th class="left-align">Quantity</th>
-          <!-- <th>Actions</th> -->
+          <th>Full Stock</th>
+          <th>Mathara Stock</th>
+          <th>Rep's Stock</th>
         </thead>
         <tbody>
           <% stocks.forEach((stock, index)=> { %>
@@ -63,19 +58,18 @@
               <td class="left-align">
                 <%= stock.description %>
               </td>
-              <td class="left-align">
-                <%= stock.quantity %>
+              <td>
+                <%= stock.stock_quantity %>
               </td>
-              <!-- <td id="action">
-                <div id="action-btns">
-                  <a href="/stocks/edit/<%= stocks.invoice_id %>" class="edit-btn">Edit</a>
-                  <a href="/stocks/delete/<%= stocks.invoice_id %>" class="delete-btn ">Delete</a>
-                </div>
-              </td> -->
+              <td>
+                <%= stock.mathara_quantity || 0 %>
+              </td>
+              <td>
+                <%= stock.rep_quantity || 0 %>
+              </td>
             </tr>
             <% }); %>
         </tbody>
-
       </table>
     </main>
 </body>

@@ -9,11 +9,8 @@ router.get('/rep-orders', (req, res) => {
     let orderQuery = `SELECT 
                             i.order_id, 
                             i.order_date, 
-                            i.total AS full_total,
                             ii.item_code, 
                             ii.quantity, 
-                            ii.price_per_item, 
-                            ii.total, 
                             it.description 
                         FROM 
                             reps_orders i 
@@ -44,7 +41,6 @@ router.get('/rep-orders', (req, res) => {
                 existingOrder = {
                     order_id: row.order_id,
                     order_date: row.order_date,
-                    full_total: row.full_total,
                     items: []
                 };
                 reps_orders.push(existingOrder);
@@ -55,8 +51,6 @@ router.get('/rep-orders', (req, res) => {
                 item_code: row.item_code,
                 description: row.description,
                 quantity: row.quantity,
-                price_per_item: row.price_per_item,
-                total: row.total
             });
         });
 
@@ -68,7 +62,7 @@ router.get('/rep-orders', (req, res) => {
 
 // Render the form for adding a new rep order
 router.get('/rep-orders/add', (req, res) => {
-    const itemsQuery = 'SELECT item_code, description FROM items';
+    const itemsQuery = 'SELECT item_code, description, price FROM items';
     database.query(itemsQuery, (err, items) => {
         if (err) {
             console.error('Error fetching items:', err);
@@ -88,23 +82,21 @@ router.post('/rep-orders/add', (req, res) => {
     const items = item_codes.map((code, index) => ({
         item_code: code,
         description: descriptions[index],
-        quantity: parseInt(quantities[index], 10),
-        price_per_item: parseFloat(prices[index]),
-        total: parseInt(quantities[index], 10) * parseFloat(prices[index])
+        quantity: parseInt(quantities[index], 10)
     }));
     const order_total = items.reduce((sum, item) => sum + item.total, 0);
 
-    const orderQuery = 'INSERT INTO reps_orders (order_id, order_date, total) VALUES (?, ?, ?)';
-    const orderItemsQuery = 'INSERT INTO reps_order_items (order_id, item_code, quantity, price_per_item, total) VALUES ?';
+    const orderQuery = 'INSERT INTO reps_orders (order_id, order_date) VALUES (?, ?)';
+    const orderItemsQuery = 'INSERT INTO reps_order_items (order_id, item_code, quantity) VALUES ?';
 
-    database.query(orderQuery, [order_id, order_date, order_total], (err) => {
+    database.query(orderQuery, [order_id, order_date], (err) => {
         if (err) {
             console.error('Error adding order:', err);
             res.status(500).send('Internal Server Error');
             return;
         }
 
-        const orderItemsValues = items.map(item => [order_id, item.item_code, item.quantity, item.price_per_item, item.total]);
+        const orderItemsValues = items.map(item => [order_id, item.item_code, item.quantity]);
         database.query(orderItemsQuery, [orderItemsValues], (err) => {
             if (err) {
                 console.error('Error adding order items:', err);
@@ -219,7 +211,6 @@ router.get('/rep-orders/delete/:order_id', (req, res) => {
         });
     });
 });
-
 
 
 module.exports = router;

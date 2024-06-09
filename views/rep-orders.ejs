@@ -45,8 +45,6 @@
                                         <th class="left-align">Item Code</th>
                                         <th class="left-align">Item Name</th>
                                         <th>Quantity</th>
-                                        <th>Price</th>
-                                        <th>Total</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -61,23 +59,8 @@
                                             <td>
                                                 <%= item.quantity %>
                                             </td>
-                                            <td>
-                                                <%= item.price_per_item.toLocaleString(undefined, {
-                                                    minimumFractionDigits: 2, maximumFractionDigits: 2 }) %>
-                                            </td>
-                                            <td>
-                                                <%= item.total.toLocaleString(undefined, { minimumFractionDigits: 2,
-                                                    maximumFractionDigits: 2 }) %>
-                                            </td>
                                         </tr>
                                         <% }); %>
-                                            <tr>
-                                                <td class="left-align" colspan="4">Total</td>
-                                                <td>
-                                                    <%= reps_order.full_total.toLocaleString(undefined, {
-                                                        minimumFractionDigits: 2, maximumFractionDigits: 2 }) %>
-                                                </td>
-                                            </tr>
                                 </tbody>
                             </table>
                             <div class="button-group">
