@@ -76,7 +76,10 @@ router.get('/rep-orders/add', (req, res) => {
 
 // Handle the form submission to add a new rep order
 router.post('/rep-orders/add', (req, res) => {
-    const { order_id, order_date, item_codes, descriptions, quantities, prices } = req.body;
+    const { order_date, item_codes, descriptions, quantities } = req.body;
+
+    // Generate a unique order ID using the current timestamp
+    const order_id = `ORD-${Date.now()}`;
 
     // Calculate total for each item and overall order total
     const items = item_codes.map((code, index) => ({
@@ -84,62 +87,103 @@ router.post('/rep-orders/add', (req, res) => {
         description: descriptions[index],
         quantity: parseInt(quantities[index], 10)
     }));
-    const order_total = items.reduce((sum, item) => sum + item.total, 0);
 
     const orderQuery = 'INSERT INTO reps_orders (order_id, order_date) VALUES (?, ?)';
     const orderItemsQuery = 'INSERT INTO reps_order_items (order_id, item_code, quantity) VALUES ?';
 
-    database.query(orderQuery, [order_id, order_date], (err) => {
+    // Check if all items exist in mathara_stocks table
+    const checkItemsExistQuery = 'SELECT item_code FROM mathara_stocks WHERE item_code IN (?)';
+    const itemCodesArray = items.map(item => item.item_code);
+
+    database.query(checkItemsExistQuery, [itemCodesArray], (err, results) => {
         if (err) {
-            console.error('Error adding order:', err);
+            console.error('Error checking items in stock:', err);
             res.status(500).send('Internal Server Error');
             return;
         }
 
-        const orderItemsValues = items.map(item => [order_id, item.item_code, item.quantity]);
-        database.query(orderItemsQuery, [orderItemsValues], (err) => {
+        const existingItemCodes = results.map(row => row.item_code);
+        const missingItems = items.filter(item => !existingItemCodes.includes(item.item_code));
+
+        console.log(missingItems);
+
+        if (missingItems.length > 0) {
+            // Some items are missing in the mathara_stocks table
+            res.status(400).send(`Error: The following items are not available in the Matara stock: ${missingItems.map(item => item.item_code).join(', ')}. Please check the availability of these items and try again.`);
+            return;
+        }
+
+        // Begin transaction
+        database.beginTransaction(err => {
             if (err) {
-                console.error('Error adding order items:', err);
+                console.error('Error beginning transaction:', err);
                 res.status(500).send('Internal Server Error');
                 return;
             }
 
-            // Update stock quantities for each item in both stock tables
-            const updateStockQueries = items.flatMap(item => [
-                new Promise((resolve, reject) => {
-                    const updateStockQuery = 'UPDATE stocks SET quantity = quantity - ? WHERE item_code = ?';
-                    database.query(updateStockQuery, [item.quantity, item.item_code], (err, result) => {
-                        if (err) reject(err);
-                        else resolve(result);
+            database.query(orderQuery, [order_id, order_date], (err) => {
+                if (err) {
+                    console.error('Error adding order:', err);
+                    database.rollback(() => {
+                        res.status(500).send('Internal Server Error');
                     });
-                }),
-                new Promise((resolve, reject) => {
-                    const updateMatharaStockQuery = 'UPDATE mathara_stocks SET quantity = quantity - ? WHERE item_code = ?';
-                    database.query(updateMatharaStockQuery, [item.quantity, item.item_code], (err, result) => {
-                        if (err) reject(err);
-                        else resolve(result);
-                    });
-                }),
-                new Promise((resolve,reject) => {
-                    const updateGalleStockQuery = 'INSERT INTO rep_stocks (item_code, description, quantity) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE quantity = quantity + ?';
-                    database.query(updateGalleStockQuery, [item.item_code, item.description, item.quantity, item.quantity], (err, result) => {
-                        if (err) reject(err);
-                        else resolve(result);
-                    });
-                })
-            ]);
+                    return;
+                }
 
-            Promise.all(updateStockQueries)
-                .then(() => {
-                    res.redirect('/rep-orders');
-                })
-                .catch(err => {
-                    console.error('Error updating stock quantities:', err);
-                    res.status(500).send('Internal Server Error');
+                const orderItemsValues = items.map(item => [order_id, item.item_code, item.quantity]);
+                database.query(orderItemsQuery, [orderItemsValues], (err) => {
+                    if (err) {
+                        console.error('Error adding order items:', err);
+                        database.rollback(() => {
+                            res.status(500).send('Internal Server Error');
+                        });
+                        return;
+                    }
+
+                    // Update stock quantities for each item in both stock tables
+                    const updateStockQueries = items.flatMap(item => [
+                        new Promise((resolve, reject) => {
+                            const updateMatharaStockQuery = 'UPDATE mathara_stocks SET quantity = quantity - ? WHERE item_code = ?';
+                            database.query(updateMatharaStockQuery, [item.quantity, item.item_code], (err, result) => {
+                                if (err) reject(err);
+                                else resolve(result);
+                            });
+                        }),
+                        new Promise((resolve, reject) => {
+                            const updateGalleStockQuery = 'INSERT INTO rep_stocks (item_code, description, quantity) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE quantity = quantity + ?';
+                            database.query(updateGalleStockQuery, [item.item_code, item.description, item.quantity, item.quantity], (err, result) => {
+                                if (err) reject(err);
+                                else resolve(result);
+                            });
+                        })
+                    ]);
+
+                    Promise.all(updateStockQueries)
+                        .then(() => {
+                            database.commit(err => {
+                                if (err) {
+                                    console.error('Error committing transaction:', err);
+                                    database.rollback(() => {
+                                        res.status(500).send('Internal Server Error');
+                                    });
+                                    return;
+                                }
+                                res.redirect('/rep-orders');
+                            });
+                        })
+                        .catch(err => {
+                            console.error('Error updating stock quantities:', err);
+                            database.rollback(() => {
+                                res.status(500).send('Internal Server Error');
+                            });
+                        });
                 });
+            });
         });
     });
 });
+
+
 
 
 // Handle the deletion of a rep order

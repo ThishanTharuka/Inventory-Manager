@@ -1,26 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="/nav.css">
     <link rel="stylesheet" href="/add-page.css">
-    <title>
-        <%= title %>
-    </title>
+    <title><%= title %></title>
     <link rel="icon" href="/images/stock.svg" type="image/x-icon">
 </head>
-
 <body>
     <!-- Include the navigation partial -->
     <%- include('./partials/nav.ejs') %>
     <div id="container">
         <form action="/rep-orders/add" method="post">
-            <div id="input-fields">
-                <label for="order_id">Order ID</label>
-                <input type="number" id="order_id" name="order_id" required>
-            </div>
             <div id="input-fields">
                 <label for="order_date">Order Date</label>
                 <input type="date" id="order_date" name="order_date" required>
@@ -93,7 +85,15 @@
                 priceInput.value = selectedItem.price;
             }
         }
+
+        function showErrorModal(message) {
+            const isConfirmed = confirm(message);
+            if (isConfirmed) {
+                // Handle confirmation
+            } else {
+                // Handle rejection
+            }
+        }
     </script>
 </body>
-
 </html>

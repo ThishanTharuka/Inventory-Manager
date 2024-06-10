@@ -35,10 +35,8 @@
                 <% if (reps_orders.length> 0) { %>
                     <% reps_orders.forEach((reps_order)=> { %>
                         <div class="invoice-card">
-                            <h3>Order ID: <%= reps_order.order_id %>
+                            <h3>Order Date: <%= reps_order.order_date.toLocaleDateString('en-GB') %>
                             </h3>
-                            <p>Order Date: <%= reps_order.order_date.toLocaleDateString('en-GB') %>
-                            </p>
                             <table id="invoice-tbl">
                                 <thead>
                                     <tr>
