@@ -19,8 +19,6 @@
             <form action='/update-order' method="POST">
                 <!-- Order header -->
                 <div class="header">
-                    <h3>Order ID: <%= order.order_id %>
-                    </h3>
                     <input type="hidden" name="order_id" value="<%= order.order_id %>">
                     <h3>Order Date: <%= order.order_date.toLocaleDateString() %>
                     </h3>

@@ -79,7 +79,7 @@ router.post('/rep-orders/add', (req, res) => {
     const { order_date, item_codes, descriptions, quantities } = req.body;
 
     // Generate a unique order ID using the current timestamp
-    const order_id = `ORD-${Date.now()}`;
+    const order_id = `${Date.now()}`;
 
     // Calculate total for each item and overall order total
     const items = item_codes.map((code, index) => ({
@@ -142,6 +142,13 @@ router.post('/rep-orders/add', (req, res) => {
 
                     // Update stock quantities for each item in both stock tables
                     const updateStockQueries = items.flatMap(item => [
+                        new Promise((resolve, reject) => {
+                            const updateStockQuery = 'UPDATE stocks SET quantity = quantity - ? WHERE item_code = ?';
+                            database.query(updateStockQuery, [item.quantity, item.item_code], (err, result) => {
+                                if (err) reject(err);
+                                else resolve(result);
+                            });
+                        }),
                         new Promise((resolve, reject) => {
                             const updateMatharaStockQuery = 'UPDATE mathara_stocks SET quantity = quantity - ? WHERE item_code = ?';
                             database.query(updateMatharaStockQuery, [item.quantity, item.item_code], (err, result) => {
