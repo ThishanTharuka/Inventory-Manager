@@ -17,7 +17,7 @@
     <%- include('./partials/nav.ejs') %>
         <div id="top-bar">
             <div id="page-name">
-                <p>Orders</p>
+                <p>Dealer Invoices</p>
             </div>
             <div>
                 <a href="/compare-orders" id="compare-btn">Sale Comparison</a>
@@ -35,7 +35,7 @@
         </div>
         <main>
             <form class="top-bar" action="/orders" method="get">
-                <label for="search">Search Order ID:</label>
+                <label for="search">Search From Dealer Invoice ID:</label>
                 <input type="text" id="search" name="search" value="<%= search || '' %>">
                 <button id="search-btns" type="submit">Search</button>
                 <a href="/orders"><button id="search-btns" type="button">Reset</button></a>
@@ -44,7 +44,7 @@
                 <% if (orders.length> 0) { %>
                     <% orders.forEach((order)=> { %>
                         <div class="order-card">
-                            <h3>Order ID: <%= order.order_id %>
+                            <h3>Dealer Invoice ID: <%= order.order_id %>
                             </h3>
                             <p>Dealer Name: <%= order.dealer_name %>
                             </p>
