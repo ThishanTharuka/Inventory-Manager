@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/nav.css">
+    <link rel="stylesheet" href="/edit-page.css">
+    <title>Edit Rep Invoice</title>
+    <link rel="icon" href="/images/edit.svg" type="image/x-icon">
+</head>
+
+<body>
+    <!-- Include the navigation partial -->
+    <%- include('./partials/nav.ejs') %>
+    <div id="container">
+        <form action='/rep-invoices/update' method="POST">
+            <!-- Invoice header -->
+            <div class="header">
+                <input type="hidden" name="invoice_id" value="<%= invoice.invoice_id %>">
+                <h3>Invoice Date: <%= new Date(invoice.invoice_date).toLocaleDateString() %></h3>
+            </div>
+            <!-- Input field for new invoice date -->
+            <div class="date">
+                <label for="invoiceDate">New Invoice Date:</label>
+                <input type="date" id="invoiceDate" name="invoiceDate" value="<%= invoice.invoice_date %>">
+            </div>
+            <div>
+                <label for="dealer_name">Dealer Name</label>
+                <select id="dealer_name" name="dealer_name">
+                    <% dealers.forEach(dealer => { %>
+                        <option value="<%= dealer.shop_id %>" <% if (dealer.shop_id === invoice.dealer_id) { %> selected <% } %>><%= dealer.shop_name %></option>
+                    <% }); %>
+                </select>
+            </div>
+            
+            <!-- Table for displaying/editing invoice items -->
+            <div class="order-table">
+                <table>
+                    <!-- Table headers -->
+                    <thead>
+                        <tr>
+                            <th>Item Code</th>
+                            <th>Item Name</th>
+                            <th>Quantity</th>
+                            <th>Discount</th>
+                            <th>Unit Price</th>
+                        </tr>
+                    </thead>
+                    <!-- Table body -->
+                    <tbody>
+                        <% invoice.items.forEach((item, index) => { %>
+                            <tr>
+                                <!-- Display product details and allow editing -->
+                                <td>
+                                    <%= item.item_code %>
+                                    <input type="hidden" name="items[<%= index %>][item_code]" value="<%= item.item_code %>">
+                                </td>
+                                <td>
+                                    <%= item.item_name %>
+                                </td>
+                                <td>
+                                    <input type="number" name="items[<%= index %>][quantity]" value="<%= item.quantity %>">
+                                    <!-- Hidden input field for old quantity -->
+                                    <input type="hidden" name="items[<%= index %>][old_quantity]" value="<%= item.quantity %>">
+                                </td>
+                                <td>
+                                    <input type="number" step="0.01" name="items[<%= index %>][discount]" value="<%= item.discount %>">
+                                </td>
+                                <td>
+                                    <input type="number" step="0.01" name="items[<%= index %>][price_per_item]" value="<%= item.price_per_item %>">
+                                </td>
+                            </tr>
+                        <% }); %>
+                    </tbody>
+                </table>
+            </div>
+            <!-- Submit button -->
+            <div class="submit-btn">
+                <button type="submit">Update Invoice</button>
+            </div>
+        </form>
+    </div>
+</body>
+
+</html>

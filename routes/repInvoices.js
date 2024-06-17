@@ -4,7 +4,7 @@ const database = require('../database');
 const { reject } = require('async');
 
 // GET route to render the rep_invoices page
-router.get('/rep_invoices', (req, res) => {
+router.get('/rep-invoices', (req, res) => {
     const { search } = req.query;
     let repInvoicesQuery = `
         SELECT o.*, d.shop_name AS dealer_name
@@ -122,41 +122,100 @@ router.post('/rep-invoices/add', (req, res) => {
             console.log('Item:', item_code, 'Price:', price, 'Quantity:', quantity, 'Discount:', discount, 'Total:', total);
             // Push item data to the array
             invoiceItemsData.push([invoice_id, item_code, price, quantity, discount, total]);
-
-            // Update stock quantities for each item
-            const updateStockQuery = 'UPDATE rep_stocks SET quantity = quantity - ? WHERE item_code = ?';
-            database.query(updateStockQuery, [quantity, item_code], (err, result) => {
-                if (err) {
-                    console.error('Error updating stock quantities:', err);
-                    // You might want to handle this error in some way
-                }
-            });
         }
 
-        // Insert invoice details into the rep_invoices table
-        const repInvoicesQuery = 'INSERT INTO rep_invoices (invoice_id, invoice_date, dealer_id, total) VALUES (?, ?, ?, ?)';
-        database.query(repInvoicesQuery, [invoice_id, invoice_date, dealer_id, invoiceTotal], (err, result) => {
+        // Check if all items exist in rep_stocks table
+        const checkItemsExistQuery = 'SELECT item_code FROM rep_stocks WHERE item_code IN (?)';
+        const itemCodesArray = item_codes;
+
+        database.query(checkItemsExistQuery, [itemCodesArray], (err, results) => {
             if (err) {
-                console.error('Error adding invoice:', err);
-                res.status(500).json({ error: 'Internal server error' });
+                console.error('Error checking items in stock:', err);
+                res.status(500).send('Internal Server Error');
                 return;
             }
 
-            // Insert invoice items into the rep_invoice_items table
-            const invoiceItemsQuery = 'INSERT INTO rep_invoice_items (invoice_id, item_code, price_per_item, quantity, discount, total) VALUES ?';
-            database.query(invoiceItemsQuery, [invoiceItemsData], (err, result) => {
+            const existingItemCodes = results.map(row => row.item_code);
+            const missingItems = itemCodesArray.filter(item_code => !existingItemCodes.includes(item_code));
+
+            console.log(missingItems);
+
+            if (missingItems.length > 0) {
+                // Some items are missing in the rep_stocks table
+                res.status(400).send(`Error: The following items are not available in the rep stock: ${missingItems.join(', ')}. Please check the availability of these items and try again.`);
+                return;
+            }
+
+            // Begin transaction
+            database.beginTransaction(err => {
                 if (err) {
-                    console.error('Error adding invoice items:', err);
-                    res.status(500).json({ error: 'Internal server error' });
+                    console.error('Error beginning transaction:', err);
+                    res.status(500).send('Internal Server Error');
                     return;
                 }
 
-                // Redirect to the invoices page after successfully adding the invoice
-                res.redirect('/rep_invoices');
+                // Insert invoice details into the rep_invoices table
+                const repInvoicesQuery = 'INSERT INTO rep_invoices (invoice_id, invoice_date, dealer_id, total) VALUES (?, ?, ?, ?)';
+                database.query(repInvoicesQuery, [invoice_id, invoice_date, dealer_id, invoiceTotal], (err, result) => {
+                    if (err) {
+                        console.error('Error adding invoice:', err);
+                        database.rollback(() => {
+                            res.status(500).send('Internal Server Error');
+                        });
+                        return;
+                    }
+
+                    // Insert invoice items into the rep_invoice_items table
+                    const invoiceItemsQuery = 'INSERT INTO rep_invoice_items (invoice_id, item_code, price_per_item, quantity, discount, total) VALUES ?';
+                    database.query(invoiceItemsQuery, [invoiceItemsData], (err, result) => {
+                        if (err) {
+                            console.error('Error adding invoice items:', err);
+                            database.rollback(() => {
+                                res.status(500).send('Internal Server Error');
+                            });
+                            return;
+                        }
+
+                        // Update stock quantities for each item
+                        const updateStockPromises = item_codes.map((item_code, index) => {
+                            return new Promise((resolve, reject) => {
+                                const updateStockQuery = 'UPDATE rep_stocks SET quantity = quantity - ? WHERE item_code = ?';
+                                database.query(updateStockQuery, [quantities[index], item_code], (err, result) => {
+                                    if (err) {
+                                        reject(err);
+                                    } else {
+                                        resolve();
+                                    }
+                                });
+                            });
+                        });
+
+                        Promise.all(updateStockPromises)
+                            .then(() => {
+                                database.commit(err => {
+                                    if (err) {
+                                        console.error('Error committing transaction:', err);
+                                        database.rollback(() => {
+                                            res.status(500).send('Internal Server Error');
+                                        });
+                                        return;
+                                    }
+                                    res.redirect('/rep-invoices');
+                                });
+                            })
+                            .catch(err => {
+                                console.error('Error updating stock quantities:', err);
+                                database.rollback(() => {
+                                    res.status(500).send('Internal Server Error');
+                                });
+                            });
+                    });
+                });
             });
         });
     });
 });
+
 
 
 // DELETE route to handle deleting a rep invoice
@@ -208,7 +267,7 @@ router.get('/rep-invoices/delete/:id', (req, res) => {
                 Promise.all(updateStockPromises)
                     .then(() => {
                         // Redirect to the rep-invoices page after successfully deleting the invoice
-                        res.redirect('/rep_invoices');
+                        res.redirect('/rep-invoices');
                     })
                     .catch((error) => {
                         console.error('Error updating stock quantities:', error);
@@ -217,6 +276,179 @@ router.get('/rep-invoices/delete/:id', (req, res) => {
             });
         });
     });
+});
+
+
+// Route to render the edit rep invoice form
+router.get('/rep-invoices/edit/:id', (req, res) => {
+    const invoiceId = req.params.id;
+
+    // Query to fetch invoice details and associated items
+    const query = `
+        SELECT ri.invoice_id, ri.invoice_date, ri.dealer_id, rii.item_code, rii.quantity, rii.price_per_item, rii.discount, i.description AS item_name
+        FROM rep_invoices ri
+        LEFT JOIN rep_invoice_items rii ON ri.invoice_id = rii.invoice_id
+        LEFT JOIN items i ON rii.item_code = i.item_code
+        WHERE ri.invoice_id = ?
+    `;
+
+    const dealersQuery = `SELECT shop_id, shop_name FROM dealers`;
+
+    database.query(query, [invoiceId], (err, invoiceResults) => {
+        if (err) {
+            console.error('Error fetching invoice details:', err);
+            res.status(500).send('Internal Server Error');
+            return;
+        }
+
+        // Fetch dealer names
+        database.query(dealersQuery, (err, dealerResults) => {
+            if (err) {
+                console.error('Error fetching dealer names:', err);
+                res.status(500).send('Internal Server Error');
+                return;
+            }
+
+            // Organize fetched data into a structured format
+            const invoice = {
+                invoice_id: invoiceResults[0].invoice_id,
+                invoice_date: invoiceResults[0].invoice_date,
+                dealer_id: invoiceResults[0].dealer_id,
+                items: invoiceResults.map(row => ({
+                    item_code: row.item_code,
+                    item_name: row.item_name,
+                    quantity: row.quantity,
+                    discount: row.discount,
+                    price_per_item: row.price_per_item
+                }))
+            };
+
+            const dealers = dealerResults;
+
+            // Render the edit invoice page with invoice details, associated items, and dealer names
+            res.render('edit-rep-invoice', { title: 'Edit Rep Invoice', invoice, dealers });
+        });
+    });
+});
+
+// Route to handle the update form submission
+router.post('/rep-invoices/update', (req, res) => {
+    const invoiceId = req.body.invoice_id;
+    const newInvoiceDate = req.body.invoiceDate;
+    const updatedItems = req.body.items;
+    const dealerId = req.body.dealer_name; // Even though it says dealer name it takes dealer id from body
+
+    console.log(invoiceId, newInvoiceDate, updatedItems, dealerId);
+
+    // Validate if updatedItems is an array
+    if (!Array.isArray(updatedItems)) {
+        console.error("Items data is missing or invalid.");
+        res.status(400).send("Items data is missing or invalid.");
+        return;
+    }
+
+    // Update the invoice date in the rep_invoices table if a new date is provided
+    if (newInvoiceDate) {
+        const updateInvoiceDateQuery = `UPDATE rep_invoices SET invoice_date = ? WHERE invoice_id = ?`;
+        database.query(updateInvoiceDateQuery, [newInvoiceDate, invoiceId], (err, result) => {
+            if (err) {
+                console.error("Error updating invoice date:", err);
+                res.status(500).send("Internal Server Error");
+                return; // Return here to prevent further execution
+            }
+            // Proceed with updating item quantities and prices
+            updateItemQuantities();
+        });
+    } else {
+        // If no new date is provided, proceed with updating item quantities and prices directly
+        updateItemQuantities();
+    }
+
+    function updateItemQuantities() {
+        // Iterate over each updated item
+        const updateStockPromises = updatedItems.map(item => {
+            const oldQuantity = item.old_quantity; // Retrieve the old quantity from the hidden input field
+            const newQuantity = item.quantity;
+
+            // Calculate the difference between old and new quantities
+            const quantityDifference = newQuantity - oldQuantity;
+
+            // Determine stock update query based on quantity difference
+            const stockQuery = quantityDifference > 0
+                ? `UPDATE rep_stocks SET quantity = quantity - ? WHERE item_code = ?`
+                : `UPDATE rep_stocks SET quantity = quantity + ? WHERE item_code = ?`;
+
+            return new Promise((resolve, reject) => {
+                database.query(stockQuery, [Math.abs(quantityDifference), item.item_code], (err, result) => {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        resolve();
+                    }
+                });
+            });
+        });
+
+        // Execute stock updates in parallel
+        Promise.all(updateStockPromises)
+            .then(() => updateDealerId())
+            .catch(err => {
+                console.error("Error updating stock quantities:", err);
+                res.status(500).send("Internal Server Error");
+            });
+    }
+
+    function updateDealerId() {
+        const updateDealerIdQuery = `UPDATE rep_invoices SET dealer_id = ? WHERE invoice_id = ?`;
+        database.query(updateDealerIdQuery, [dealerId, invoiceId], (err, result) => {
+            if (err) {
+                console.error("Error updating dealer ID:", err);
+                res.status(500).send("Internal Server Error");
+                return;
+            }
+
+            updateInvoiceItems();
+        });
+    }
+
+    function updateInvoiceItems() {
+        const updateItemsPromises = updatedItems.map(item => {
+            const updateItemQuery = `UPDATE rep_invoice_items SET quantity = ?, discount = ?, price_per_item = ?, total = ? WHERE invoice_id = ? AND item_code = ?`;
+            const total = item.quantity * item.price_per_item * (1 - item.discount / 100);
+
+            return new Promise((resolve, reject) => {
+                database.query(updateItemQuery, [item.quantity, item.discount, item.price_per_item, total, invoiceId, item.item_code], (err, result) => {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        resolve(total); // Resolve with the total value
+                    }
+                });
+            });
+        });
+
+        Promise.all(updateItemsPromises)
+            .then(totals => {
+                const invoiceTotal = totals.reduce((acc, curr) => acc + curr, 0);
+                updateInvoiceTotal(invoiceTotal);
+            })
+            .catch(err => {
+                console.error("Error updating invoice items:", err);
+                res.status(500).send("Internal Server Error");
+            });
+    }
+
+    function updateInvoiceTotal(invoiceTotal) {
+        const updateTotalQuery = `UPDATE rep_invoices SET total = ? WHERE invoice_id = ?`;
+        database.query(updateTotalQuery, [invoiceTotal, invoiceId], (err, result) => {
+            if (err) {
+                console.error("Error updating invoice total:", err);
+                res.status(500).send("Internal Server Error");
+                return;
+            }
+            res.redirect('/rep-invoices');
+        });
+    }
 });
 
 
