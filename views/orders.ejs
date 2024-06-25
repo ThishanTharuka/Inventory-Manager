@@ -44,19 +44,37 @@
                 <% if (orders.length> 0) { %>
                     <% orders.forEach((order)=> { %>
                         <div class="order-card">
-                            <h3>Dealer Invoice ID: <%= order.order_id %>
-                            </h3>
-                            <p>Dealer Name: <%= order.dealer_name %>
-                            </p>
-                            <p>Date: <%= order.order_date.toLocaleDateString('en-GB') %>
-                            </p>
-                            <p>
-                                <% if (order.invoice_id) { %>
-                                    Invoice ID: <%= order.invoice_id %>
-                                    <% } else { %>
-                                        Invoice ID: Not Available
+                            <div id="card-head">
+                                <div id="order-detail">
+                                    <h3>Dealer Invoice ID: <%= order.order_id %>
+                                    </h3>
+                                    <p>Dealer Name: <%= order.dealer_name %>
+                                    </p>
+                                    <p>Date: <%= order.order_date.toLocaleDateString('en-GB') %>
+                                    </p>
+                                    <p>
+                                        <% if (order.invoice_id) { %>
+                                            Invoice ID: <%= order.invoice_id %>
+                                                <% } else { %>
+                                                    Invoice ID: Not Available
+                                                    <% } %>
+                                    </p>
+                                </div>
+                                <div id="settle-status">
+                                    <div id="status-img">
+                                        <% if (order.settlement_status === 'settled') { %>
+                                            <img src="/images/settled.svg" alt="Settled" title="Settled">
+                                        <% } else { %>
+                                            <img src="/images/pending.svg" alt="Pending" title="Pending">
                                         <% } %>
-                            </p>
+                                    </div>
+                                    <p>Amount: <%= order.settlement_amount.toLocaleString(undefined, {
+                                        minimumFractionDigits: 2, maximumFractionDigits: 2 }) %></p>
+                                    <div>
+                                        <a href="/orders/settle/<%= order.order_id %>" class="settle-btn">Settlement Status</a>
+                                    </div>
+                                </div>
+                            </div>
                             <table id="order-tbl">
                                 <thead>
                                     <tr>

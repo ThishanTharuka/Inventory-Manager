@@ -216,3 +216,24 @@ tr {
     align-items: center;
     margin: 2px;
 }
+
+.large-textarea {
+    width: 100%;
+    height: 100px; /* Adjust height as needed */
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 1rem;
+}
+
+.form-group label {
+    margin-bottom: 0.5rem;
+}
+
+#remarks {
+    width: 100%;
+    height: 100px; /* Adjust height as needed */
+}
+

@@ -492,8 +492,67 @@ router.post('/update-order', (req, res) => {
 });
 
 
+// Fetch order details for settlement
+router.get('/orders/settle/:id', (req, res) => {
+    const orderId = req.params.id;
+    const query = `
+        SELECT o.order_id, o.order_date, o.dealer_id, o.invoice_id, o.total, o.settlement_amount, o.settlement_status, o.remarks, op.item_code, op.quantity, op.price_per_item, op.discount, i.description AS item_name
+        FROM orders o
+        LEFT JOIN order_items op ON o.order_id = op.order_id
+        LEFT JOIN items i ON op.item_code = i.item_code
+        WHERE o.order_id = ?
+    `;
 
+    database.query(query, [orderId], (err, orderResults) => {
+        if (err) {
+            console.error('Error fetching order details:', err);
+            res.status(500).send('Internal Server Error');
+            return;
+        }
 
+        const order = {
+            order_id: orderResults[0].order_id,
+            order_date: orderResults[0].order_date,
+            dealer_id: orderResults[0].dealer_id,
+            invoice_id: orderResults[0].invoice_id,
+            total: orderResults[0].total,
+            settlement_amount: orderResults[0].settlement_amount,
+            settlement_status: orderResults[0].settlement_status,
+            remarks: orderResults[0].remarks,
+            items: orderResults.map(row => ({
+                item_code: row.item_code,
+                item_name: row.item_name,
+                quantity: row.quantity,
+                discount: row.discount,
+                price_per_item: row.price_per_item
+            }))
+        };
+
+        res.render('settle-order', { title: 'Settle Order', order });
+    });
+});
+
+// Handle settlement form submission
+router.post('/orders/settle/:id', (req, res) => {
+    const orderId = req.params.id;
+    const { settlement_amount, settlement_status, remarks } = req.body;
+    
+    const updateQuery = `
+        UPDATE orders
+        SET settlement_amount = ?, settlement_status = ?, remarks = ?
+        WHERE order_id = ?
+    `;
+
+    database.query(updateQuery, [settlement_amount, settlement_status, remarks, orderId], (err, result) => {
+        if (err) {
+            console.error('Error updating order:', err);
+            res.status(500).send('Internal Server Error');
+            return;
+        }
+
+        res.redirect('/orders');
+    });
+});
 
 
 module.exports = router;
