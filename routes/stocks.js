@@ -6,25 +6,50 @@ const database = require('../database');
 
 // Route to render the stocks page
 router.get('/stocks', (req, res) => {
-    // SQL query to fetch all stocks with quantities from different tables
     const combinedQuery = `
-        SELECT s.item_code, s.description, s.quantity AS stock_quantity, 
-               ms.quantity AS mathara_quantity, rs.quantity AS rep_quantity
-        FROM stocks s
-        LEFT JOIN mathara_stocks ms ON s.item_code = ms.item_code
-        LEFT JOIN rep_stocks rs ON s.item_code = rs.item_code;
+        SELECT 
+            s.item_code, 
+            s.description, 
+            s.quantity AS stock_quantity, 
+            COALESCE(ms.quantity, 0) AS mathara_quantity, 
+            COALESCE(rs.quantity, 0) AS rep_quantity,
+            COALESCE(incoming.total_quantity, 0) AS incoming_quantity,
+            COALESCE(outgoing.total_quantity, 0) AS outgoing_quantity
+        FROM 
+            stocks s
+        LEFT JOIN 
+            mathara_stocks ms ON s.item_code = ms.item_code
+        LEFT JOIN 
+            rep_stocks rs ON s.item_code = rs.item_code
+        LEFT JOIN (
+            SELECT 
+                item_code, 
+                SUM(quantity) AS total_quantity
+            FROM 
+                invoice_items
+            GROUP BY 
+                item_code
+        ) incoming ON s.item_code = incoming.item_code
+        LEFT JOIN (
+            SELECT 
+                item_code, 
+                SUM(quantity) AS total_quantity
+            FROM 
+                order_items
+            GROUP BY 
+                item_code
+        ) outgoing ON s.item_code = outgoing.item_code;
     `;
 
-    // Execute the query
     database.query(combinedQuery, (err, stocks) => {
         if (err) {
             throw err;
         }
 
-        // Render stocks page with updated stock quantities
         res.render('stocks', { title: 'Stocks', stocks });
     });
 });
+
 
 
 

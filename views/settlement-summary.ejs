@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/styles.css">
+    <link rel="stylesheet" href="/nav.css">
+    <link rel="stylesheet" href="/toggle-switch.css">
+    <title>
+        <%= title %>
+    </title>
+    <link rel="icon" href="/images/stock.svg" type="image/x-icon">
+</head>
+
+<body>
+    <%- include('./partials/nav.ejs') %>
+        <div id="top-bar">
+            <div id="page-name">
+                <p>Settlement Summary</p>
+            </div>
+        </div>
+        <main>
+            <div id="toggle-btn-container">
+                <div class="wrapper">
+                    <input type="range" name="points" onchange="filterOrders(this.value);" min="1" max="3" value="1"
+                        id="custom-toggle" class="tgl-on">
+                </div>
+                <span id="toggle-status">All Sales</span>
+            </div>
+
+            <table id="orders">
+                <thead>
+                    <tr>
+                        <th class="left-align">Order ID</th>
+                        <th class="left-align">Order Date</th>
+                        <th class="left-align">Total</th>
+                        <th class="left-align">Settlement Amount</th>
+                        <th class="left-align">Settlement Status</th>
+                        <th class="left-align">Remarks</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% orders.forEach((order)=> { %>
+                        <tr class="order-row" data-status="<%= order.settlement_status %>">
+                            <td class="left-align">
+                                <%= order.order_id %>
+                            </td>
+                            <td class="left-align">
+                                <%= order.order_date.toLocaleDateString('en-GB') %>
+                            </td>
+                            <td class="left-align">
+                                <%= order.total.toLocaleString(undefined, { minimumFractionDigits: 2,
+                                    maximumFractionDigits: 2 }) %>
+                            </td>
+                            <td class="left-align">
+                                <%= order.settlement_amount.toLocaleString(undefined, { minimumFractionDigits: 2,
+                                    maximumFractionDigits: 2 }) %>
+                            </td>
+                            <td class="left-align">
+                                <%= order.settlement_status %>
+                            </td>
+                            <td class="left-align">
+                                <%= order.remarks %>
+                            </td>
+                        </tr>
+                        <% }); %>
+                </tbody>
+            </table>
+        </main>
+
+        <script>
+            // JavaScript function to toggle orders based on status
+            function filterOrders(value) {
+                if (value === "1") {
+                    document.getElementById('toggle-status').textContent = 'All Sales';
+                    document.getElementById('custom-toggle').classList.remove('tgl-def', 'tgl-off');
+                    document.getElementById('custom-toggle').classList.add('tgl-on');
+                    document.querySelectorAll('.order-row').forEach(row => {
+                        row.style.display = '';
+                    });
+                } else if (value === "2") {
+                    document.getElementById('toggle-status').textContent = 'Settled Sales';
+                    document.getElementById('custom-toggle').classList.remove('tgl-on', 'tgl-off');
+                    document.getElementById('custom-toggle').classList.add('tgl-def');
+                    document.querySelectorAll('.order-row').forEach(row => {
+                        if (row.dataset.status !== 'settled') {
+                            row.style.display = 'none';
+                        } else {
+                            row.style.display = '';
+                        }
+                    });
+                } else if (value === "3") {
+                    document.getElementById('toggle-status').textContent = 'Pending Sales';
+                    document.getElementById('custom-toggle').classList.remove('tgl-def', 'tgl-on');
+                    document.getElementById('custom-toggle').classList.add('tgl-off');
+                    document.querySelectorAll('.order-row').forEach(row => {
+                        if (row.dataset.status !== 'pending') {
+                            row.style.display = 'none';
+                        } else {
+                            row.style.display = '';
+                        }
+                    });
+                }
+            }
+        </script>
+
+</body>
+
+</html>

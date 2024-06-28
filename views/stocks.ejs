@@ -39,12 +39,16 @@
     <main>
       <table id="shops">
         <thead>
-          <th class="left-align">No.</th>
-          <th class="left-align">Items</th>
-          <th class="left-align">Description</th>
-          <th>All Stocks</th>
-          <th>Mathara Stock</th>
-          <th>Rep's Stock</th>
+          <tr>
+            <th class="left-align">No.</th>
+            <th class="left-align">Items</th>
+            <th class="left-align">Description</th>
+            <th>All Stocks</th>
+            <th>Incoming Items</th>
+            <th>Outgoing Direct Sale Items</th>
+            <th>Mathara Stock</th>
+            <th>Rep's Stock</th>
+          </tr>
         </thead>
         <tbody>
           <% stocks.forEach((stock, index)=> { %>
@@ -62,10 +66,16 @@
                 <%= stock.stock_quantity %>
               </td>
               <td>
-                <%= stock.mathara_quantity || 0 %>
+                <%= stock.incoming_quantity %>
               </td>
               <td>
-                <%= stock.rep_quantity || 0 %>
+                <%= stock.outgoing_quantity %>
+              </td>
+              <td>
+                <%= stock.mathara_quantity %>
+              </td>
+              <td>
+                <%= stock.rep_quantity %>
               </td>
             </tr>
             <% }); %>

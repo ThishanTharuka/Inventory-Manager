@@ -57,6 +57,25 @@ router.get('/orders', (req, res) => {
 });
 
 
+router.get('/settlement-summary', (req, res) => {
+    // SQL query to fetch all orders
+    const ordersQuery = `
+        SELECT order_id, order_date, total, settlement_amount, settlement_status, remarks
+        FROM orders;
+    `;
+
+    // Execute the query
+    database.query(ordersQuery, (err, orders) => {
+        if (err) {
+            throw err;
+        }
+
+        // Render order summary page with the fetched orders
+        res.render('settlement-summary', { title: 'Settlement Summary', orders });
+    });
+});
+
+
 
 // GET route to render the 'add order' form
 router.get('/orders/add', (req, res) => {

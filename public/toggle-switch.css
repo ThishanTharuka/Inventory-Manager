@@ -1,0 +1,58 @@
+/* CSS for custom toggle switch */
+.wrapper {
+    width: 100px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    margin: 1%;
+}
+
+#custom-toggle {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100px;
+    height: 40px;
+    border: 2px solid #000000;
+    border-radius: 20px;
+    cursor: pointer;
+    outline: none;
+    transition: background-color 0.3s ease-in-out;
+}
+
+#custom-toggle::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 40px;
+    height: 40px;
+    border: 1px solid #979797;
+    border-radius: 50%;
+    background-color: #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    transition: transform 0.2s ease-in-out, background-color 0.3s ease-in-out;
+}
+
+#custom-toggle.tgl-on::-webkit-slider-thumb {
+    background-color: #33B2FF;
+}
+
+#custom-toggle.tgl-def::-webkit-slider-thumb {
+    background-color: #33FF57;
+}
+
+#custom-toggle.tgl-off::-webkit-slider-thumb {
+    background-color: #FFBD33;
+}
+
+#toggle-btn-container {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    margin-top: auto;
+    align-items: center;
+}
+
+#toggle-status {
+    font-family: "Montserrat", sans-serif;
+    font-weight: 500;
+    font-size: 20px;
+}
