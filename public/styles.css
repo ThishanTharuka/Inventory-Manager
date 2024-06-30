@@ -468,6 +468,16 @@ button {
   padding-left: 2rem
 }
 
+.center-align {
+  text-align: center;
+}
+
+.right-align {
+  text-align: right;
+  padding-right: 2rem
+}
+
+
 #compare-btn {
   font-family: "Montserrat", sans-serif;
   font-weight: 550;

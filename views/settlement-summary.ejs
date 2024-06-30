@@ -32,32 +32,32 @@
             <table id="orders">
                 <thead>
                     <tr>
-                        <th class="left-align">Order ID</th>
-                        <th class="left-align">Order Date</th>
-                        <th class="left-align">Total</th>
-                        <th class="left-align">Settlement Amount</th>
-                        <th class="left-align">Settlement Status</th>
-                        <th class="left-align">Remarks</th>
+                        <th class="center-align">Order ID</th>
+                        <th class="center-align">Order Date</th>
+                        <th class="center-align">Total</th>
+                        <th class="center-align">Settlement Amount</th>
+                        <th class="center-align">Settlement Status</th>
+                        <th class="center-align">Remarks</th>
                     </tr>
                 </thead>
                 <tbody>
                     <% orders.forEach((order)=> { %>
                         <tr class="order-row" data-status="<%= order.settlement_status %>">
-                            <td class="left-align">
+                            <td class="center-align">
                                 <%= order.order_id %>
                             </td>
-                            <td class="left-align">
+                            <td class="center-align">
                                 <%= order.order_date.toLocaleDateString('en-GB') %>
                             </td>
-                            <td class="left-align">
+                            <td class="right-align">
                                 <%= order.total.toLocaleString(undefined, { minimumFractionDigits: 2,
                                     maximumFractionDigits: 2 }) %>
                             </td>
-                            <td class="left-align">
+                            <td class="right-align">
                                 <%= order.settlement_amount.toLocaleString(undefined, { minimumFractionDigits: 2,
                                     maximumFractionDigits: 2 }) %>
                             </td>
-                            <td class="left-align">
+                            <td class="center-align">
                                 <%= order.settlement_status %>
                             </td>
                             <td class="left-align">
