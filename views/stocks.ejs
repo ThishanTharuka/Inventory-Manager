@@ -43,11 +43,11 @@
             <th class="left-align">No.</th>
             <th class="left-align">Items</th>
             <th class="left-align">Description</th>
-            <th>All Stocks</th>
-            <th>Incoming Items</th>
-            <th>Outgoing Direct Sale Items</th>
+            <th>Purchased Items</th>
+            <th>Remaining Stocks</th>
             <th>Mathara Stock</th>
             <th>Rep's Stock</th>
+            <th>Sold Items</th>
           </tr>
         </thead>
         <tbody>
@@ -63,19 +63,19 @@
                 <%= stock.description %>
               </td>
               <td>
-                <%= stock.stock_quantity %>
-              </td>
-              <td>
                 <%= stock.incoming_quantity %>
               </td>
               <td>
-                <%= stock.outgoing_quantity %>
+                <%= stock.stock_quantity %>
               </td>
               <td>
                 <%= stock.mathara_quantity %>
               </td>
               <td>
                 <%= stock.rep_quantity %>
+              </td>
+              <td>
+                <%= stock.total_sold_quantity %>
               </td>
             </tr>
             <% }); %>

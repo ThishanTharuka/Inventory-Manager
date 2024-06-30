@@ -4,7 +4,6 @@ const async = require('async');
 const database = require('../database');
 
 
-// Route to render the stocks page
 router.get('/stocks', (req, res) => {
     const combinedQuery = `
         SELECT 
@@ -14,7 +13,7 @@ router.get('/stocks', (req, res) => {
             COALESCE(ms.quantity, 0) AS mathara_quantity, 
             COALESCE(rs.quantity, 0) AS rep_quantity,
             COALESCE(incoming.total_quantity, 0) AS incoming_quantity,
-            COALESCE(outgoing.total_quantity, 0) AS outgoing_quantity
+            COALESCE(direct_sale.total_quantity, 0) + COALESCE(rep_sale.total_quantity, 0) AS total_sold_quantity
         FROM 
             stocks s
         LEFT JOIN 
@@ -38,7 +37,16 @@ router.get('/stocks', (req, res) => {
                 order_items
             GROUP BY 
                 item_code
-        ) outgoing ON s.item_code = outgoing.item_code;
+        ) direct_sale ON s.item_code = direct_sale.item_code
+        LEFT JOIN (
+            SELECT 
+                item_code, 
+                SUM(quantity) AS total_quantity
+            FROM 
+                rep_invoice_items
+            GROUP BY 
+                item_code
+        ) rep_sale ON s.item_code = rep_sale.item_code;
     `;
 
     database.query(combinedQuery, (err, stocks) => {
@@ -49,6 +57,7 @@ router.get('/stocks', (req, res) => {
         res.render('stocks', { title: 'Stocks', stocks });
     });
 });
+
 
 
 
