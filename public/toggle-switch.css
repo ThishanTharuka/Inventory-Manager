@@ -32,15 +32,15 @@
 }
 
 #custom-toggle.tgl-on::-webkit-slider-thumb {
-    background-color: #33B2FF;
+    background-color: #0b71df;
 }
 
 #custom-toggle.tgl-def::-webkit-slider-thumb {
-    background-color: #33FF57;
+    background-color: #20b759;
 }
 
 #custom-toggle.tgl-off::-webkit-slider-thumb {
-    background-color: #FFBD33;
+    background-color: #ffc600;
 }
 
 #toggle-btn-container {
