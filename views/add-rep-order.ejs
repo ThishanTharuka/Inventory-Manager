@@ -43,7 +43,7 @@
                 </div>
                 <div id="item-name">
                     <label for="Description">Item Name</label>
-                    <select name="descriptions[]" onchange="syncItemDetails(this, 'name')" required>
+                    <select name="descriptions[]" onchange="syncItemDetails(this, 'name')" >
                         ${items.map(item => `<option value="${item.description}">${item.description}</option>`).join('')}
                     </select>
                 </div>
