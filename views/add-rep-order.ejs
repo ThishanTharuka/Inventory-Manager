@@ -34,31 +34,31 @@
         function addItem() {
             const itemsContainer = document.getElementById('items-container');
             const newItemField = `
-            <div class="item-field">
-                <div>
-                    <label for="Item">Item Code</label>
-                    <select name="item_codes[]" onchange="syncItemDetails(this, 'code')" required>
-                        ${items.map(item => `<option value="${item.item_code}">${item.item_code}</option>`).join('')}
-                    </select>
+                <div class="item-field">
+                    <div>
+                        <label for="Item">Item Code</label>
+                        <select name="item_codes[]" onchange="syncItemDetails(this, 'code')" required>
+                            ${items.map(item => `<option value="${item.item_code}">${escapeHtml(item.item_code)}</option>`).join('')}
+                        </select>
+                    </div>
+                    <div id="item-name">
+                        <label for="Description">Item Name</label>
+                        <select name="descriptions[]" onchange="syncItemDetails(this, 'name')" required>
+                            ${items.map(item => `<option value="${escapeHtml(item.description)}">${escapeHtml(item.description)}</option>`).join('')}
+                        </select>
+                    </div>
+                    <div>
+                        <label for="Price">Unit Price</label>
+                        <input type="number" step="0.01" name="prices[]" required readonly oninput="updateTotal(this)">
+                    </div>
+                    <div>
+                        <label for="quantity">Quantity</label>
+                        <input type="number" name="quantities[]" required>
+                    </div>
+                    <div>
+                        <button type="button" onclick="removeItem(this)">Remove</button>
+                    </div>
                 </div>
-                <div id="item-name">
-                    <label for="Description">Item Name</label>
-                    <select name="descriptions[]" onchange="syncItemDetails(this, 'name')" >
-                        ${items.map(item => `<option value="${item.description}">${item.description}</option>`).join('')}
-                    </select>
-                </div>
-                <div>
-                    <label for="Price">Unit Price</label>
-                    <input type="number" step="0.01" name="prices[]" required readonly oninput="updateTotal(this)">
-                </div>
-                <div>
-                    <label for="quantity">Quantity</label>
-                    <input type="number" name="quantities[]" required>
-                </div>
-                <div>
-                    <button type="button" onclick="removeItem(this)">Remove</button>
-                </div>
-            </div>
             `;
             itemsContainer.insertAdjacentHTML('beforeend', newItemField);
         }
@@ -86,13 +86,13 @@
             }
         }
 
-        function showErrorModal(message) {
-            const isConfirmed = confirm(message);
-            if (isConfirmed) {
-                // Handle confirmation
-            } else {
-                // Handle rejection
-            }
+        function escapeHtml(text) {
+            return text
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
         }
     </script>
 </body>
