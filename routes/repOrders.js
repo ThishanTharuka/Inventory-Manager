@@ -76,7 +76,7 @@ router.get('/rep-orders/add', (req, res) => {
 
 // Handle the form submission to add a new rep order
 router.post('/rep-orders/add', (req, res) => {
-    const { order_date, item_codes, descriptions, quantities } = req.body;
+    const { order_date, item_codes, quantities } = req.body;
 
     // Generate a unique order ID using the current timestamp
     const order_id = `${Date.now()}`;
@@ -84,7 +84,6 @@ router.post('/rep-orders/add', (req, res) => {
     // Calculate total for each item and overall order total
     const items = item_codes.map((code, index) => ({
         item_code: code,
-        description: descriptions[index],
         quantity: parseInt(quantities[index], 10)
     }));
 
