@@ -20,7 +20,7 @@ app.use(cookieParser('SecretStringForCookies'));
 
 // configure express-session middleware
 app.use(session({
-    secret: 'QWERtyui1234', // Replace with a strong, random string
+    secret: process.env.SESSION_SECRET,
     cookie: {maxAge: 6000},
     resave: false,
     saveUninitialized: false,
