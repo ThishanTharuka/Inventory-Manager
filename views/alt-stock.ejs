@@ -49,6 +49,7 @@
           <th class="left-align">Items</th>
           <th class="left-align">Description</th>
           <th class="right-align">Mathara Stock</th>
+          <th class="right-align">Remaining Stock</th>
           <th class="right-align">Rep's Inventory</th>
           <th class="right-align">Rep's Sales</th>
           <!-- <th>Actions</th> -->
@@ -64,6 +65,9 @@
               </td>
               <td class="left-align">
                 <%= altStock.description %>
+              </td>
+              <td class="right-align">
+                <%= altStock.mathara_incoming_quantity %>
               </td>
               <td class="right-align">
                 <%= altStock.mathara_quantity %>
