@@ -3,7 +3,7 @@
 ### Inventory Manager to manage items, stocks, invoices and orders for Hebima Plus (PVT) LTD.
 #### Still in development
 
-![image](https://github.com/ThishanTharuka/Inventory-Manager/assets/98091563/66b20b8f-aae6-4f07-a4b6-44c825990bf2)
+![image](https://github.com/user-attachments/assets/0c9ac6ec-ad69-42d5-9331-c6d00199c4ba)
 <p align="center" >Home Page</p>
 
 
