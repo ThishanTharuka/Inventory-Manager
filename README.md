@@ -3,7 +3,7 @@
 ### Inventory Manager to manage items, stocks, invoices and orders for Hebima Plus (PVT) LTD.
 #### Still in development
 
-![image](https://github.com/ThishanTharuka/Inventory-Manager/assets/98091563/66b20b8f-aae6-4f07-a4b6-44c825990bf2)
+![image](https://github.com/user-attachments/assets/0c9ac6ec-ad69-42d5-9331-c6d00199c4ba)
 <p align="center" >Home Page</p>
 
 
@@ -32,7 +32,7 @@ Run the following command to install the dependencies specified in the package.j
 npm install
 ```
 ### Create a database like this and link
-![image](https://github.com/ThishanTharuka/Inventory-Manager/assets/98091563/f68b10ff-1662-47ea-a327-dd9e8701a1c0)
+![image](https://github.com/user-attachments/assets/ef9a9b14-b08b-4493-a081-072c35cc5f68)
 
 ### Execute the following command to start the Node.js application:
 ```
