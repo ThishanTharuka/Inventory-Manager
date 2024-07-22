@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/rep.css">
+    <link rel="stylesheet" href="/css/nav.css">
+    <title>
+        <%= title %>
+    </title>
+    <link rel="icon" href="/images/rep.svg" type="image/x-icon">
+</head>
+
+<body>
+    <!-- Include the navigation partial -->
+    <%- include('./partials/nav.ejs') %>
+        <main>
+            <div class="rep-container">
+                <div class="card">
+                    <div class="icon"><img src="/images/issued-to-rep.svg" alt="Rep Issues"></div>
+                    <h3>REP ORDERS</h3>
+                    <p>Items issued to Rep</p>
+                    <div class="menu">
+                        <a href="/rep-orders">VIEW ORDERS</a>
+                        <a href="/rep-orders/add">ADD ORDER</a>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="icon"><img src="/images/rep-sold.svg" alt="Rep Sales"></div>
+                    <h3>REP SALES</h3>
+                    <p>Sales made by Rep</p>
+                    <div class="menu">
+                        <a href="/rep-invoices">VIEW SALES</a>
+                        <a href="/rep-invoices/add">ADD SALE</a>
+                    </div>
+                </div>
+            </div>
+        </main>
+</body>
+
+</html>

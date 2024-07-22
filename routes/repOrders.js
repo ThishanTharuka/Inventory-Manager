@@ -3,6 +3,11 @@ const router = express.Router();
 const database = require('../database');
 const { reject } = require('async');
 
+// render Rep Handle page
+router.get('/rep-handle', (req, res) => {
+    res.render('rep-handle', { title: 'Rep Handle' });
+});
+
 // Get all Rep's orders
 router.get('/rep-orders', (req, res) => {
     const { search } = req.query;

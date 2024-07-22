@@ -4,7 +4,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/css/nav.css">
     <link rel="stylesheet" href="/css/index.css">
     <link rel="stylesheet" href="/css/footer.css">
     <title>
@@ -21,11 +20,69 @@
         </nav>
     </header>
     <main>
-        <div id="content">
-            <a href="/items"><img src="/images/items.svg" alt="Items Icon"></a>
-            <a href="/stocks"><img src="/images/stocks.svg" alt="Items Icon"></a>
-            <a href="/orders"><img src="/images/orders.svg" alt="Items Icon"></a>
-            <a href="/shops"><img src="/images/dealers.svg" alt="Items Icon"></a>
+        <div class="card-container">
+            <div class="card">
+                <div class="icon"><img src="/images/icon items.png" alt="Items"></div>
+                <p>ITEMS</p>
+                <div class="menu">
+                    <a href="/items">VIEW ITEMS</a>
+                    <a href="/items/add">ADD ITEMS</a>
+                </div>
+            </div>
+            <div class="card">
+                <div class="icon"><img src="/images/icon dealers.png" alt="Dealers"></div>
+                <p>DEALERS</p>
+                <div class="menu">
+                    <a href="/shops">VIEW DEALERS</a>
+                    <a href="/shops/add">ADD DEALERS</a>
+                </div>
+            </div>
+            <div class="card">
+                <div class="icon"><img src="/images/icon purchases.png" alt="Purchases"></div>
+                <p>PURCHASES</p>
+                <div class="menu">
+                    <a href="/stocks/add">ADD PURCHASE INVOICES</a>
+                    <a href="/invoices">EDIT PURCHASE INVOICES</a>
+                    <a href="#">SETTLEMENTS OF PURCHASING</a>
+                </div>
+            </div>
+            <div class="card">
+                <div class="icon"><img src="/images/icon sales.png" alt="Sales"></div>
+                <p>SALES</p>
+                <div class="menu">
+                    <div class="submenu">
+                        <h2>ADD SALE INVOICES</h2>
+                        <a href="/orders/add">DIRECT DEALER SALES</a>
+                        <a href="/orders">STOCK SALES</a>
+                        <a href="/rep-handle">REP SALES</a>
+                    </div>
+                    <a href="/orders">EDIT SALE INVOICES</a>
+                </div>
+            </div>
+            <div class="report-card">
+                <div class="icon"><img src="/images/icon reports.png" alt="Reports"></div>
+                <p>REPORTS</p>
+                <div class="report-menu">
+                    <div class="report-submenu">
+                        <h2>STOCK REPORTS</h2>
+                        <a href="/stocks">TOTAL STOCK</a>
+                        <a href="/alt-stock">MATHARA STOCK</a>
+                        <a href="/rep-stock">REP'S STOCK</a>
+                    </div>
+                    <div class="report-submenu">
+                        <h2>SALES REPORTS</h2>
+                        <a href="/orders">SALES RECORD</a>
+                        <a href="/settlement-summary">SETTLED RECORDS</a>
+                        <a href="/compare-orders">SALE COMPARISON</a>
+                        <a href="/comparison-summary">SALE COMPARISON SUMMARY</a>
+                    </div>
+                    <div class="report-submenu">
+                        <h2>PURCHASE REPORTS</h2>
+                        <a href="/invoice-summary">PURCHASE INVOICE SUMMARY</a>
+                        <a href="/invoices">PURCHASE INVOICE DETAILS</a>
+                    </div>
+                </div>
+            </div>
         </div>
     </main>
 </body>
