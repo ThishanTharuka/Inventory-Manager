@@ -1,58 +1,115 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="/css/styles.css"> <!-- Create a shops.css file for styling -->
     <link rel="stylesheet" href="/css/nav.css">
-    <title>
-        <%= title %>
-    </title>
+    <link rel="stylesheet" href="/css/compare.css">
+    <title><%= title %></title>
     <link rel="icon" href="/images/stock.svg" type="image/x-icon">
 </head>
-
 <body>
     <!-- Include the navigation partial -->
     <%- include('./partials/nav.ejs') %>
-        <div id="top-bar">
-            <div id="page-name">
-                <p>Invoice Summary</p>
-            </div>
+    <div id="top-bar">
+        <div id="page-name">
+            <p>Invoice Summary</p>
         </div>
-        <main>
-            <table id="invoices">
-                <thead>
-                    <th class="left-align">No.</th>
-                    <th>Invoice ID</th>
-                    <th>Invoice Date</th>
-                    <th>Stock Type</th>
-                    <th>Total Amount</th>
-                </thead>
-                <tbody>
-                    <% invoices.forEach((invoice, index)=> { %>
-                        <tr>
-                            <td class="left-align">
-                                <%= index + 1 %>
-                            </td>
-                            <td>
-                                <%= invoice.invoice_id %>
-                            </td>
-                            <td>
-                                <%= invoice.invoice_date.toLocaleDateString() %>
-                            </td>
-                            <td>
-                                <%= invoice.stock_type %>
-                            </td>
-                            <td>
-                                <%= invoice.total.toLocaleString(undefined, { minimumFractionDigits: 2,
-                                    maximumFractionDigits: 2 }) %>
-                            </td>
-                        </tr>
-                        <% }); %>
-                </tbody>
-            </table>
-        </main>
-</body>
+    </div>
+    <main>
+        <table id="invoices">
+            <thead>
+                <tr>
+                    <th class="sortable" data-sort="index">No.
+                        <img src="/images/sort-asc.svg" class="sort-icon asc" alt="Ascending">
+                        <img src="/images/sort-desc.svg" class="sort-icon desc" alt="Descending">
+                    </th>
+                    <th class="sortable" data-sort="invoice_id">Invoice ID
+                        <img src="/images/sort-asc.svg" class="sort-icon asc" alt="Ascending">
+                        <img src="/images/sort-desc.svg" class="sort-icon desc" alt="Descending">
+                    </th>
+                    <th class="sortable" data-sort="invoice_date">Invoice Date
+                        <img src="/images/sort-asc.svg" class="sort-icon asc" alt="Ascending">
+                        <img src="/images/sort-desc.svg" class="sort-icon desc" alt="Descending">
+                    </th>
+                    <th class="sortable" data-sort="stock_type">Stock Type
+                        <img src="/images/sort-asc.svg" class="sort-icon asc" alt="Ascending">
+                        <img src="/images/sort-desc.svg" class="sort-icon desc" alt="Descending">
+                    </th>
+                    <th class="sortable" data-sort="dealer_name">Dealer Name
+                        <img src="/images/sort-asc.svg" class="sort-icon asc" alt="Ascending">
+                        <img src="/images/sort-desc.svg" class="sort-icon desc" alt="Descending">
+                    </th>
+                    <th class="sortable" data-sort="total">Total Amount
+                        <img src="/images/sort-asc.svg" class="sort-icon asc" alt="Ascending">
+                        <img src="/images/sort-desc.svg" class="sort-icon desc" alt="Descending">
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <% invoices.forEach((invoice, index) => { %>
+                    <tr>
+                        <td data-index="<%= index + 1 %>"><%= index + 1 %></td>
+                        <td data-invoice_id="<%= invoice.invoice_id %>"><%= invoice.invoice_id %></td>
+                        <td data-invoice_date="<%= new Date(invoice.invoice_date).toLocaleDateString('en-GB') %>">
+                            <%= new Date(invoice.invoice_date).toLocaleDateString('en-GB') %></td>
+                        <td data-stock_type="<%= invoice.stock_type %>"><%= invoice.stock_type %></td>
+                        <td data-dealer_name="<%= invoice.dealer_name ? invoice.dealer_name : 'No Dealer Mentioned' %>">
+                            <%= invoice.dealer_name ? invoice.dealer_name : 'No Dealer Mentioned' %></td>
+                        <td data-total="<%= invoice.total %>">
+                            <%= invoice.total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) %>
+                        </td>
+                    </tr>
+                <% }) %>
+            </tbody>
+        </table>
+    </main>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const table = document.getElementById('invoices');
+            const headers = table.querySelectorAll('.sortable');
+            let sortDirection = 1;
 
+            headers.forEach(header => {
+                header.addEventListener('click', () => {
+                    const sortAttribute = header.getAttribute('data-sort');
+                    const rows = Array.from(table.querySelector('tbody').rows);
+                    const isNumeric = ['index', 'total'].includes(sortAttribute);
+
+                    // Determine the current sort direction and update it
+                    const currentDirection = header.classList.contains('asc') ? 'asc' : (header.classList.contains('desc') ? 'desc' : '');
+                    headers.forEach(h => {
+                        h.classList.remove('asc', 'desc');
+                        h.querySelector('.sort-icon.asc').style.display = 'none';
+                        h.querySelector('.sort-icon.desc').style.display = 'none';
+                    });
+
+                    if (currentDirection === 'asc') {
+                        sortDirection = -1;
+                        header.classList.add('desc');
+                        header.querySelector('.sort-icon.desc').style.display = 'block';
+                    } else {
+                        sortDirection = 1;
+                        header.classList.add('asc');
+                        header.querySelector('.sort-icon.asc').style.display = 'block';
+                    }
+
+                    rows.sort((rowA, rowB) => {
+                        const cellA = rowA.querySelector(`td[data-${sortAttribute}]`).dataset[sortAttribute];
+                        const cellB = rowB.querySelector(`td[data-${sortAttribute}]`).dataset[sortAttribute];
+
+                        if (isNumeric) {
+                            return sortDirection * (parseFloat(cellA) - parseFloat(cellB));
+                        } else {
+                            return sortDirection * cellA.localeCompare(cellB);
+                        }
+                    });
+
+                    rows.forEach(row => table.querySelector('tbody').appendChild(row));
+                });
+            });
+        });
+    </script>
+</body>
 </html>

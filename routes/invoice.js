@@ -11,6 +11,7 @@ router.get('/invoices', (req, res) => {
                             i.invoice_date, 
                             i.total,
                             i.stock_type,
+                            i.dealer_name,
                             ii.item_code, 
                             ii.quantity, 
                             ii.price_per_item, 
@@ -46,6 +47,7 @@ router.get('/invoices', (req, res) => {
                     invoice_id: row.invoice_id,
                     invoice_date: row.invoice_date,
                     stock_type: row.stock_type,
+                    dealer_name: row.dealer_name,
                     total: row.total,
                     items: []
                 };

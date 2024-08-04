@@ -22,6 +22,9 @@
             <div>
                 <a href="/rep-invoices" id="invoice-btn">Rep's Invoices</a>
             </div>
+            <div class="summary-btn">
+                <a href="/invoice-summary" id="invoice-btn">Invoice Summary</a>
+              </div>
             <div id="add-new">
                 <!-- Add New Invoice button -->
                 <a href="/stocks/add" id="add-new-btn">Add New</a>
@@ -44,6 +47,9 @@
                             </p>
                             <p>
                                 Stock Type: <%= invoice.stock_type %>
+                            </p>
+                            <p>
+                                Dealer Name: <%= invoice.dealer_name ? invoice.dealer_name : "No Dealer Mentioned" %>
                             </p>
                             <table id="invoice-tbl">
                                 <thead>

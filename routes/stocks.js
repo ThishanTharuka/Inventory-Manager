@@ -62,10 +62,11 @@ router.get('/stocks', (req, res) => {
 
 
 
-// Route to render the add stocks page
+// Route to render the add invoice page
 router.get('/stocks/add', (req, res) => {
     // SQL query to fetch all items
     const itemsQuery = 'SELECT * FROM items';
+    const dealerQuery = 'SELECT * FROM dealers';
 
     // Execute the query to fetch items
     database.query(itemsQuery, (err, items) => {
@@ -73,9 +74,15 @@ router.get('/stocks/add', (req, res) => {
             console.error('Error fetching items:', err);
             return res.status(500).send('Internal Server Error');
         }
-
-        // Render the add-invoice page with fetched items
-        res.render('add-invoice', { title: 'Add Stock', items });
+        // Execute the query to fetch dealers
+        database.query(dealerQuery, (err, dealers) => {
+            if (err) {
+                console.error('Error fetching dealers:', err);
+                return res.status(500).send('Internal Server Error');
+            }
+            // Render the add-invoice page with fetched items
+            res.render('add-invoice', { title: 'Add Stock', items, dealers });
+        });
     });
 });
 
@@ -85,6 +92,7 @@ router.post('/add-invoice', (req, res) => {
     // Extract data from the request body
     const invoiceId = req.body.invoice_id;
     const date = req.body.date;
+    const dealerName = req.body.dealer_name;
     const itemCodes = req.body.item_codes;
     const quantities = req.body.quantities;
     const isMatharaStock = req.body.mathara_stock === 'on'; // Check if Mathara stock is selected
@@ -144,10 +152,10 @@ router.post('/add-invoice', (req, res) => {
                     }
 
                     // SQL query to insert new invoice into invoices table
-                    const queryInsertInvoice = `INSERT INTO invoices (invoice_id, invoice_date, total, stock_type) VALUES (?, ?, ?, ?)`;
+                    const queryInsertInvoice = `INSERT INTO invoices (invoice_id, invoice_date, total, stock_type, dealer_name) VALUES (?, ?, ?, ?, ?)`;
 
                     // Execute the query to insert new invoice
-                    database.query(queryInsertInvoice, [invoiceId, date, totalExtension, stockType], (err, result) => {
+                    database.query(queryInsertInvoice, [invoiceId, date, totalExtension, stockType, dealerName], (err, result) => {
                         if (err) {
                             console.error('Error inserting invoice:', err);
                             // Rollback the transaction

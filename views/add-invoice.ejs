@@ -15,36 +15,46 @@
 <body>
     <!-- Include the navigation partial -->
     <%- include('./partials/nav.ejs') %>
-        <div id="container">
-            <form action="/add-invoice" method="post">
-                <div id="input-fields">
-                    <label for="Invoice">Invoice ID</label>
-                    <input type="number" id="invoice_id" name="invoice_id" required>
-                </div>
-                <div id="input-fields">
-                    <label for="mathara_stock">Mathara Stock</label>
-                    <input type="checkbox" id="mathara_stock" name="mathara_stock">
-                </div>
-                <div id="items-container">
-                    <!-- Container to hold dynamically added items -->
-                </div>
-                <div id="add-item-btn">
-                    <button type="button" onclick="addItem()">Add Item</button>
-                </div>
-                <div id="input-fields">
-                    <label for="Date">Date</label>
-                    <input type="date" id="date" name="date" required>
-                </div>
-                <div id="add-item-btn">
-                    <button type="submit">Add Invoice</button>
-                </div>
-            </form>
-        </div>
-        <script>
-            // JavaScript function to add a new item input field
-            function addItem() {
-                const itemsContainer = document.getElementById('items-container');
-                const newItemField = `
+    <div id="container">
+        <form action="/add-invoice" method="post">
+            <div id="input-fields">
+                <label for="Invoice">Invoice ID</label>
+                <input type="number" id="invoice_id" name="invoice_id" required>
+            </div>
+            <div id="input-fields">
+                <label for="mathara_stock">Mathara Stock</label>
+                <input type="checkbox" id="mathara_stock" name="mathara_stock">
+            </div>
+            <div id="input-fields">
+                <label for="Dealer">Dealer Name</label>
+                <select id="dealer_name" name="dealer_name" required onchange="checkMatharaStock()">
+                    <% dealers.forEach(dealer => { %>
+                        <option value="<%= dealer.shop_name %>">
+                            <%= dealer.shop_name %>
+                        </option>
+                    <% }); %>
+                </select>
+            </div>
+            <div id="items-container">
+                <!-- Container to hold dynamically added items -->
+            </div>
+            <div id="add-item-btn">
+                <button type="button" onclick="addItem()">Add Item</button>
+            </div>
+            <div id="input-fields">
+                <label for="Date">Date</label>
+                <input type="date" id="date" name="date" required>
+            </div>
+            <div id="add-item-btn">
+                <button type="submit">Add Invoice</button>
+            </div>
+        </form>
+    </div>
+    <script>
+        // JavaScript function to add a new item input field
+        function addItem() {
+            const itemsContainer = document.getElementById('items-container');
+            const newItemField = `
                 <div class="item-field">
                     <div>
                         <label for="Item">Item Code</label>
@@ -67,29 +77,43 @@
                     </div>
                 </div>
             `;
-                itemsContainer.insertAdjacentHTML('beforeend', newItemField);
-            }
+            itemsContainer.insertAdjacentHTML('beforeend', newItemField);
+        }
 
-            // JavaScript function to remove an item input field
-            function removeItem(button) {
-                const itemField = button.closest('.item-field');
-                itemField.remove();
-            }
+        // JavaScript function to remove an item input field
+        function removeItem(button) {
+            const itemField = button.closest('.item-field');
+            itemField.remove();
+        }
 
-            // JavaScript function to fetch the item name and price based on the selected item code 
-            function fetchItemName(selectElement) {
-                const itemCode = selectElement.value;
-                const itemField = selectElement.closest('.item-field');
-                const itemNameInput = itemField.querySelector('.item-name');
-                fetch(`/items/${itemCode}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        console.log('Received data:', data); // Log received data
-                        itemNameInput.value = data.description;
-                    })
-                    .catch(error => console.error('Error fetching item details:', error));
+        // JavaScript function to fetch the item name and price based on the selected item code 
+        function fetchItemName(selectElement) {
+            const itemCode = selectElement.value;
+            const itemField = selectElement.closest('.item-field');
+            const itemNameInput = itemField.querySelector('.item-name');
+            fetch(`/items/${itemCode}`)
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Received data:', data); // Log received data
+                    itemNameInput.value = data.description;
+                })
+                .catch(error => console.error('Error fetching item details:', error));
+        }
+
+        // JavaScript function to check if the dealer name is "Mathara Stock" and tick the checkbox
+        function checkMatharaStock() {
+            const dealerName = document.getElementById('dealer_name').value;
+            const matharaStockCheckbox = document.getElementById('mathara_stock');
+            if (dealerName === "Mathara Stock") {
+                matharaStockCheckbox.checked = true;
+            } else {
+                matharaStockCheckbox.checked = false;
             }
-        </script>
+        }
+
+        // Call checkMatharaStock on page load to ensure the checkbox state is correct
+        document.addEventListener('DOMContentLoaded', checkMatharaStock);
+    </script>
 </body>
 
 </html>
