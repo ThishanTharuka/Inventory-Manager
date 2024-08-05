@@ -165,107 +165,168 @@ router.post('/add-order', (req, res) => {
         // Get the shop_id from the dealerResult
         const dealer_id = dealerResult[0].shop_id;
 
-        // Insert order details into the orders table
-        const orderQuery = 'INSERT INTO orders (order_id, order_date, dealer_id, invoice_id) VALUES (?, ?, ?, ?)';
-        database.query(orderQuery, [order_id, date, dealer_id, invoice_id], (err, result) => {
-            if (err) {
-                console.error('Error adding order:', err);
-                res.status(500).json({ error: 'Internal server error' });
-                return;
-            }
-
-            // Calculate total for the order
-            let orderTotal = 0;
-
-            // Handle inserting invoice items if invoice_id is provided
-            if (invoice_id) {
-                // Construct an array to hold the data for each item from the invoice
-                const invoiceItemsData = [];
-                for (let i = 0; i < invoice_item_codes.length; i++) {
-                    const item_code = invoice_item_codes[i];
-                    const price = invoice_prices[i];
-                    const quantity = invoice_quantities[i];
-                    const discount = invoice_discounts[i];
-
-                    // Calculate the total for the item
-                    const total = price * quantity * (1 - discount / 100); // Apply discount
-                    orderTotal += total; // Add to order total
-
-                    // Push item data to the array
-                    invoiceItemsData.push([order_id, item_code, price, quantity, discount, total]);
-
-                    // Update stock quantities for each item
-                    const updateStockQuery = 'UPDATE stocks SET quantity = quantity - ? WHERE item_code = ?';
-                    database.query(updateStockQuery, [quantity, item_code], (err, result) => {
-                        if (err) {
-                            console.error('Error updating stock quantities:', err);
-                            // You might want to handle this error in some way
-                        }
-                    });
-                }
-
-                // Construct the SQL query with multiple value sets for invoice items
-                const invoiceItemsQuery = 'INSERT INTO order_items (order_id, item_code, price_per_item, quantity, discount, total) VALUES ?';
-                database.query(invoiceItemsQuery, [invoiceItemsData], (err, result) => {
+        // Check stock availability for invoice items
+        const stockCheckPromises = (invoice_id ? invoice_item_codes : []).map((item_code, index) => {
+            return new Promise((resolve, reject) => {
+                const checkStockQuery = 'SELECT quantity FROM stocks WHERE item_code = ?';
+                database.query(checkStockQuery, [item_code], (err, result) => {
                     if (err) {
-                        console.error('Error adding invoice items to order:', err);
-                        res.status(500).json({ error: 'Internal server error' });
+                        reject(err);
                         return;
                     }
-                });
-            }
-
-            // Handle inserting additional items
-            if (item_codes && item_codes.length > 0) {
-                // Construct an array to hold the data for each additional item
-                const additionalItemsData = [];
-                for (let i = 0; i < item_codes.length; i++) {
-                    const item_code = item_codes[i];
-                    const price = prices[i];
-                    const quantity = quantities[i];
-                    const discount = discounts[i];
-
-                    // Calculate the total for the item
-                    const total = price * quantity * (1 - discount / 100); // Apply discount
-                    orderTotal += total; // Add to order total
-
-                    // Push item data to the array
-                    additionalItemsData.push([order_id, item_code, price, quantity, discount, total]);
-
-                    // Update stock quantities for each additional item
-                    const updateStockQuery = 'UPDATE stocks SET quantity = quantity - ? WHERE item_code = ?';
-                    database.query(updateStockQuery, [quantity, item_code], (err, result) => {
-                        if (err) {
-                            console.error('Error updating stock quantities:', err);
-                            // You might want to handle this error in some way
-                        }
-                    });
-                }
-
-                // Construct the SQL query with multiple value sets for additional items
-                const additionalItemsQuery = 'INSERT INTO order_items (order_id, item_code, price_per_item, quantity, discount, total) VALUES ?';
-                database.query(additionalItemsQuery, [additionalItemsData], (err, result) => {
-                    if (err) {
-                        console.error('Error adding additional items to order:', err);
-                        res.status(500).json({ error: 'Internal server error' });
-                        return;
+                    const availableQuantity = result[0]?.quantity || 0;
+                    const requestedQuantity = invoice_quantities[index];
+                    if (availableQuantity < requestedQuantity) {
+                        reject(new Error(`Insufficient stock for item code ${item_code}`));
+                    } else {
+                        resolve();
                     }
                 });
-            }
-
-            // Update the total for the order in the orders table
-            const updateOrderTotalQuery = 'UPDATE orders SET total = ? WHERE order_id = ?';
-            database.query(updateOrderTotalQuery, [orderTotal, order_id], (err, result) => {
-                if (err) {
-                    console.error('Error updating order total:', err);
-                    res.status(500).json({ error: 'Internal server error' });
-                    return;
-                }
             });
-
-            // Redirect to the orders page after successfully adding the order
-            res.redirect('/orders');
         });
+
+        // Check stock availability for additional items
+        const additionalStockCheckPromises = item_codes.map((item_code, index) => {
+            return new Promise((resolve, reject) => {
+                const checkStockQuery = 'SELECT quantity FROM rep_stocks WHERE item_code = ?';
+                database.query(checkStockQuery, [item_code], (err, result) => {
+                    if (err) {
+                        reject(err);
+                        return;
+                    }
+                    const availableQuantity = result[0]?.quantity || 0;
+                    const requestedQuantity = quantities[index];
+                    if (availableQuantity < requestedQuantity) {
+                        reject(new Error(`Insufficient stock for item code ${item_code}`));
+                    } else {
+                        resolve();
+                    }
+                });
+            });
+        });
+
+        // Perform stock checks
+        Promise.all([...stockCheckPromises, ...additionalStockCheckPromises])
+            .then(() => {
+                // Insert order details into the orders table
+                const orderQuery = 'INSERT INTO orders (order_id, order_date, dealer_id, invoice_id) VALUES (?, ?, ?, ?)';
+                database.query(orderQuery, [order_id, date, dealer_id, invoice_id], (err, result) => {
+                    if (err) {
+                        console.error('Error adding order:', err);
+                        res.status(500).json({ error: 'Internal server error' });
+                        return;
+                    }
+
+                    // Calculate total for the order
+                    let orderTotal = 0;
+
+                    // Handle inserting invoice items if invoice_id is provided
+                    if (invoice_id) {
+                        // Construct an array to hold the data for each item from the invoice
+                        const invoiceItemsData = [];
+                        for (let i = 0; i < invoice_item_codes.length; i++) {
+                            const item_code = invoice_item_codes[i];
+                            const price = invoice_prices[i];
+                            const quantity = invoice_quantities[i];
+                            const discount = invoice_discounts[i];
+
+                            // Calculate the total for the item
+                            const total = price * quantity * (1 - discount / 100); // Apply discount
+                            orderTotal += total; // Add to order total
+
+                            // Push item data to the array
+                            invoiceItemsData.push([order_id, item_code, price, quantity, discount, total, 'direct']); // stock_type is 'direct'
+
+                            // Update stock quantities for each item
+                            const updateStockQuery = 'UPDATE stocks SET quantity = quantity - ? WHERE item_code = ?';
+                            database.query(updateStockQuery, [quantity, item_code], (err, result) => {
+                                if (err) {
+                                    console.error('Error updating stock quantities:', err);
+                                    // You might want to handle this error in some way
+                                }
+                            });
+                        }
+
+                        // Construct the SQL query with multiple value sets for invoice items
+                        const invoiceItemsQuery = 'INSERT INTO order_items (order_id, item_code, price_per_item, quantity, discount, total, stock_type) VALUES ?';
+                        database.query(invoiceItemsQuery, [invoiceItemsData], (err, result) => {
+                            if (err) {
+                                console.error('Error adding invoice items to order:', err);
+                                res.status(500).json({ error: 'Internal server error' });
+                                return;
+                            }
+                        });
+                    }
+
+                    // Handle inserting additional items
+                    if (item_codes && item_codes.length > 0) {
+                        // Construct an array to hold the data for each additional item
+                        const additionalItemsData = [];
+                        for (let i = 0; i < item_codes.length; i++) {
+                            const item_code = item_codes[i];
+                            const price = prices[i];
+                            const quantity = quantities[i];
+                            const discount = discounts[i];
+
+                            // Calculate the total for the item
+                            const total = price * quantity * (1 - discount / 100); // Apply discount
+                            orderTotal += total; // Add to order total
+
+                            // Push item data to the array
+                            additionalItemsData.push([order_id, item_code, price, quantity, discount, total, 'rep']); // stock_type is 'rep'
+
+                            // Update rep stock quantities for each additional item
+                            const updateRepStockQuery = 'UPDATE rep_stocks SET quantity = quantity - ? WHERE item_code = ?';
+                            database.query(updateRepStockQuery, [quantity, item_code], (err, result) => {
+                                if (err) {
+                                    console.error('Error updating rep stock quantities:', err);
+                                    // You might want to handle this error in some way
+                                }
+                            });
+                        }
+
+                        // Construct the SQL query with multiple value sets for additional items
+                        const additionalItemsQuery = 'INSERT INTO order_items (order_id, item_code, price_per_item, quantity, discount, total, stock_type) VALUES ?';
+                        database.query(additionalItemsQuery, [additionalItemsData], (err, result) => {
+                            if (err) {
+                                console.error('Error adding additional items to order:', err);
+                                res.status(500).json({ error: 'Internal server error' });
+                                return;
+                            }
+
+                            // Update the total for the order in the orders table
+                            const updateOrderTotalQuery = 'UPDATE orders SET total = ? WHERE order_id = ?';
+                            database.query(updateOrderTotalQuery, [orderTotal, order_id], (err, result) => {
+                                if (err) {
+                                    console.error('Error updating order total:', err);
+                                    res.status(500).json({ error: 'Internal server error' });
+                                    return;
+                                }
+
+                                // Redirect to the orders page after successfully adding the order
+                                res.redirect('/orders');
+                            });
+                        });
+                    } else {
+                        // Update the total for the order in the orders table if no additional items
+                        const updateOrderTotalQuery = 'UPDATE orders SET total = ? WHERE order_id = ?';
+                        database.query(updateOrderTotalQuery, [orderTotal, order_id], (err, result) => {
+                            if (err) {
+                                console.error('Error updating order total:', err);
+                                res.status(500).json({ error: 'Internal server error' });
+                                return;
+                            }
+
+                            // Redirect to the orders page after successfully adding the order
+                            res.redirect('/orders');
+                        });
+                    }
+                });
+            })
+            .catch(err => {
+                console.error('Stock check error:', err);
+                res.status(400).json({ error: err.message });
+            });
     });
 });
 
@@ -274,10 +335,10 @@ router.post('/add-order', (req, res) => {
 router.get('/orders/delete/:id', (req, res) => {
     const orderId = req.params.id;
 
-    // SQL query to fetch order items quantities
-    const getOrderItemsQuery = `SELECT item_code, quantity FROM order_items WHERE order_id = ?`;
+    // SQL query to fetch order items quantities and stock types
+    const getOrderItemsQuery = `SELECT item_code, quantity, stock_type FROM order_items WHERE order_id = ?`;
 
-    // Execute the query to fetch order items quantities
+    // Execute the query to fetch order items quantities and stock types
     database.query(getOrderItemsQuery, [orderId], (err, orderItems) => {
         if (err) {
             console.error('Error fetching order items:', err);
@@ -307,37 +368,49 @@ router.get('/orders/delete/:id', (req, res) => {
                     return;
                 }
 
-                // Deduct removed item quantities from stock
-                orderItems.forEach(item => {
-                    const updateStockQuery = `UPDATE stocks SET quantity = quantity + ? WHERE item_code = ?`;
-                    database.query(updateStockQuery, [item.quantity, item.item_code], (err, result) => {
-                        if (err) {
-                            console.error('Error updating stock quantity:', err);
-                            res.status(500).send('Internal Server Error');
-                            return;
-                        }
+                // Deduct removed item quantities from the appropriate stock
+                const updateStockPromises = orderItems.map(item => {
+                    const stockTable = item.stock_type === 'direct' ? 'stocks' : 'rep_stocks';
+                    const updateStockQuery = `UPDATE ${stockTable} SET quantity = quantity + ? WHERE item_code = ?`;
+
+                    return new Promise((resolve, reject) => {
+                        database.query(updateStockQuery, [item.quantity, item.item_code], (err, result) => {
+                            if (err) {
+                                reject(err);
+                            } else {
+                                resolve(result);
+                            }
+                        });
                     });
                 });
 
-                console.log('Order deleted successfully');
-                res.redirect('/orders');
+                // Execute all stock update queries
+                Promise.all(updateStockPromises)
+                    .then(() => {
+                        console.log('Order deleted successfully');
+                        res.redirect('/orders');
+                    })
+                    .catch(error => {
+                        console.error('Error updating stock quantities:', error);
+                        res.status(500).send('Internal Server Error');
+                    });
             });
         });
     });
 });
+
 
 router.get('/orders/edit/:id', (req, res) => {
     const orderId = req.params.id;
 
     // Fetch order details, associated items, and dealer names from the database
     const query = `
-        SELECT o.order_id, o.order_date, o.dealer_id, o.invoice_id, op.item_code, op.quantity, op.price_per_item, op.discount, i.description AS item_name
+        SELECT o.order_id, o.order_date, o.dealer_id, o.invoice_id, op.item_code, op.quantity, op.price_per_item, op.discount, op.stock_type, i.description AS item_name
         FROM orders o
         LEFT JOIN order_items op ON o.order_id = op.order_id
         LEFT JOIN items i ON op.item_code = i.item_code
         WHERE o.order_id = ?
     `;
-
 
     const dealersQuery = `SELECT shop_id, shop_name FROM dealers`;
 
@@ -367,7 +440,8 @@ router.get('/orders/edit/:id', (req, res) => {
                     item_name: row.item_name,
                     quantity: row.quantity,
                     discount: row.discount,
-                    price_per_item: row.price_per_item
+                    price_per_item: row.price_per_item,
+                    stock_type: row.stock_type
                 }))
             };
 
@@ -378,6 +452,7 @@ router.get('/orders/edit/:id', (req, res) => {
         });
     });
 });
+
 
 
 
@@ -422,30 +497,33 @@ router.post('/update-order', (req, res) => {
             // Calculate the difference between old and new quantities
             const quantityDifference = newQuantity - oldQuantity;
 
+            let stockTable = item.stock_type === 'direct' ? 'stocks' : 'rep_stocks';
+            let updateStockQuery;
+
             // If the quantity difference is positive, it means more items have been removed from the stock than before, so we should decrease the stock
             if (quantityDifference > 0) {
                 // Update the stock table by subtracting the quantity difference
-                const increaseStockQuery = `UPDATE stocks SET quantity = quantity - ? WHERE item_code = ?`;
+                increaseStockQuery = `UPDATE ${stockTable} SET quantity = quantity - ? WHERE item_code = ?`;
                 database.query(increaseStockQuery, [quantityDifference, item.item_code], (err, result) => {
                     if (err) {
-                        console.error("Error increasing stock:", err);
+                        console.error(`Error updating ${stockTable}:`, err);
                         res.status(500).send("Internal Server Error");
                         return;
                     }
-                    console.log(`Stock for item ${item.item_code} increased by ${quantityDifference}`);
+                    console.log(`Stock for item ${item.item_code} decreased by ${quantityDifference}`);
                 });
             }
             // If the quantity difference is negative, it means less items are removed from the stock than before, so we should increase the stock
             else if (quantityDifference < 0) {
                 // Update the stock table by adding the absolute value of the quantity difference
-                const decreaseStockQuery = `UPDATE stocks SET quantity = quantity + ? WHERE item_code = ?`;
+                decreaseStockQuery = `UPDATE ${stockTable} SET quantity = quantity + ? WHERE item_code = ?`;
                 database.query(decreaseStockQuery, [-quantityDifference, item.item_code], (err, result) => {
                     if (err) {
-                        console.error("Error decreasing stock:", err);
+                        console.error(`Error updating ${stockTable}:`, err);
                         res.status(500).send("Internal Server Error");
                         return;
                     }
-                    console.log(`Stock for item ${item.item_code} decreased by ${-quantityDifference}`);
+                    console.log(`Stock for item ${item.item_code} increased by ${-quantityDifference}`);
                 });
             }
             // If the quantity difference is zero, no change in stock is required
@@ -472,9 +550,9 @@ router.post('/update-order', (req, res) => {
         const updateItemsPromises = updatedItems.map(item => {
             const discount = item.discount;
             const extension = item.quantity * item.price_per_item * (1 - discount / 100);;
-            const updateItemQuery = `UPDATE order_items SET quantity = ?, price_per_item = ?, discount = ?, total = ? WHERE order_id = ? AND item_code = ?`;
+            const updateItemQuery = `UPDATE order_items SET quantity = ?, price_per_item = ?, discount = ?, total = ?, stock_type = ? WHERE order_id = ? AND item_code = ?`;
             return new Promise((resolve, reject) => {
-                database.query(updateItemQuery, [item.quantity, item.price_per_item, discount, extension, orderId, item.item_code], (err, result) => {
+                database.query(updateItemQuery, [item.quantity, item.price_per_item, discount, extension, item.stock_type, orderId, item.item_code], (err, result) => {
                     if (err) {
                         reject(err);
                     } else {

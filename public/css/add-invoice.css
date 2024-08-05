@@ -1,0 +1,188 @@
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap');
+
+body {
+    font-family: "Open Sans", sans-serif;
+    margin-top: 6rem;
+    background-color: #f7f8f2;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+#container {
+    width: 99%;
+    margin: auto;
+    padding-bottom: 2rem;
+}
+
+h2 {
+    font-family: "Montserrat", sans-serif;
+    font-size: 2rem;
+    font-weight: 600;
+    color: #000000;
+    margin-bottom: 1.5rem;
+}
+
+label {
+    font-family: "Montserrat", sans-serif;
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #000000;
+}
+
+form {
+    border-radius: 15px;
+    display: flex;
+    flex-direction: column;
+    font-weight: normal;
+    color: #444;
+    font-size: 1.2rem;
+    padding: 2rem 3rem;
+    background-color: #f7f8f2;
+}
+
+.input-group {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+input {
+    font-size: 1.2rem;
+}
+
+.input-group input,
+.input-group select {
+    border: none;
+    outline: none;
+    border: 1.5px solid #969595;
+    width: 50%;
+    height: 1.5rem;
+}
+
+.items-table {
+    width: 100%;
+    margin-top: 1rem;
+}
+
+
+.table-header {
+    display: grid;
+    grid-template-columns: 20% auto 10% 5%;
+    gap: 0.5rem;
+    padding: 0.7rem;
+}
+
+.item-field {
+    display: grid;
+    grid-template-columns: 20% auto 10% 5%;
+    gap: 0.5rem;
+    padding: 0.3rem;
+}
+
+.table-header {
+    font-family: "Montserrat", sans-serif;
+    font-weight: 700;
+    background-color: #dddddd;
+    border-bottom: 2px solid #b9b9b9;
+}
+
+.table-header div {
+    display: flex;
+    justify-content: flex-start;
+}
+
+.item-field {
+    align-items: center;
+    background-color: #ffffff;
+    border-bottom: #7c7c7c 1px solid;
+}
+
+.item-field div {
+    display: flex;
+    justify-content: space-evenly;
+}
+
+.item-field input {
+    width: 100%;
+    padding: 0.25rem;
+    border: 1px solid #858585;
+    border-radius: 5px;
+}
+
+.add-item-btn,
+.submit-btn {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 1rem;
+}
+
+button {
+    font-family: "Montserrat", sans-serif;
+    font-weight: 600;
+    width: 2.5rem;
+    height: 2.5rem;
+    font-size: 1.5rem;
+    background-color: #ad9fff;
+    border: none;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid #ad9fff;
+}
+
+button:hover {
+    cursor: pointer;
+    background-color: #654bfa;
+    color: aliceblue;
+}
+
+.submit-btn button {
+    width: auto;
+    height: auto;
+    padding: 0.5rem 1rem;
+    font-size: 1.1rem;
+    border-radius: 50px;
+}
+
+/* Styles for add and delete buttons using SVG images */
+.add-item-btn button {
+    background: none;
+    border: none;
+    width: 2.5rem;
+    height: 2.5rem;
+}
+
+.add-item-btn button img {
+    width: 100%;
+    height: 100%;
+    margin-right: 0 0.5rem 0 0.5rem;
+}
+
+.item-field button {
+    background: none;
+    border: none;
+    width: 2.5rem;
+    height: 2.5rem;
+}
+
+.item-field button img {
+    width: 100%;
+    height: 100%;
+}
+
+#right-align {
+    display: flex;
+    justify-content: flex-end;
+}
+
+#hidden {
+    display: none;
+    visibility: hidden;
+}

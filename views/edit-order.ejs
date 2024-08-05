@@ -52,6 +52,7 @@
                                 <th>Quantity</th>
                                 <th>Discount</th>
                                 <th>Unit Price</th>
+                                <th>Stock Type</th>
                             </tr>
                         </thead>
                         <!-- Table body -->
@@ -78,6 +79,9 @@
                                     </td>
                                     <td><input type="number" step="0.01" name="items[<%= index %>][price_per_item]"
                                             value="<%= item.price_per_item %>">
+                                    </td>
+                                    <td>
+                                        <%= item.stock_type.charAt(0).toUpperCase() + item.stock_type.slice(1) %>
                                     </td>
                                 </tr>
                                 <% }); %>
