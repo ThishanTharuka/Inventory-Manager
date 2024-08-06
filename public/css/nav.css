@@ -1,5 +1,6 @@
 #nav {
     width: 100%;
+    height: 5rem;
     background-color: #fdf8ff;
     padding: 0 1rem;
     position: fixed;
@@ -44,7 +45,7 @@
 
 #logo {
     width: auto;
-    height: 2.5rem; /* Adjust as necessary */
+    height: 3.5rem; /* Adjust as necessary */
     margin: 2px;
 }
 
