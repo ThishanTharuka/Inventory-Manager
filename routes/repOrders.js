@@ -13,7 +13,8 @@ router.get('/rep-orders', (req, res) => {
     const { search } = req.query;
     let orderQuery = `SELECT 
                             i.order_id, 
-                            i.order_date, 
+                            i.order_date,
+                            i.order_type, 
                             ii.item_code, 
                             ii.quantity, 
                             it.description 
@@ -46,6 +47,7 @@ router.get('/rep-orders', (req, res) => {
                 existingOrder = {
                     order_id: row.order_id,
                     order_date: row.order_date,
+                    order_type: row.order_type,
                     items: []
                 };
                 reps_orders.push(existingOrder);

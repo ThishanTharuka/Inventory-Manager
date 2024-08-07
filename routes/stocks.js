@@ -212,7 +212,7 @@ router.post('/add-invoice', (req, res) => {
 
                                     console.log('Transaction committed successfully');
                                     // Redirect to add stocks page
-                                    res.redirect('/stocks/add');
+                                    res.redirect('/invoices?search=' + invoiceId);
                                 });
                             });
                         });

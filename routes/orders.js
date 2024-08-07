@@ -380,7 +380,7 @@ router.post('/add-order', (req, res) => {
 });
 
 function handleReducedItems(reducedItems, callback) {
-    const order_id = Date.now().toString(); // Generate a unique order ID
+    const rep_order_id = Date.now().toString(); // Generate a unique order ID
 
     const items = reducedItems.map(item => ({
         item_code: item.item_code,
@@ -392,7 +392,7 @@ function handleReducedItems(reducedItems, callback) {
 
     // Insert into reps_orders table
     const repOrderQuery = 'INSERT INTO reps_orders (order_id, order_date, order_type) VALUES (?, ?, ?)';
-    database.query(repOrderQuery, [order_id, new Date(), "Return"], (err, result) => {
+    database.query(repOrderQuery, [rep_order_id, new Date(), "Return"], (err, result) => {
         if (err) {
             console.error('Error adding reduced order:', err);
             callback(err);
@@ -400,7 +400,7 @@ function handleReducedItems(reducedItems, callback) {
         }
 
         // Insert into reps_order_items table
-        const repOrderItemsData = items.map(item => [order_id, item.item_code, item.quantity]);
+        const repOrderItemsData = items.map(item => [rep_order_id, item.item_code, item.quantity]);
 
         console.log('Reduced order items data:', repOrderItemsData);
 
