@@ -46,8 +46,9 @@ form {
 }
 
 .input-group {
-    display: flex;
-    justify-content: space-between;
+    display: grid;
+    grid-template-columns: 150px 1fr;
+    gap: 1rem;
     align-items: center;
     margin-bottom: 1.5rem;
 }
@@ -61,7 +62,7 @@ input {
     border: none;
     outline: none;
     border: 1.5px solid #969595;
-    width: 50%;
+    width: 40%;
     height: 1.5rem;
 }
 
@@ -118,7 +119,7 @@ input {
 .add-item-btn,
 .submit-btn {
     display: flex;
-    justify-content: flex-end;
+    justify-content: flex-start;
     margin-top: 1rem;
 }
 
