@@ -117,8 +117,8 @@
                                             <tr>
                                                 <td class="left-align" colspan="5">Total</td>
                                                 <td>
-                                                    <%= order.total.toLocaleString(undefined, { minimumFractionDigits:
-                                                        2, maximumFractionDigits: 2 }) %>
+                                                    <%= order.total ? order.total.toLocaleString(undefined, { minimumFractionDigits:
+                                                        2, maximumFractionDigits: 2 }) : "0.00" %>
                                                 </td>
                                             </tr>
                                 </tbody>

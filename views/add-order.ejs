@@ -95,7 +95,9 @@
                             </td>
                             <td>${item.description}</td>
                             <td><input type="number" step="0.01" name="invoice_prices[]" value="${item.price}" required oninput="updateTotal(this)"></td>
-                            <td><input type="number" name="invoice_quantities[]" value="${item.quantity}" required oninput="updateTotal(this)"></td>
+                            <td><input type="number" name="invoice_quantities[]" value="${item.quantity}" required oninput="updateTotal(this)">
+                                <input type="hidden" name="original_invoice_quantities[]" value="${item.quantity}">
+                            </td>
                             <td><input type="number" step="0.01" name="invoice_discounts[]" placeholder="0" required oninput="updateTotal(this)"></td>
                             <td class="item-total">0.00</td>
                         `;

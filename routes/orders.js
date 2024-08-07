@@ -141,10 +141,11 @@ router.get('/orders/invoice-items/:invoiceId', (req, res) => {
 });
 
 
-// POST route to handle form submission and add the order to the database
 router.post('/add-order', (req, res) => {
-    const { order_id, date, dealer_name, discounts, invoice_id, item_codes, prices, quantities } = req.body;
-    const { invoice_quantities, invoice_item_codes, invoice_discounts, invoice_prices } = req.body;
+    const { order_id, date, dealer_name, discounts, invoice_id, item_codes = [], prices = [], quantities = [] } = req.body;
+    const { invoice_quantities = [], invoice_item_codes = [], invoice_discounts = [], invoice_prices = [] } = req.body;
+
+    console.log('Request body:', req.body); // Debug statement
 
     // Query to get shop_id from dealers table based on shop_name
     const dealerQuery = 'SELECT shop_id FROM dealers WHERE shop_name = ?';
@@ -220,46 +221,117 @@ router.post('/add-order', (req, res) => {
                     // Calculate total for the order
                     let orderTotal = 0;
 
+                    const updateOrderTotal = () => {
+                        const updateOrderTotalQuery = 'UPDATE orders SET total = ? WHERE order_id = ?';
+                        console.log('Order total:', orderTotal);
+                        database.query(updateOrderTotalQuery, [orderTotal, order_id], (err, result) => {
+                            if (err) {
+                                console.error('Error updating order total:', err);
+                                res.status(500).json({ error: 'Internal server error' });
+                                return;
+                            }
+
+                            // Redirect to the orders page after successfully adding the order
+                            res.redirect('/orders');
+                        });
+                    };
+
                     // Handle inserting invoice items if invoice_id is provided
                     if (invoice_id) {
                         // Construct an array to hold the data for each item from the invoice
                         const invoiceItemsData = [];
-                        for (let i = 0; i < invoice_item_codes.length; i++) {
-                            const item_code = invoice_item_codes[i];
-                            const price = invoice_prices[i];
-                            const quantity = invoice_quantities[i];
-                            const discount = invoice_discounts[i];
+                        const reducedItems = [];
 
-                            // Calculate the total for the item
-                            const total = price * quantity * (1 - discount / 100); // Apply discount
-                            orderTotal += total; // Add to order total
-
-                            // Push item data to the array
-                            invoiceItemsData.push([order_id, item_code, price, quantity, discount, total, 'direct']); // stock_type is 'direct'
-
-                            // Update stock quantities for each item
-                            const updateStockQuery = 'UPDATE stocks SET quantity = quantity - ? WHERE item_code = ?';
-                            database.query(updateStockQuery, [quantity, item_code], (err, result) => {
-                                if (err) {
-                                    console.error('Error updating stock quantities:', err);
-                                    // You might want to handle this error in some way
-                                }
+                        const fetchDescriptionQuery = 'SELECT description FROM items WHERE item_code = ?';
+                        const fetchDescriptionPromises = invoice_item_codes.map((item_code, index) => {
+                            return new Promise((resolve, reject) => {
+                                database.query(fetchDescriptionQuery, [item_code], (err, result) => {
+                                    if (err) {
+                                        reject(err);
+                                        return;
+                                    }
+                                    const description = result[0]?.description || '';
+                                    resolve(description);
+                                });
                             });
-                        }
-
-                        // Construct the SQL query with multiple value sets for invoice items
-                        const invoiceItemsQuery = 'INSERT INTO order_items (order_id, item_code, price_per_item, quantity, discount, total, stock_type) VALUES ?';
-                        database.query(invoiceItemsQuery, [invoiceItemsData], (err, result) => {
-                            if (err) {
-                                console.error('Error adding invoice items to order:', err);
-                                res.status(500).json({ error: 'Internal server error' });
-                                return;
-                            }
                         });
+
+                        Promise.all(fetchDescriptionPromises)
+                            .then(descriptions => {
+                                for (let i = 0; i < invoice_item_codes.length; i++) {
+                                    const item_code = invoice_item_codes[i];
+                                    const price = invoice_prices[i];
+                                    const quantity = invoice_quantities[i];
+                                    const discount = invoice_discounts[i];
+
+                                    // Check if quantity has been reduced
+                                    const originalQuantity = parseInt(req.body.original_invoice_quantities[i]);
+                                    if (quantity < originalQuantity) {
+                                        reducedItems.push({
+                                            item_code,
+                                            description: descriptions[i],
+                                            quantity: originalQuantity - quantity
+                                        });
+                                    }
+
+                                    // Calculate the total for the item
+                                    const total = price * quantity * (1 - discount / 100); // Apply discount
+                                    orderTotal += total; // Add to order total
+
+                                    // Push item data to the array
+                                    invoiceItemsData.push([order_id, item_code, price, quantity, discount, total, 'direct']); // stock_type is 'direct'
+                                    console.log('Invoice items data:', invoiceItemsData);
+
+                                    // Update stock quantities for each item
+                                    const updateStockQuery = 'UPDATE stocks SET quantity = quantity - ? WHERE item_code = ?';
+                                    database.query(updateStockQuery, [originalQuantity, item_code], (err, result) => {
+                                        if (err) {
+                                            console.error('Error updating stock quantities:', err);
+                                            // You might want to handle this error in some way
+                                        }
+                                    });
+                                }
+
+                                // Construct the SQL query with multiple value sets for invoice items
+                                const invoiceItemsQuery = 'INSERT INTO order_items (order_id, item_code, price_per_item, quantity, discount, total, stock_type) VALUES ?';
+                                database.query(invoiceItemsQuery, [invoiceItemsData], (err, result) => {
+                                    if (err) {
+                                        console.error('Error adding invoice items to order:', err);
+                                        res.status(500).json({ error: 'Internal server error' });
+                                        return;
+                                    }
+
+                                    // Handle reduced items
+                                    if (reducedItems.length > 0) {
+                                        handleReducedItems(reducedItems, () => {
+                                            // Proceed to update total and additional items
+                                            if (item_codes && item_codes.length > 0) {
+                                                handleAdditionalItems();
+                                            } else {
+                                                updateOrderTotal();
+                                            }
+                                        });
+                                    } else {
+                                        // Proceed to update total and additional items
+                                        if (item_codes && item_codes.length > 0) {
+                                            handleAdditionalItems();
+                                        } else {
+                                            updateOrderTotal();
+                                        }
+                                    }
+                                });
+                            })
+                            .catch(err => {
+                                console.error('Error fetching descriptions:', err);
+                                res.status(500).json({ error: 'Internal server error' });
+                            });
+                    } else if (item_codes && item_codes.length > 0) {
+                        handleAdditionalItems();
+                    } else {
+                        updateOrderTotal();
                     }
 
-                    // Handle inserting additional items
-                    if (item_codes && item_codes.length > 0) {
+                    function handleAdditionalItems() {
                         // Construct an array to hold the data for each additional item
                         const additionalItemsData = [];
                         for (let i = 0; i < item_codes.length; i++) {
@@ -275,7 +347,7 @@ router.post('/add-order', (req, res) => {
                             // Push item data to the array
                             additionalItemsData.push([order_id, item_code, price, quantity, discount, total, 'rep']); // stock_type is 'rep'
 
-                            // Update rep stock quantities for each additional item
+                            // Update rep stock quantities for each item
                             const updateRepStockQuery = 'UPDATE rep_stocks SET quantity = quantity - ? WHERE item_code = ?';
                             database.query(updateRepStockQuery, [quantity, item_code], (err, result) => {
                                 if (err) {
@@ -295,40 +367,79 @@ router.post('/add-order', (req, res) => {
                             }
 
                             // Update the total for the order in the orders table
-                            const updateOrderTotalQuery = 'UPDATE orders SET total = ? WHERE order_id = ?';
-                            database.query(updateOrderTotalQuery, [orderTotal, order_id], (err, result) => {
-                                if (err) {
-                                    console.error('Error updating order total:', err);
-                                    res.status(500).json({ error: 'Internal server error' });
-                                    return;
-                                }
-
-                                // Redirect to the orders page after successfully adding the order
-                                res.redirect('/orders');
-                            });
-                        });
-                    } else {
-                        // Update the total for the order in the orders table if no additional items
-                        const updateOrderTotalQuery = 'UPDATE orders SET total = ? WHERE order_id = ?';
-                        database.query(updateOrderTotalQuery, [orderTotal, order_id], (err, result) => {
-                            if (err) {
-                                console.error('Error updating order total:', err);
-                                res.status(500).json({ error: 'Internal server error' });
-                                return;
-                            }
-
-                            // Redirect to the orders page after successfully adding the order
-                            res.redirect('/orders');
+                            updateOrderTotal();
                         });
                     }
                 });
             })
             .catch(err => {
-                console.error('Stock check error:', err);
+                console.error('Error checking stock availability:', err);
                 res.status(400).json({ error: err.message });
             });
     });
 });
+
+function handleReducedItems(reducedItems, callback) {
+    const order_id = Date.now().toString(); // Generate a unique order ID
+
+    const items = reducedItems.map(item => ({
+        item_code: item.item_code,
+        description: item.description,
+        quantity: item.quantity,
+    }));
+
+    console.log('Reduced items:', items);
+
+    // Insert into reps_orders table
+    const repOrderQuery = 'INSERT INTO reps_orders (order_id, order_date, order_type) VALUES (?, ?, ?)';
+    database.query(repOrderQuery, [order_id, new Date(), "Return"], (err, result) => {
+        if (err) {
+            console.error('Error adding reduced order:', err);
+            callback(err);
+            return;
+        }
+
+        // Insert into reps_order_items table
+        const repOrderItemsData = items.map(item => [order_id, item.item_code, item.quantity]);
+
+        console.log('Reduced order items data:', repOrderItemsData);
+
+        const repOrderItemsQuery = 'INSERT INTO reps_order_items (order_id, item_code, quantity) VALUES ?';
+        database.query(repOrderItemsQuery, [repOrderItemsData], (err, result) => {
+            if (err) {
+                console.error('Error adding reduced order items:', err);
+                callback(err);
+                return;
+            }
+
+            // Update rep_stocks table
+            const updateRepStockPromises = items.map(item => {
+                return new Promise((resolve, reject) => {
+                    const updateRepStockQuery = 'INSERT INTO rep_stocks (item_code, description, quantity) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE quantity = quantity + ?';
+                    database.query(updateRepStockQuery, [item.item_code, item.description, item.quantity, item.quantity], (err, result) => {
+                        if (err) {
+                            reject(err);
+                            return;
+                        }
+                        resolve();
+                    });
+                });
+            });
+
+            Promise.all(updateRepStockPromises)
+                .then(() => {
+                    callback(); // Successfully handled reduced items
+                })
+                .catch(err => {
+                    console.error('Error updating rep stocks:', err);
+                    callback(err);
+                });
+        });
+    });
+}
+
+
+
 
 
 // Route to handle deleting an order
@@ -633,7 +744,7 @@ router.get('/orders/settle/:id', (req, res) => {
 router.post('/orders/settle/:id', (req, res) => {
     const orderId = req.params.id;
     const { settlement_amount, settlement_status, remarks } = req.body;
-    
+
     const updateQuery = `
         UPDATE orders
         SET settlement_amount = ?, settlement_status = ?, remarks = ?
