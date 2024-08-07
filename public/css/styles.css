@@ -32,8 +32,8 @@ body {
 }
 
 a {
-  text-decoration: none;
-  color: inherit;
+  text-decoration: none !important;
+  color: inherit !important;
 }
 
 #add-new-btn {
@@ -152,7 +152,7 @@ tr {
 
 .edit-btn:hover {
   background-color: #0b71df;
-  color: #ddd;
+  color: #ddd !important;
   cursor: pointer;
 }
 
@@ -171,7 +171,7 @@ tr {
 
 .delete-btn:hover {
   background-color: #e90c22;
-  color: #ddd;
+  color: #ddd !important;
   cursor: pointer;
 }
 

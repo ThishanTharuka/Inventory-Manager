@@ -1,46 +1,10 @@
-#nav {
-    width: 100%;
-    height: 5rem;
-    background-color: #fdf8ff;
-    padding: 0 1rem;
-    position: fixed;
-    top: 0;
-    left: 0;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-family: 'Product Sans', Helvetica, sans-serif;
-    border-bottom: 1px solid #dcdbdb;
-}
-
-#nav ul {
-    display: flex;
-    list-style: none;
-    height: 100%;
-    padding: 0;
-    margin: 0;
-}
-
-#nav ul li {
-    margin-left: 2rem;
-    height: 100%;
-    padding: 0.8rem 0;
-}
-
-#nav ul li a {
-    text-decoration: none;
-    color: #444;
-    font-weight: bold;
-    font-size: 1.2rem;
-}
-
-.selected {
-    border-bottom: 3px solid #444;
-}
-
 #home {
     display: flex;
+    justify-content: center; /* Center the logo */
     align-items: center;
+    position: absolute; /* Change to absolute for better control */
+    left: 50%; /* Center the home div */
+    transform: translateX(-50%); /* Adjust back to center */
 }
 
 #logo {
@@ -50,7 +14,8 @@
 }
 
 #btn {
-    margin-right: 2rem;
+    right: 2%; /* Center the home div */
+    position: absolute; /* Change to absolute for better control */
 }
 
 #logout-btn {
