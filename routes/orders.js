@@ -166,7 +166,7 @@ router.post('/add-order', (req, res) => {
         // Get the shop_id from the dealerResult
         const dealer_id = dealerResult[0].shop_id;
 
-        // Check stock availability for invoice items
+        // Check stock availability for invoice items (only if invoice_id is provided)
         const stockCheckPromises = (invoice_id ? invoice_item_codes : []).map((item_code, index) => {
             return new Promise((resolve, reject) => {
                 const checkStockQuery = 'SELECT quantity FROM stocks WHERE item_code = ?';
@@ -186,28 +186,8 @@ router.post('/add-order', (req, res) => {
             });
         });
 
-        // Check stock availability for additional items
-        const additionalStockCheckPromises = item_codes.map((item_code, index) => {
-            return new Promise((resolve, reject) => {
-                const checkStockQuery = 'SELECT quantity FROM rep_stocks WHERE item_code = ?';
-                database.query(checkStockQuery, [item_code], (err, result) => {
-                    if (err) {
-                        reject(err);
-                        return;
-                    }
-                    const availableQuantity = result[0]?.quantity || 0;
-                    const requestedQuantity = quantities[index];
-                    if (availableQuantity < requestedQuantity) {
-                        reject(new Error(`Insufficient stock for item code ${item_code}`));
-                    } else {
-                        resolve();
-                    }
-                });
-            });
-        });
-
-        // Perform stock checks
-        Promise.all([...stockCheckPromises, ...additionalStockCheckPromises])
+        // Perform stock checks for invoice items
+        Promise.all(stockCheckPromises)
             .then(() => {
                 // Insert order details into the orders table
                 const orderQuery = 'INSERT INTO orders (order_id, order_date, dealer_id, invoice_id) VALUES (?, ?, ?, ?)';
@@ -287,7 +267,6 @@ router.post('/add-order', (req, res) => {
                                     database.query(updateStockQuery, [originalQuantity, item_code], (err, result) => {
                                         if (err) {
                                             console.error('Error updating stock quantities:', err);
-                                            // You might want to handle this error in some way
                                         }
                                     });
                                 }
@@ -304,7 +283,7 @@ router.post('/add-order', (req, res) => {
                                     // Handle reduced items
                                     if (reducedItems.length > 0) {
                                         handleReducedItems(reducedItems, () => {
-                                            // Proceed to update total and additional items
+                                            // Proceed to additional items only if they exist
                                             if (item_codes && item_codes.length > 0) {
                                                 handleAdditionalItems();
                                             } else {
@@ -312,7 +291,7 @@ router.post('/add-order', (req, res) => {
                                             }
                                         });
                                     } else {
-                                        // Proceed to update total and additional items
+                                        // Proceed to additional items only if they exist
                                         if (item_codes && item_codes.length > 0) {
                                             handleAdditionalItems();
                                         } else {
@@ -332,48 +311,75 @@ router.post('/add-order', (req, res) => {
                     }
 
                     function handleAdditionalItems() {
-                        // Construct an array to hold the data for each additional item
-                        const additionalItemsData = [];
-                        for (let i = 0; i < item_codes.length; i++) {
-                            const item_code = item_codes[i];
-                            const price = prices[i];
-                            const quantity = quantities[i];
-                            const discount = discounts[i];
-
-                            // Calculate the total for the item
-                            const total = price * quantity * (1 - discount / 100); // Apply discount
-                            orderTotal += total; // Add to order total
-
-                            // Push item data to the array
-                            additionalItemsData.push([order_id, item_code, price, quantity, discount, total, 'rep']); // stock_type is 'rep'
-
-                            // Update rep stock quantities for each item
-                            const updateRepStockQuery = 'UPDATE rep_stocks SET quantity = quantity - ? WHERE item_code = ?';
-                            database.query(updateRepStockQuery, [quantity, item_code], (err, result) => {
-                                if (err) {
-                                    console.error('Error updating rep stock quantities:', err);
-                                    // You might want to handle this error in some way
-                                }
+                        // Check stock availability for additional items
+                        const additionalStockCheckPromises = item_codes.map((item_code, index) => {
+                            return new Promise((resolve, reject) => {
+                                const checkStockQuery = 'SELECT quantity FROM rep_stocks WHERE item_code = ?';
+                                database.query(checkStockQuery, [item_code], (err, result) => {
+                                    if (err) {
+                                        reject(err);
+                                        return;
+                                    }
+                                    const availableQuantity = result[0]?.quantity || 0;
+                                    const requestedQuantity = quantities[index];
+                                    if (availableQuantity < requestedQuantity) {
+                                        reject(new Error(`Insufficient stock for item code ${item_code}`));
+                                    } else {
+                                        resolve();
+                                    }
+                                });
                             });
-                        }
-
-                        // Construct the SQL query with multiple value sets for additional items
-                        const additionalItemsQuery = 'INSERT INTO order_items (order_id, item_code, price_per_item, quantity, discount, total, stock_type) VALUES ?';
-                        database.query(additionalItemsQuery, [additionalItemsData], (err, result) => {
-                            if (err) {
-                                console.error('Error adding additional items to order:', err);
-                                res.status(500).json({ error: 'Internal server error' });
-                                return;
-                            }
-
-                            // Update the total for the order in the orders table
-                            updateOrderTotal();
                         });
+
+                        // Perform stock checks for additional items
+                        Promise.all(additionalStockCheckPromises)
+                            .then(() => {
+                                // Construct an array to hold the data for each additional item
+                                const additionalItemsData = [];
+                                for (let i = 0; i < item_codes.length; i++) {
+                                    const item_code = item_codes[i];
+                                    const price = prices[i];
+                                    const quantity = quantities[i];
+                                    const discount = discounts[i];
+
+                                    // Calculate the total for the item
+                                    const total = price * quantity * (1 - discount / 100); // Apply discount
+                                    orderTotal += total; // Add to order total
+
+                                    // Push item data to the array
+                                    additionalItemsData.push([order_id, item_code, price, quantity, discount, total, 'rep']); // stock_type is 'rep'
+
+                                    // Update rep stock quantities for each item
+                                    const updateRepStockQuery = 'UPDATE rep_stocks SET quantity = quantity - ? WHERE item_code = ?';
+                                    database.query(updateRepStockQuery, [quantity, item_code], (err, result) => {
+                                        if (err) {
+                                            console.error('Error updating rep stock quantities:', err);
+                                        }
+                                    });
+                                }
+
+                                // Construct the SQL query with multiple value sets for additional items
+                                const additionalItemsQuery = 'INSERT INTO order_items (order_id, item_code, price_per_item, quantity, discount, total, stock_type) VALUES ?';
+                                database.query(additionalItemsQuery, [additionalItemsData], (err, result) => {
+                                    if (err) {
+                                        console.error('Error adding additional items to order:', err);
+                                        res.status(500).json({ error: 'Internal server error' });
+                                        return;
+                                    }
+
+                                    // Update the total for the order in the orders table
+                                    updateOrderTotal();
+                                });
+                            })
+                            .catch(err => {
+                                console.error('Error checking additional stock availability:', err);
+                                res.status(400).json({ error: err.message });
+                            });
                     }
                 });
             })
             .catch(err => {
-                console.error('Error checking stock availability:', err);
+                console.error('Error checking invoice stock availability:', err);
                 res.status(400).json({ error: err.message });
             });
     });
