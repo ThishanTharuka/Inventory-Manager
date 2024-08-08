@@ -14,7 +14,9 @@ router.get('/rep-orders', (req, res) => {
     let orderQuery = `SELECT 
                             i.order_id, 
                             i.order_date,
-                            i.order_type, 
+                            i.order_type,
+                            i.sale_id,
+                            i.purchase_id, 
                             ii.item_code, 
                             ii.quantity, 
                             it.description 
@@ -48,6 +50,8 @@ router.get('/rep-orders', (req, res) => {
                     order_id: row.order_id,
                     order_date: row.order_date,
                     order_type: row.order_type,
+                    sale_id: row.sale_id,
+                    purchase_id: row.purchase_id,
                     items: []
                 };
                 reps_orders.push(existingOrder);

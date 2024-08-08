@@ -43,6 +43,12 @@
                             </h3>
                             <h3>Order Date: <%= reps_order.order_date.toLocaleDateString('en-GB') %>
                             </h3>
+                            <h3>
+                                Sale ID: <%= reps_order.sale_id ? reps_order.sale_id : "No Sale ID Available" %>
+                            </h3>
+                            <h3>
+                                Purchase ID: <%= reps_order.purchase_id ? reps_order.purchase_id : "No Invoice ID Available" %>
+                            </h3>
                             <table id="invoice-tbl">
                                 <thead>
                                     <tr>

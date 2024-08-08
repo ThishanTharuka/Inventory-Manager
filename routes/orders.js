@@ -282,7 +282,7 @@ router.post('/add-order', (req, res) => {
 
                                     // Handle reduced items
                                     if (reducedItems.length > 0) {
-                                        handleReducedItems(reducedItems, () => {
+                                        handleReducedItems(reducedItems, order_id, invoice_id, () => {
                                             // Proceed to additional items only if they exist
                                             if (item_codes && item_codes.length > 0) {
                                                 handleAdditionalItems();
@@ -385,7 +385,7 @@ router.post('/add-order', (req, res) => {
     });
 });
 
-function handleReducedItems(reducedItems, callback) {
+function handleReducedItems(reducedItems, order_id, invoice_id, callback) {
     const rep_order_id = Date.now().toString(); // Generate a unique order ID
 
     const items = reducedItems.map(item => ({
@@ -395,10 +395,13 @@ function handleReducedItems(reducedItems, callback) {
     }));
 
     console.log('Reduced items:', items);
+    console.log('Reduced order ID:', rep_order_id);
+    console.log('Original order ID:', order_id);
+    console.log('Invoice ID:', invoice_id);
 
-    // Insert into reps_orders table
-    const repOrderQuery = 'INSERT INTO reps_orders (order_id, order_date, order_type) VALUES (?, ?, ?)';
-    database.query(repOrderQuery, [rep_order_id, new Date(), "Return"], (err, result) => {
+    // Insert into reps_orders table, including sale_id
+    const repOrderQuery = 'INSERT INTO reps_orders (order_id, order_date, order_type, sale_id, purchase_id) VALUES (?, ?, ?, ?, ?)';
+    database.query(repOrderQuery, [rep_order_id, new Date(), "Return", order_id, invoice_id], (err, result) => {
         if (err) {
             console.error('Error adding reduced order:', err);
             callback(err);
