@@ -136,7 +136,7 @@ main {
     text-decoration: none;
     text-align: center;
     font-family: "Montserrat", sans-serif;
-    font-weight: 400;
+    font-weight: 500;
     font-size: 0.9rem;
     color: #ffffff;
 }
@@ -159,10 +159,12 @@ h2 {
 }
 
 .menu a:hover {
-    text-decoration: underline;
+    /* text-decoration: underline; */
     font-family: "Montserrat", sans-serif;
     transform: scale(1.01);
-    color: #ffffff;
+    color: #000000;
+    background-color: #ffffff;
+    font-weight: 600;
 }
 
 .menu {
@@ -173,6 +175,13 @@ h2 {
     position: relative;
     bottom: -200px;
     transition: ease-in 0.7s;
+}
+
+.menu a {
+    border: #e9e5e5 2px solid;
+    padding: 0.1rem 1rem 0.1rem 1rem;
+    margin: 0.2rem 0.5rem 0.2rem 0.5rem;
+    border-radius: 25px;
 }
 
 .submenu {
@@ -260,6 +269,10 @@ h2 {
     font-weight: 400;
     font-size: 0.9rem;
     color: #ffffff;
+    padding: 0.1rem 1rem 0.1rem 1rem;
+    margin: 0.2rem 0.5rem 0.2rem 0.5rem;
+    border: #e9e5e5 2px solid;
+    border-radius: 25px;
 }
 
 .report-submenu {
@@ -278,10 +291,13 @@ h2 {
 }
 
 .report-menu a:hover {
-    text-decoration: underline;
+    /* text-decoration: underline; */
     font-family: "Montserrat", sans-serif;
     transform: scale(1.01);
     color: #ffffff;
+    color: #000000;
+    background-color: #ffffff;
+    font-weight: 600;
 }
 
 .report-menu {

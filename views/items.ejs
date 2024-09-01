@@ -42,15 +42,15 @@
             <th class="left-align">No.</th>
             <th class="left-align">Item Code</th>
             <th class="left-align">Description</th>
-            <th class="left-align">Unit</th>
-            <th class="left-align">Price</th>
-            <th id="action">Actions</th>
+            <th class="center-align">Unit</th>
+            <th class="center-align">Price</th>
+            <th class="center-align" id="action">Actions</th>
           </tr>
         </thead>
         <tbody>
           <% items.forEach((item, index)=> { %>
             <tr>
-              <td class="left-align">
+              <td class="center-align">
                 <%= index + 1 %>
               </td>
               <td class="left-align">
@@ -59,10 +59,10 @@
               <td class="left-align">
                 <%= item.description %>
               </td>
-              <td class="left-align">
+              <td class="center-align">
                 <%= item.unit %>
               </td>
-              <td class="left-align">
+              <td class="center-align">
                 <% if (item.price !=null) { %>
                   <%= item.price.toLocaleString() %>
                     <% } else { %>
