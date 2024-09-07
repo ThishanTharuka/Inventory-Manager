@@ -6,21 +6,25 @@ const generatePDF = require('../services/pdf-service');
 
 router.get('/invoices', (req, res) => {
     const { search } = req.query;
-    let invoiceQuery = `SELECT 
-                            i.invoice_id, 
-                            i.invoice_date, 
-                            i.total,
-                            i.stock_type,
-                            i.dealer_name,
-                            ii.item_code, 
-                            ii.quantity, 
-                            ii.price_per_item, 
-                            ii.extention, 
-                            it.description 
-                        FROM 
-                            invoices i 
-                            JOIN invoice_items ii ON i.invoice_id = ii.invoice_id 
-                            JOIN items it ON ii.item_code = it.item_code`;
+    let invoiceQuery = `
+        SELECT 
+            i.invoice_id, 
+            i.invoice_date, 
+            i.total,
+            i.stock_type,
+            i.dealer_name,
+            i.settlement_status,
+            i.settlement_amount,
+            ii.item_code, 
+            ii.quantity, 
+            ii.price_per_item, 
+            ii.extention, 
+            it.description 
+        FROM 
+            invoices i 
+            JOIN invoice_items ii ON i.invoice_id = ii.invoice_id 
+            JOIN items it ON ii.item_code = it.item_code
+    `;
 
     // If a search parameter is provided, filter invoices based on it
     if (search) {
@@ -49,6 +53,8 @@ router.get('/invoices', (req, res) => {
                     stock_type: row.stock_type,
                     dealer_name: row.dealer_name,
                     total: row.total,
+                    settlement_status: row.settlement_status,  // Add settlement status
+                    settlement_amount: row.settlement_amount,  // Add settlement amount
                     items: []
                 };
                 invoices.push(existingInvoice);
@@ -61,17 +67,14 @@ router.get('/invoices', (req, res) => {
                 quantity: row.quantity,
                 price_per_item: row.price_per_item,
                 extention: row.extention
-
-
             });
-
         });
-
 
         // Render the invoices page with fetched data
         res.render('invoices', { title: 'Invoices', invoices, search });
     });
 });
+
 
 
 router.get('/invoice-summary', (req, res) => {
@@ -500,6 +503,67 @@ router.post('/invoices/send-pdf', (req, res) => {
 
         // Generate the PDF and stream it to the response
         generatePDF.generateInvoicePDF(invoice, (chunk) => res.write(chunk), () => res.end());
+    });
+});
+
+// Fetch invoice details for settlement
+router.get('/invoices/settle/:id', (req, res) => {
+    const invoiceId = req.params.id;
+    const query = `
+        SELECT i.invoice_id, i.invoice_date, i.dealer_name, i.total, i.stock_type, 
+               ii.item_code, ii.quantity, ii.price_per_item, ii.extention, 
+               it.description AS item_name
+        FROM invoices i
+        LEFT JOIN invoice_items ii ON i.invoice_id = ii.invoice_id
+        LEFT JOIN items it ON ii.item_code = it.item_code
+        WHERE i.invoice_id = ?
+    `;
+
+    database.query(query, [invoiceId], (err, invoiceResults) => {
+        if (err) {
+            console.error('Error fetching invoice details:', err);
+            res.status(500).send('Internal Server Error');
+            return;
+        }
+
+        const invoice = {
+            invoice_id: invoiceResults[0].invoice_id,
+            invoice_date: invoiceResults[0].invoice_date,
+            dealer_id: invoiceResults[0].dealer_name,
+            total: invoiceResults[0].total,
+            stock_type: invoiceResults[0].stock_type,
+            items: invoiceResults.map(row => ({
+                item_code: row.item_code,
+                item_name: row.item_name,
+                quantity: row.quantity,
+                price_per_item: row.price_per_item,
+                extention: row.extention
+            }))
+        };
+
+        res.render('settle-invoice', { title: 'Settle Invoice', invoice });
+    });
+});
+
+// Handle settlement form submission
+router.post('/invoices/settle/:id', (req, res) => {
+    const invoiceId = req.params.id;
+    const { settlement_amount, settlement_status, remarks } = req.body;
+
+    const updateQuery = `
+        UPDATE invoices
+        SET settlement_amount = ?, settlement_status = ?, remarks = ?
+        WHERE invoice_id = ?
+    `;
+
+    database.query(updateQuery, [settlement_amount, settlement_status, remarks, invoiceId], (err, result) => {
+        if (err) {
+            console.error('Error updating invoice:', err);
+            res.status(500).send('Internal Server Error');
+            return;
+        }
+
+        res.redirect('/invoices');
     });
 });
 

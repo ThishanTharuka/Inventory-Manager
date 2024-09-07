@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/css/nav.css">
+    <link rel="stylesheet" href="/css/edit-page.css">
+    <link rel="stylesheet" href="/css/styles.css">
+    <title>
+        <%= title %>
+    </title>
+    <link rel="icon" href="/images/edit.svg" type="image/x-icon">
+</head>
+
+<body>
+    <!-- Include the navigation partial -->
+    <%- include('./partials/nav.ejs') %>
+        <div id="top-bar">
+            <div id="page-name">
+                <p>Settle invoice</p>
+            </div>
+        </div>
+        <main id="container">
+            <div class="cards">
+                <div class="invoice-card">
+                    <!-- invoice header -->
+                    <div class="header">
+                        <input type="hidden" name="invoice_id" value="<%= invoice.invoice_id %>">
+                        <h3>invoice Date: <%= invoice.invoice_date.toLocaleDateString("en-GB") %>
+                        </h3>
+                    </div>
+                    <div>
+                        <label for="invoice_id">Invoice ID</label>
+                        <%= invoice.invoice_id %>
+                    </div>
+                    <!-- Table for displaying invoice products -->
+                    <table id="invoice-tbl">
+                        <!-- Table headers -->
+                        <thead>
+                            <tr>
+                                <th>Item Code</th>
+                                <th>Item Name</th>
+                                <th>Quantity</th>
+                                <th>Unit Price</th>
+                            </tr>
+                        </thead>
+                        <!-- Table body -->
+                        <tbody>
+                            <% invoice.items.forEach((item, index)=> { %>
+                                <tr>
+                                    <!-- Display product details -->
+                                    <td>
+                                        <%= item.item_code %>
+                                    </td>
+                                    <td>
+                                        <%= item.item_name %>
+                                    </td>
+                                    <td>
+                                        <%= item.quantity %>
+                                    </td>
+                                    <td>
+                                        <%= item.price_per_item %>
+                                    </td>
+                                </tr>
+                                <% }); %>
+                        </tbody>
+                    </table>
+                    <div>
+                        <label for="total_amount">Total Amount:</label>
+                        <%= invoice.total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2
+                            }) %>
+                    </div>
+                </div>
+            </div>
+
+            <br>
+
+            <!-- Form for editing settlement details -->
+            <form action="/invoices/settle/<%= invoice.invoice_id %>" method="post">
+                <div>
+                    <label for="settlement_amount">Settlement Amount:</label>
+                    <input type="number" id="settlement_amount" name="settlement_amount"
+                        value="<%= invoice.settlement_amount %>" step="0.01" required>
+                </div>
+                <div>
+                    <label for="settlement_status">Settlement Status:</label>
+                    <div>
+                        <label>
+                            <input type="radio" id="settlement_status_pending" name="settlement_status" value="pending"
+                                <%=invoice.settlement_status==='pending' ? 'checked' : '' %>> Pending
+                        </label>
+                        <label>
+                            <input type="radio" id="settlement_status_settled" name="settlement_status" value="settled"
+                                <%=invoice.settlement_status==='settled' ? 'checked' : '' %>> Settled
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="remarks">Remarks:</label>
+                    <textarea id="remarks" name="remarks" class="large-textarea"><%= invoice.remarks %></textarea>
+                </div>
+                <button type="submit">Save</button>
+            </form>
+        </main>
+</body>
+
+</html>
