@@ -113,10 +113,10 @@
                     <div class="item-field">
                         <div>
                             <label for="Item">Item Code</label>
-                            <select name="item_codes[]" onchange="syncItemDetails(this, 'code')" required>
-                                ${items.map(item => `<option value="${item.item_code}">${item.item_code}</option>`).join('')}
-                            </select>
+                            <input type="text" name="item_codes[]" class="autocomplete-item-code" placeholder="Type item code" required oninput="filterAutocomplete(this)">
+                            <ul class="autocomplete-list hidden"></ul>
                         </div>
+
                         <div id="item-name">
                             <label for="Description">Item Name</label>
                             <select name="descriptions[]" onchange="syncItemDetails(this, 'name')" required>
@@ -191,6 +191,45 @@
                 });
                 document.getElementById('grand-total').textContent = grandTotal.toFixed(2);
             }
+
+            const itemCodes = items.map(item => item.item_code);
+
+    function filterAutocomplete(inputElement) {
+        const list = inputElement.nextElementSibling;
+        const search = inputElement.value.toLowerCase();
+
+        // Filter item codes based on input
+        const filteredCodes = itemCodes.filter(code => code.toLowerCase().includes(search));
+
+        // Clear previous results
+        list.innerHTML = '';
+
+        // Populate autocomplete list
+        if (search.trim() !== '' && filteredCodes.length) {
+            filteredCodes.forEach(code => {
+                const listItem = document.createElement('li');
+                listItem.textContent = code;
+                listItem.classList.add('autocomplete-item');
+                listItem.onclick = () => selectAutocompleteItem(inputElement, code);
+                list.appendChild(listItem);
+            });
+            list.classList.remove('hidden');
+        } else {
+            list.classList.add('hidden');
+        }
+    }
+
+    function selectAutocompleteItem(inputElement, selectedCode) {
+        inputElement.value = selectedCode;
+
+        // Trigger other updates (e.g., syncing item details)
+        syncItemDetails(inputElement, 'code');
+
+        // Hide the autocomplete list
+        const list = inputElement.nextElementSibling;
+        list.innerHTML = '';
+        list.classList.add('hidden');
+    }
         </script>
 </body>
 

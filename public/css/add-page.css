@@ -243,3 +243,28 @@ td input {
 #item-name select{
   width: 70%;
 }
+
+.autocomplete-list {
+        position: absolute;
+        border: 1px solid #ccc;
+        max-height: 200px;
+        overflow-y: auto;
+        background-color: white;
+        z-index: 1000;
+        list-style: none;
+        margin: 0;
+        padding: 0;
+}
+
+.autocomplete-item {
+        padding: 8px 12px;
+        cursor: pointer;
+}
+
+.autocomplete-item:hover {
+        background-color: #f0f0f0;
+}
+
+.hidden {
+        display: none;
+}
