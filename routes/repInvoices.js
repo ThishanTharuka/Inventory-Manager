@@ -118,7 +118,6 @@ router.post('/rep-invoices/add', (req, res) => {
             const total = price * quantity * (1 - discount / 100); // Apply discount
             invoiceTotal += total; // Add to invoice total
 
-
             console.log('Item:', item_code, 'Price:', price, 'Quantity:', quantity, 'Discount:', discount, 'Total:', total);
             // Push item data to the array
             invoiceItemsData.push([invoice_id, item_code, price, quantity, discount, total]);
@@ -141,80 +140,107 @@ router.post('/rep-invoices/add', (req, res) => {
             console.log(missingItems);
 
             if (missingItems.length > 0) {
-                // Some items are missing in the rep_stocks table
-                res.status(400).send(`Error: The following items are not available in the rep stock: ${missingItems.join(', ')}. Please check the availability of these items and try again.`);
-                return;
-            }
-
-            // Begin transaction
-            database.beginTransaction(err => {
-                if (err) {
-                    console.error('Error beginning transaction:', err);
-                    res.status(500).send('Internal Server Error');
-                    return;
-                }
-
-                // Insert invoice details into the rep_invoices table
-                const repInvoicesQuery = 'INSERT INTO rep_invoices (invoice_id, invoice_date, dealer_id, total) VALUES (?, ?, ?, ?)';
-                database.query(repInvoicesQuery, [invoice_id, invoice_date, dealer_id, invoiceTotal], (err, result) => {
+                // Fetch descriptions for missing items from the items table
+                const fetchDescriptionsQuery = 'SELECT item_code, description FROM items WHERE item_code IN (?)';
+                database.query(fetchDescriptionsQuery, [missingItems], (err, descriptionsResult) => {
                     if (err) {
-                        console.error('Error adding invoice:', err);
-                        database.rollback(() => {
-                            res.status(500).send('Internal Server Error');
-                        });
+                        console.error('Error fetching descriptions for missing items:', err);
+                        res.status(500).send('Internal Server Error');
                         return;
                     }
 
-                    // Insert invoice items into the rep_invoice_items table
-                    const invoiceItemsQuery = 'INSERT INTO rep_invoice_items (invoice_id, item_code, price_per_item, quantity, discount, total) VALUES ?';
-                    database.query(invoiceItemsQuery, [invoiceItemsData], (err, result) => {
+                    const missingItemsWithDescriptions = descriptionsResult.map(row => [row.item_code, row.description, 0]);
+
+                    // Insert missing items into the rep_stocks table
+                    const insertMissingItemsQuery = 'INSERT INTO rep_stocks (item_code, description, quantity) VALUES ?';
+                    database.query(insertMissingItemsQuery, [missingItemsWithDescriptions], (err) => {
                         if (err) {
-                            console.error('Error adding invoice items:', err);
+                            console.error('Error inserting missing items into rep_stocks:', err);
+                            res.status(500).send('Internal Server Error');
+                            return;
+                        }
+
+                        console.log('Missing items added to rep_stocks:', missingItemsWithDescriptions);
+                        proceedWithInvoiceProcessing();
+                    });
+                });
+            } else {
+                proceedWithInvoiceProcessing();
+            }
+
+            // Function to proceed with invoice processing
+            function proceedWithInvoiceProcessing() {
+                // Begin transaction
+                database.beginTransaction(err => {
+                    if (err) {
+                        console.error('Error beginning transaction:', err);
+                        res.status(500).send('Internal Server Error');
+                        return;
+                    }
+
+                    // Insert invoice details into the rep_invoices table
+                    const repInvoicesQuery = 'INSERT INTO rep_invoices (invoice_id, invoice_date, dealer_id, total) VALUES (?, ?, ?, ?)';
+                    database.query(repInvoicesQuery, [invoice_id, invoice_date, dealer_id, invoiceTotal], (err, result) => {
+                        if (err) {
+                            console.error('Error adding invoice:', err);
                             database.rollback(() => {
                                 res.status(500).send('Internal Server Error');
                             });
                             return;
                         }
 
-                        // Update stock quantities for each item
-                        const updateStockPromises = item_codes.map((item_code, index) => {
-                            return new Promise((resolve, reject) => {
-                                const updateStockQuery = 'UPDATE rep_stocks SET quantity = quantity - ? WHERE item_code = ?';
-                                database.query(updateStockQuery, [quantities[index], item_code], (err, result) => {
-                                    if (err) {
-                                        reject(err);
-                                    } else {
-                                        resolve();
-                                    }
-                                });
-                            });
-                        });
-
-                        Promise.all(updateStockPromises)
-                            .then(() => {
-                                database.commit(err => {
-                                    if (err) {
-                                        console.error('Error committing transaction:', err);
-                                        database.rollback(() => {
-                                            res.status(500).send('Internal Server Error');
-                                        });
-                                        return;
-                                    }
-                                    res.redirect('/rep-invoices');
-                                });
-                            })
-                            .catch(err => {
-                                console.error('Error updating stock quantities:', err);
+                        // Insert invoice items into the rep_invoice_items table
+                        const invoiceItemsQuery = 'INSERT INTO rep_invoice_items (invoice_id, item_code, price_per_item, quantity, discount, total) VALUES ?';
+                        database.query(invoiceItemsQuery, [invoiceItemsData], (err, result) => {
+                            if (err) {
+                                console.error('Error adding invoice items:', err);
                                 database.rollback(() => {
                                     res.status(500).send('Internal Server Error');
                                 });
+                                return;
+                            }
+
+                            // Update stock quantities for each item
+                            const updateStockPromises = item_codes.map((item_code, index) => {
+                                return new Promise((resolve, reject) => {
+                                    const updateStockQuery = 'UPDATE rep_stocks SET quantity = quantity - ? WHERE item_code = ?';
+                                    database.query(updateStockQuery, [quantities[index], item_code], (err, result) => {
+                                        if (err) {
+                                            reject(err);
+                                        } else {
+                                            resolve();
+                                        }
+                                    });
+                                });
                             });
+
+                            Promise.all(updateStockPromises)
+                                .then(() => {
+                                    database.commit(err => {
+                                        if (err) {
+                                            console.error('Error committing transaction:', err);
+                                            database.rollback(() => {
+                                                res.status(500).send('Internal Server Error');
+                                            });
+                                            return;
+                                        }
+                                        res.redirect('/rep-invoices');
+                                    });
+                                })
+                                .catch(err => {
+                                    console.error('Error updating stock quantities:', err);
+                                    database.rollback(() => {
+                                        res.status(500).send('Internal Server Error');
+                                    });
+                                });
+                        });
                     });
                 });
-            });
+            }
         });
     });
 });
+
 
 
 
