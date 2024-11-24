@@ -30,6 +30,7 @@
     </div>
     <script>
         const items = <%- JSON.stringify(items) %>;
+        const itemCodes = items.map(item => item.item_code);
 
         function addItem() {
             const itemsContainer = document.getElementById('items-container');
@@ -37,9 +38,8 @@
                 <div class="item-field">
                     <div>
                         <label for="Item">Item Code</label>
-                        <select name="item_codes[]" onchange="syncItemDetails(this, 'code')" required>
-                            ${items.map(item => `<option value="${item.item_code}">${escapeHtml(item.item_code)}</option>`).join('')}
-                        </select>
+                        <input type="text" name="item_codes[]" class="autocomplete-item-code" placeholder="Type item code" required oninput="filterAutocomplete(this)">
+                        <ul class="autocomplete-list hidden"></ul>
                     </div>
                     <div id="item-name">
                         <label for="Description">Item Name</label>
@@ -49,7 +49,7 @@
                     </div>
                     <div>
                         <label for="Price">Unit Price</label>
-                        <input type="number" step="0.01" name="prices[]" required readonly oninput="updateTotal(this)">
+                        <input type="number" step="0.01" name="prices[]" required readonly>
                     </div>
                     <div>
                         <label for="quantity">Quantity</label>
@@ -85,6 +85,43 @@
                 priceInput.value = selectedItem.price;
             }
         }
+
+        function filterAutocomplete(inputElement) {
+        const list = inputElement.nextElementSibling;
+        const search = inputElement.value.toLowerCase();
+
+        // Filter item codes based on input
+        const filteredCodes = itemCodes.filter(code => code.toLowerCase().includes(search));
+
+        // Clear previous results
+        list.innerHTML = '';
+
+        // Populate autocomplete list
+        if (search.trim() !== '' && filteredCodes.length) {
+            filteredCodes.forEach(code => {
+                const listItem = document.createElement('li');
+                listItem.textContent = code;
+                listItem.classList.add('autocomplete-item');
+                listItem.onclick = () => selectAutocompleteItem(inputElement, code);
+                list.appendChild(listItem);
+            });
+            list.classList.remove('hidden');
+        } else {
+            list.classList.add('hidden');
+        }
+    }
+
+    function selectAutocompleteItem(inputElement, selectedCode) {
+        inputElement.value = selectedCode;
+
+        // Trigger other updates (e.g., syncing item details)
+        syncItemDetails(inputElement, 'code');
+
+        // Hide the autocomplete list
+        const list = inputElement.nextElementSibling;
+        list.innerHTML = '';
+        list.classList.add('hidden');
+    }
 
         function escapeHtml(text) {
             return text
