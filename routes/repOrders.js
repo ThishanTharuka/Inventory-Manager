@@ -99,7 +99,7 @@ router.post('/rep-orders/add', (req, res) => {
         quantity: parseInt(quantities[index], 10)
     }));
 
-    const orderQuery = 'INSERT INTO reps_orders (order_id, order_date, type) VALUES (?, ?, ?)';
+    const orderQuery = 'INSERT INTO reps_orders (order_id, order_date, order_type) VALUES (?, ?, ?)';
     const orderItemsQuery = 'INSERT INTO reps_order_items (order_id, item_code, quantity) VALUES ?';
 
     // Check if all items exist in mathara_stocks table
@@ -119,11 +119,26 @@ router.post('/rep-orders/add', (req, res) => {
         console.log(missingItems);
 
         if (missingItems.length > 0) {
-            // Some items are missing in the mathara_stocks table
-            res.status(400).send(`Error: The following items are not available in the Matara stock: ${missingItems.map(item => item.item_code).join(', ')}. Please check the availability of these items and try again.`);
-            return;
+            // Insert missing items into mathara_stocks with quantity set to 0
+            const missingItemsData = missingItems.map(item => [item.item_code, item.description, 0]);
+            const insertMissingItemsQuery = 'INSERT INTO mathara_stocks (item_code, description, quantity) VALUES ?';
+
+            database.query(insertMissingItemsQuery, [missingItemsData], (err) => {
+                if (err) {
+                    console.error('Error inserting missing items into mathara_stocks:', err);
+                    res.status(500).send('Internal Server Error');
+                    return;
+                }
+
+                console.log('Missing items added to mathara_stocks:', missingItemsData);
+                proceedWithOrderProcessing();
+            });
+        } else {
+            proceedWithOrderProcessing();
         }
 
+        // Function to proceed with order processing
+        function proceedWithOrderProcessing() {
         // Begin transaction
         database.beginTransaction(err => {
             if (err) {
@@ -198,7 +213,8 @@ router.post('/rep-orders/add', (req, res) => {
                 });
             });
         });
-    });
+    }
+    });   
 });
 
 
