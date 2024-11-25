@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="/css/nav.css">
     <link rel="stylesheet" href="/css/add-page.css">
-    <title>Add Rep Invoice</title>
+    <title>Add Rep Sales</title>
     <link rel="icon" href="/images/invoice.svg" type="image/x-icon">
 </head>
 
@@ -46,6 +46,7 @@
         </div>
         <script>
             const items = <%- JSON.stringify(items) %>;
+            const itemNames = items.map(item => item.description);
 
             function addItem() {
                 const itemsContainer = document.getElementById('items-container');
@@ -53,15 +54,14 @@
             <div class="item-field">
                 <div>
                     <label for="Item">Item Code</label>
-                    <input type="text" name="item_codes[]" class="autocomplete-item-code" placeholder="Type item code" required oninput="filterAutocomplete(this)">
+                    <input type="text" name="item_codes[]" class="autocomplete-item-code" placeholder="Type item code" required oninput="filterAutocomplete(this, 'code')">
                     <ul class="autocomplete-list hidden"></ul>
                 </div>
 
                 <div id="item-name">
                     <label for="Description">Item Name</label>
-                    <select name="descriptions[]" onchange="syncItemDetails(this, 'name')" required>
-                        ${items.map(item => `<option value="${item.description}">${item.description}</option>`).join('')}
-                    </select>
+                    <input type="text" name="descriptions[]" class="autocomplete-item-name" placeholder="Type item name" required oninput="filterAutocomplete(this, 'name')">
+                    <ul class="autocomplete-list hidden"></ul>
                 </div>
                 <div>
                     <label for="Price">Unit Price</label>
@@ -108,23 +108,24 @@
 
             const itemCodes = items.map(item => item.item_code);
 
-    function filterAutocomplete(inputElement) {
+            function filterAutocomplete(inputElement, type) {
         const list = inputElement.nextElementSibling;
         const search = inputElement.value.toLowerCase();
+        const sourceArray = type === 'code' ? itemCodes : itemNames;
 
-        // Filter item codes based on input
-        const filteredCodes = itemCodes.filter(code => code.toLowerCase().includes(search));
+        // Filter based on input
+        const filteredItems = sourceArray.filter(item => item.toLowerCase().includes(search));
 
         // Clear previous results
         list.innerHTML = '';
 
         // Populate autocomplete list
-        if (search.trim() !== '' && filteredCodes.length) {
-            filteredCodes.forEach(code => {
+        if (search.trim() !== '' && filteredItems.length) {
+            filteredItems.forEach(item => {
                 const listItem = document.createElement('li');
-                listItem.textContent = code;
+                listItem.textContent = item;
                 listItem.classList.add('autocomplete-item');
-                listItem.onclick = () => selectAutocompleteItem(inputElement, code);
+                listItem.onclick = () => selectAutocompleteItem(inputElement, item, type);
                 list.appendChild(listItem);
             });
             list.classList.remove('hidden');
@@ -133,11 +134,11 @@
         }
     }
 
-    function selectAutocompleteItem(inputElement, selectedCode) {
-        inputElement.value = selectedCode;
+    function selectAutocompleteItem(inputElement, selectedItem, type) {
+        inputElement.value = selectedItem;
 
         // Trigger other updates (e.g., syncing item details)
-        syncItemDetails(inputElement, 'code');
+        syncItemDetails(inputElement, type);
 
         // Hide the autocomplete list
         const list = inputElement.nextElementSibling;
