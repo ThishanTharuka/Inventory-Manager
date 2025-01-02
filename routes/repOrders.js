@@ -2,6 +2,10 @@ const express = require('express');
 const router = express.Router();
 const database = require('../database');
 const { reject } = require('async');
+const PDFDoc = require('pdfkit');
+const PDFDocument = require('pdfkit-table');
+const fs = require('fs');
+const path = require('path');
 
 // render Rep Handle page
 router.get('/rep-handle', (req, res) => {
@@ -517,6 +521,117 @@ router.post('/update-rep-order', (req, res) => {
     });
 });
 
+//TODO Move the pdf generation to a service and call it from the route 
+//TODO Do this when revamp
+// Route to generate PDF for a specific order
+router.get('/rep-orders/pdf/:order_id', (req, res) => {
+    const orderId = req.params.order_id;
+    const remark = req.query.remark || '';
 
+    // SQL query to fetch the order details
+    const orderQuery = `SELECT 
+                            i.order_id, 
+                            i.order_date, 
+                            i.order_type,
+                            i.sale_id,
+                            i.purchase_id,
+                            ii.item_code, 
+                            ii.quantity, 
+                            it.description 
+                        FROM 
+                            reps_orders i 
+                            JOIN reps_order_items ii ON i.order_id = ii.order_id 
+                            JOIN items it ON ii.item_code = it.item_code 
+                        WHERE 
+                            i.order_id = ?`;
+
+    database.query(orderQuery, [orderId], (err, rows) => {
+        if (err) {
+            console.error('Error fetching order details:', err);
+            res.status(500).send('Internal Server Error');
+            return;
+        }
+
+        if (rows.length === 0) {
+            res.status(404).send('Order not found');
+            return;
+        }
+
+        const order = {
+            order_id: rows[0].order_id,
+            order_date: rows[0].order_date,
+            order_type: rows[0].order_type,
+            sale_id: rows[0].sale_id,
+            purchase_id: rows[0].purchase_id,
+            items: rows.map(row => ({
+                item_code: row.item_code,
+                description: row.description,
+                quantity: row.quantity
+            })),
+            remark: remark
+        };
+
+        // Format the order date
+        const formattedDate = order.order_date.toISOString().split('T')[0];
+
+        const order_name_date = order.order_date.toISOString().split('T')[0];
+        // Set response headers for PDF download
+        res.writeHead(200, {
+            'Content-Type': 'application/pdf',
+            'Content-Disposition': `attachment;filename=rep_order_${order_name_date}.pdf`,
+        });
+
+        // Generate the PDF and stream it to the response
+        const doc = new PDFDocument();
+        doc.pipe(res);
+
+        // Add order details to the PDF
+        doc.fontSize(16).text('Order Details', { align: 'center' });
+        doc.moveDown();
+        doc.fontSize(12).text(`Order Date: ${order.order_date.toLocaleDateString('en-GB')}`, { align: 'left' });
+        doc.fontSize(12).text(`Order Type: ${order.order_type}`, { align: 'left' });
+        if (order.sale_id || order.purchase_id) {
+            doc.fontSize(12).text(`Sale ID: ${order.sale_id ? order.sale_id : "No Sale ID Available"}`, { align: 'left' });
+            doc.fontSize(12).text(`Purchase ID: ${order.purchase_id ? order.purchase_id : "No Invoice ID Available"}`, { align: 'left' });
+        }
+        doc.moveDown();
+
+        // Define table structure with headers and data
+        const table = {
+            headers: [
+                { label: 'Item Code', property: 'item_code', width: 100 },
+                { label: 'Description', property: 'description', width: 250 },
+                { label: 'Quantity', property: 'quantity', width: 100, align: 'right' }
+            ],
+            datas: order.items.map(item => ({
+                item_code: item.item_code,
+                description: item.description,
+                quantity: item.quantity
+            }))
+        };
+
+        // Add table to PDF
+        doc.table(table, {
+            padding: 5,
+            prepareHeader: () => doc.font('Helvetica-Bold').fontSize(12),
+            prepareRow: (row, indexColumn, indexRow, rectRow, rectCell) => {
+                doc.font('Helvetica').fontSize(10);
+                const { x, y, width, height } = rectCell;
+                if (indexColumn === 0) {
+                    doc.moveTo(x, y).lineTo(x, y + height).stroke();
+                }
+                doc.moveTo(x + width, y).lineTo(x + width, y + height).stroke();
+            }
+        });
+
+        // Add remark to the PDF
+        doc.moveDown();
+        doc.fontSize(12).text(`Remark:`, { align: 'left' });
+        doc.fontSize(12).text(`${order.remark}`, { align: 'left' });
+
+        // Finalize the PDF and end the stream
+        doc.end();
+    });
+});
 
 module.exports = router;
