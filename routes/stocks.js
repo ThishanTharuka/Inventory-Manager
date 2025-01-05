@@ -314,7 +314,49 @@ function updateStockQuantitiesInTransaction(connection, itemsData, isMatharaStoc
     });
 }
 
+router.get('/compare-monthly-stock', (req, res) => {
+    const query = `
+        WITH TotalIssued AS (
+            SELECT 
+                item_code,
+                SUM(quantity) AS total_issued
+            FROM 
+                reps_order_items
+            GROUP BY 
+                item_code
+        ),
+        TotalSold AS (
+            SELECT 
+                item_code,
+                SUM(quantity) AS total_sold
+            FROM 
+                rep_invoice_items
+            GROUP BY 
+                item_code
+        )
+        SELECT 
+            ti.item_code,
+            i.description,
+            COALESCE(ti.total_issued, 0) AS total_issued,
+            COALESCE(ts.total_sold, 0) AS total_sold,
+            COALESCE(ti.total_issued, 0) - COALESCE(ts.total_sold, 0) AS surplus
+        FROM 
+            TotalIssued ti
+        LEFT JOIN 
+            TotalSold ts ON ti.item_code = ts.item_code
+        LEFT JOIN 
+            items i ON ti.item_code = i.item_code
+        ORDER BY 
+            surplus DESC;
+    `;
 
+    database.query(query, (err, results) => {
+        if (err) {
+            return res.status(500).send(err);
+        }
+        res.render('compare-monthly-stock', { stocks: results });
+    });
+});
 
 
 

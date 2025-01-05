@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/nav.css">
+    <title>Compare Monthly Stock</title>
+    <link rel="icon" href="/images/stock.svg" type="image/x-icon">
+</head>
+
+<body>
+    <%- include('./partials/nav.ejs') %>
+    <div id="top-bar">
+        <div id="page-name">
+            <p>Compare Monthly Stock</p>
+        </div>
+    </div>
+    <main>
+        <table id="shops">
+            <thead>
+                <tr>
+                    <th class="left-align">Item Code</th>
+                    <th class="left-align">Description</th>
+                    <th class="center-align">Total Issued</th>
+                    <th class="center-align">Total Sold</th>
+                    <th class="center-align">Surplus</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% stocks.forEach((stock) => { %>
+                <tr>
+                    <td class="left-align"><%= stock.item_code %></td>
+                    <td class="left-align"><%= stock.description %></td>
+                    <td class="center-align"><%= stock.total_issued %></td>
+                    <td class="center-align"><%= stock.total_sold %></td>
+                    <td class="center-align"><%= stock.surplus %></td>
+                </tr>
+                <% }); %>
+            </tbody>
+        </table>
+    </main>
+</body>
+
+</html>
