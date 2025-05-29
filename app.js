@@ -1,4 +1,5 @@
 const express = require('express');
+const path = require('path'); // Make sure path is required
 const session = require('express-session');
 const cookieParser = require('cookie-parser');
 const flash = require('connect-flash');
@@ -14,6 +15,7 @@ const repInvoices = require('./routes/repInvoices');
 
 //express app
 const app = express();
+app.set('views', path.join(__dirname, 'views')); // Set the views directory to the 'views' folder in the current directory
 
 // configure cookie-parser middleware
 app.use(cookieParser('SecretStringForCookies'));
