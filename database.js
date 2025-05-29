@@ -13,7 +13,7 @@ var connection = mysql.createConnection({
   database: process.env.DATABASE,
   port: process.env.DB_PORT || 3306, // Default MySQL port is 3306
   ssl: {
-    ca: fs.readFileSync('./certs/ca.pem') // or false for local dev
+    ca: fs.readFileSync('/certs/ca.pem') // or false for local dev
   }
 });
 
