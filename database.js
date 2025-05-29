@@ -3,37 +3,63 @@ const dotenv = require("dotenv");
 const path = require("path");
 const fs = require("fs");
 
-dotenv.config({ path: "./.env" });
+dotenv.config({ path: "./.env" }); // Ensure .env is loaded for local dev
 
-// Construct the path to ca.pem relative to the project root
-// Assuming 'certs' directory is at the root of your project.
-// __dirname would be /var/task/ if database.js is at the root.
-// If database.js is in a subdirectory, adjust accordingly or use a path known to be the project root.
-// For a file at the project root, './certs/ca.pem' is often sufficient.
-// Using path.join(process.cwd(), 'certs', 'ca.pem') is also an option if cwd() is reliable.
-// A common approach if database.js is at the project root:
+// Construct the path to ca.pem
+// This assumes 'certs/ca.pem' is at the root of your deployment.
 const caPath = path.join(__dirname, 'certs', 'ca.pem');
-// Or, if you are certain database.js is at the root and certs is a direct subdirectory:
-// const caPath = './certs/ca.pem';
 
-// create connection
-var connection = mysql.createConnection({
+// Create a connection pool
+const pool = mysql.createPool({
   host: process.env.HOST,
   user: process.env.USER,
   password: process.env.PASSWORD,
   database: process.env.DATABASE,
-  port: process.env.DB_PORT || 3306, // Default MySQL port is 3306
+  port: process.env.DB_PORT || 3306,
   ssl: {
-    ca: fs.readFileSync(caPath) // Corrected path
-  }
+    // Ensure caPath is valid and fs.readFileSync can access it in Vercel.
+    // Consider using an environment variable for the CA content for more robustness.
+    ca: fs.readFileSync(caPath)
+  },
+  waitForConnections: true,    // Default: true. Wait for a connection to become available from the pool.
+  connectionLimit: 10,         // Default: 10. Adjust based on your Aiven plan and expected load.
+  queueLimit: 0,               // Default: 0 (unlimited). Max number of connection requests to queue.
+  connectTimeout: 20000,       // Increase connection timeout (e.g., 20 seconds). Default is 10000ms.
+  // Recommended: Add a validation query to check connections before use
+  // typeCast: function (field, next) {
+  //   if (field.type == 'TINY' && field.length == 1) {
+  //     return (field.string() == '1'); // 1 = true, 0 = false
+  //   }
+  //   return next();
+  // }
 });
 
-connection.connect((err) => {
-  if (err) {
-    console.error("❌ Failed to connect to database:", err.message);
-    return;
-  }
-  console.log("✅ Connected to Aiven MySQL database");
-});
+// Optional: Listen for acquisition and release events for debugging
+// pool.on('acquire', function (connection) {
+//   console.log('Connection %d acquired', connection.threadId);
+// });
+// pool.on('release', function (connection) {
+//   console.log('Connection %d released', connection.threadId);
+// });
 
-module.exports = connection;
+// Test the pool connection (optional, but helpful for initial setup)
+// pool.getConnection((err, connection) => {
+//   if (err) {
+//     console.error("❌ Failed to get connection from pool:", err.message);
+//     if (err.code === 'PROTOCOL_CONNECTION_LOST') {
+//       console.error('Database connection was closed.');
+//     }
+//     if (err.code === 'ER_CON_COUNT_ERROR') {
+//       console.error('Database has too many connections.');
+//     }
+//     if (err.code === 'ECONNREFUSED') {
+//       console.error('Database connection was refused.');
+//     }
+//     return;
+//   }
+//   console.log("✅ Successfully connected to database using pool.");
+//   connection.release(); // Release the connection back to the pool
+// });
+
+// Export the promise-based version of the pool for use with async/await in routes
+module.exports = pool.promise();
