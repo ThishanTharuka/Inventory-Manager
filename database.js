@@ -12,9 +12,9 @@ var connection = mysql.createConnection({
   password: process.env.PASSWORD,
   database: process.env.DATABASE,
   port: process.env.DB_PORT || 3306, // Default MySQL port is 3306
-  ssl: {
-    ca: fs.readFileSync('./certs/ca.pem') // or false for local dev
-  },
+  ssl: process.env.DB_SSL_CA
+    ? { ca: process.env.DB_SSL_CA.replace(/\\n/g, '\n') } // Use CA cert from env var, ensure newlines are handled
+    : undefined, // Set to undefined or false if DB_SSL_CA is not set (e.g., for local dev without SSL)
 });
 
 connection.connect((err) => {
