@@ -1,6 +1,6 @@
 const mysql = require("mysql2");
 const dotenv = require("dotenv");
-const { path } = require("pdfkit");
+const path = require("path");
 const fs = require("fs");
 
 dotenv.config({ path: "./.env" });
