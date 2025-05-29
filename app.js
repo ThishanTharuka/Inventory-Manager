@@ -1,6 +1,6 @@
 const express = require('express');
 const path = require('path'); // Make sure path is required
-const session = require('cookie-session');
+const session = require('express-session');
 const cookieParser = require('cookie-parser');
 const flash = require('connect-flash');
 const itemRoutes = require('./routes/items');
