@@ -31,7 +31,11 @@
     </div>
 
     <div id="btn">
-        <a id="logout-btn" href="/logout">LOG OUT</a>
+        <form action="/logout" method="POST" style="display: inline;">
+            <button type="submit" id="logout-btn" style="background: none; border: none; color: inherit; cursor: pointer;">
+                LOG OUT
+            </button>
+        </form>
     </div>
 </nav>
 

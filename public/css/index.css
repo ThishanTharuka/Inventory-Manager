@@ -25,17 +25,17 @@ nav img {
     justify-content: start;
 }
 
-nav a {
+nav form {
     margin: 1% 3% 1% 0%;
     display: flex;
     align-items: center;
     justify-content: end;
 }
 
-#logout-btn {
+.logout-btn {
     font-family: "Montserrat", sans-serif;
-    width: 4rem;
     height: 7%;
+    width: 100%;
     text-decoration: none;
     background-color: #b5b3c0;
     color: #000000;
@@ -49,7 +49,7 @@ nav a {
     align-items: center;
 }
 
-#logout-btn:hover {
+.logout-btn:hover {
     background-color: #807e7e;
     cursor: pointer;
     transform: scale(0.99);

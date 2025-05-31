@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <!-- Include CSS stylesheet -->
+    <link rel="stylesheet" href="/css/login.css">
+</head>
+
+<body>
+    <!-- Header Section -->
+    <header>
+        <div class="logo-container">
+            <!-- Logo Image -->
+            <img src="/images/hebima logo and text.svg" alt="Hebima Plus Logo" class="logo">
+        </div>
+    </header>
+
+    <!-- Background Image Section -->
+    <div class="bg-image">
+        <img src="/images/bg.jpg" alt="background">
+        <div class="login-form">
+            <!-- Login Form -->
+            <form class="form-container" action="/login" method="POST">
+                <h2>Please log in here</h2>
+                <!-- Email Input Field -->
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" class="input-field" id="email" name="email" required autofocus>
+                </div>
+                <!-- Password Input Field -->
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" class="input-field" id="password" name="password" required>
+                </div>
+                <!-- Login Button -->
+                <button type="submit" class="submit-btn">Login</button>
+            </form>
+        </div>
+        <!-- Error Message for Invalid Login -->
+        <div>
+            <% if (error) { %>
+                <div class="alert-danger">
+                    <span><strong>Error!</strong> Invalid email or password.</span>
+                </div>
+            <% } %>
+        </div>
+        <!-- Logout Confirmation Message -->
+        <div>
+            <% if (logout) { %>
+                <div class="alert-info">
+                    <span>You have been logged out.</span>
+                </div>
+            <% } %>
+        </div>
+    </div>
+</body>
+
+</html>
