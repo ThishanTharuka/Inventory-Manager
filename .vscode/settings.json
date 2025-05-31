@@ -1,6 +1,7 @@
 {
     "conventionalCommits.scopes": [
         "web",
-        "backend"
+        "backend",
+        "web&back"
     ]
 }
