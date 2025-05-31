@@ -9,17 +9,20 @@
         <%= title %>
     </title>
     <link rel="icon" href="/images/404.svg" type="image/x-icon">
+    <!-- Include LottieFiles script -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.9.6/lottie.min.js"></script>
+    <script src="/javascript/404.js"></script> <!-- Link to external script -->
 </head>
 
 <body>
-    <!-- Include the navigation partial -->
-    <%- include('./partials/nav.ejs') %>
-
-        <div class="not-found content">
-            <h1>OOPS, Page not not-found!</h1>
+    <div class="not-found content">
+        <h1 class="mt-4">OOPS, Page not found!</h1>
+        <!-- Lottie animation container -->
+        <div id="lottie-animation" class="lottie-container"></div>
+        <div class="redirect-button">
+            <a href="/" class="btn btn-primary">Go to Home Page</a>
         </div>
-
-
+    </div>
 </body>
 
 </html>

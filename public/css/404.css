@@ -21,3 +21,40 @@ div h1 {
     font-size: 3rem;
     color: #444;
 }
+
+/* Not Found Animation */
+.lottie-container {
+    width: 500px;
+    height: 500px;
+    margin: 0 auto;
+}
+
+/* Redirect to home button */
+.redirect-button {
+    font-family: 'Montserrat', sans-serif;
+    text-align: center;
+    margin-top: 20px;
+}
+
+.redirect-button .btn {
+    display: inline-block;
+    padding: 10px 20px;
+    font-size: 1rem;
+    font-weight: bold;
+    color: #fff;
+    background-color: #007bff; /* Bootstrap primary color */
+    border: none;
+    border-radius: 25px;
+    text-decoration: none;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.redirect-button .btn:hover {
+    background-color: #0056b3; /* Darker shade for hover effect */
+    transform: scale(1.05); /* Slight zoom effect */
+}
+
+.redirect-button .btn:active {
+    background-color: #004085; /* Even darker shade for active state */
+    transform: scale(0.95); /* Slight shrink effect */
+}
