@@ -50,8 +50,7 @@
                                 <%= order.order_date.toLocaleDateString('en-GB') %>
                             </td>
                             <td class="right-align">
-                                <%= order.total.toLocaleString(undefined, { minimumFractionDigits: 2,
-                                    maximumFractionDigits: 2 }) %>
+                                <%= order.total ? order.total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : 'N/A' %>
                             </td>
                             <td class="right-align">
                                 <%= order.settlement_amount.toLocaleString(undefined, { minimumFractionDigits: 2,
